@@ -5,6 +5,9 @@
     <meta charset="UTF-8">
     <title>e-reservation</title>
     <meta name="description" content="">
+    <link rel="stylesheet" href="css/hiroki.css">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <script src="js/hiroki.js" defer></script>
 </head>
 
 <body>
@@ -13,12 +16,19 @@
         <h2>ログイン</h2>
         <form action="login-output.php" method="post">
             <div class="form-group">
-                <label for="email" class="form-label">メールアドレス</label>
-                <input type="email" id="email" class="form-control" placeholder="your@email.com" required>
+                <label for="name" class="form-label">名前</label>
+                <input type="text" id="name" name="name" class="form-control" placeholder="名前を入力" required>
+            </div>
+            <div class="form-group">
+                <label for="student_id" class="form-label">学生番号</label>
+                <input type="text" id="student_id" name="student_id" class="form-control" placeholder="学生番号または教員番号を入力" required>
             </div>
             <div class="form-group">
                 <label for="password" class="form-label">パスワード</label>
-                <input type="password" id="password" class="form-control" placeholder="パスワードを入力" required>
+                <div class="password-wrapper">
+                    <input type="password" id="password" name="password" class="form-control" placeholder="パスワードを入力" required>
+                    <button type="button" id="togglePassword" class="btn-toggle-password">表示</button>
+                </div>
             </div>
 
             <button type="submit" class="btn-login">ログイン</button>
