@@ -31,7 +31,7 @@
         </a>
         
         <!-- 画像にあるスマホ下部の黒いバー（インジケータ） -->
-        <div class="home-indicator"></div>
+        <!-- <div class="home-indicator"></div> -->
     </nav>
 </body>
 </html>
