@@ -12,8 +12,10 @@
 
 <body>
     <div class="login">
-        <h3>e-reservation</h3>
-        <h2>ログイン</h2>
+        <div class="header">
+            <p class="logo">e-reservation</p>
+            <h1>ログイン画面</h1>
+        </div>
         <form action="login-output.php" method="post">
             <div class="form-group">
                 <label for="name" class="form-label">名前</label>
@@ -33,7 +35,7 @@
 
             <button type="submit" class="btn-login">ログイン</button>
             <div class="new-account">
-                <a href="#">アカウントお持ちでない方</a>
+                <a href="account_create.php">アカウントお持ちでない方</a>
             </div>
         </form>
     </div>
