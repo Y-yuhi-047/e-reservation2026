@@ -1,49 +1,45 @@
 <?php
-// フッターで「プロフィール」をアクティブにするための設定
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+$username = $_SESSION['user']['name'] ?? '田中 太郎';
+$userAvatar = $_SESSION['user']['avatar'] ?? ''; // 保存された画像のパス
 $current_page = 'profile';
 ?>
 <!DOCTYPE html>
 <html lang="ja">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>プロフィール - e-reservation</title>
-
-    <!-- アイコン用のFont Awesome -->
+    <!-- アイコン用 Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
     <!-- 共通CSS -->
-    <link rel="stylesheet" href="css/style2.css">
+    <link rel="stylesheet" href="css/style2.css?v=14">
 </head>
-
 <body class="profile-page">
 
-    <!-- 共通ヘッダーの読み込み -->
+    <!-- 共通ヘッダー -->
     <?php require 'header.php'; ?>
 
-    <!-- メインコンテンツ -->
     <main class="main-container">
-
-        <!-- ユーザー情報カード -->
-        <div class="card user-card">
+        <!-- 1. ユーザー情報カード：クリックで編集モーダルが開きます -->
+        <div class="card user-card user-card-link" onclick="openModal();" style="cursor: pointer;">
             <div class="user-info">
                 <div class="avatar-icon">
-
-                    <!-- ▼ アバター画像（ファイル名に合わせて変更してください） -->
-                    <img src="images/user-icon.png" alt="ユーザーアイコン">
-
+                    <i id="profile-avatar-icon" class="fas fa-user" style="<?php echo !empty($userAvatar) ? 'display: none;' : ''; ?>"></i>
+                    <img id="profile-avatar-preview" src="<?php echo htmlspecialchars($userAvatar, ENT_QUOTES, 'UTF-8'); ?>" alt="ユーザーアイコン" style="<?php echo empty($userAvatar) ? 'display: none;' : ''; ?> width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
                 </div>
                 <div class="user-details">
-                    <h2></h2>
+                    <h2><?php echo htmlspecialchars($username, ENT_QUOTES, 'UTF-8'); ?></h2>
                     <span class="edit-link">プロフィール編集</span>
                 </div>
             </div>
             <i class="fas fa-chevron-right arrow-icon"></i>
         </div>
 
-        <!-- 自分の予約メニュー -->
-        <div class="card menu-card">
+        <!-- 2. 自分の予約メニュー -->
+        <a href="list.php" class="card simple-menu-item" style="text-decoration: none; color: inherit;">
             <div class="menu-left">
                 <div class="menu-icon green-bg">
                     <i class="fas fa-calendar-alt"></i>
@@ -51,20 +47,18 @@ $current_page = 'profile';
                 <span class="menu-text">自分の予約</span>
             </div>
             <i class="fas fa-chevron-right arrow-icon"></i>
-        </div>
+        </a>
 
-        <!-- ログアウトボタン -->
-        <button class="logout-btn">
+        <!-- 3. ログアウトボタン -->
+        <a href="logout.php" class="logout-btn" style="text-decoration: none;">
             <i class="fas fa-sign-out-alt"></i>
             <span>ログアウト</span>
-        </button>
+        </a>
 
-        <!-- 管理者用セクション -->
+        <!-- 4. 管理者用セクション -->
         <div class="section-title">管理者用</div>
-
-        <!-- 管理者メニューグループ -->
         <div class="card-group">
-            <div class="card menu-card inner-card">
+            <a href="user.php" class="card menu-card inner-card" style="text-decoration: none; color: inherit;">
                 <div class="menu-left">
                     <div class="menu-icon light-green-bg">
                         <i class="fas fa-users"></i>
@@ -75,9 +69,9 @@ $current_page = 'profile';
                     </div>
                 </div>
                 <i class="fas fa-chevron-right arrow-icon"></i>
-            </div>
+            </a>
 
-            <div class="card menu-card inner-card">
+            <a href="game_list.php" class="card menu-card inner-card" style="text-decoration: none; color: inherit;">
                 <div class="menu-left">
                     <div class="menu-icon light-green-bg">
                         <i class="fas fa-gamepad"></i>
@@ -88,14 +82,88 @@ $current_page = 'profile';
                     </div>
                 </div>
                 <i class="fas fa-chevron-right arrow-icon"></i>
-            </div>
+            </a>
         </div>
-
     </main>
 
-    <!-- 共通フッターの読み込み -->
+    <!-- ── プロフィール編集モーダル ── -->
+    <div id="profile-edit-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-title">プロフィール編集</span>
+                <button type="button" class="modal-close-btn" onclick="closeModal();"><i class="fas fa-times"></i></button>
+            </div>
+            
+            <form action="profile_update.php" method="POST" enctype="multipart/form-data">
+                <!-- アイコン編集エリア -->
+                <div class="edit-avatar-section">
+                    <label for="modal-avatar-input" class="edit-avatar-wrapper" style="cursor: pointer;">
+                        <div class="large-avatar">
+                            <i id="modal-avatar-icon" class="fas fa-user" style="<?php echo !empty($userAvatar) ? 'display: none;' : ''; ?>"></i>
+                            <img id="modal-avatar-preview" src="<?php echo htmlspecialchars($userAvatar, ENT_QUOTES, 'UTF-8'); ?>" alt="ユーザーアイコン" style="<?php echo empty($userAvatar) ? 'display: none;' : ''; ?> width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <div class="camera-badge">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                    </label>
+                    <input type="file" id="modal-avatar-input" name="avatar" accept="image/*" style="display: none;" onchange="previewModalEditImage(this);">
+                    <label for="modal-avatar-input" class="add-icon-text" style="cursor: pointer;">アイコンを追加</label>
+                </div>
+
+                <!-- ユーザー名入力欄 -->
+                <div class="form-group">
+                    <label for="modal-username" class="form-label">ユーザー名</label>
+                    <input type="text" id="modal-username" name="username" value="<?php echo htmlspecialchars($username, ENT_QUOTES, 'UTF-8'); ?>" class="form-input">
+                    <span class="form-hint">予約や利用者一覧に表示する名前です。</span>
+                </div>
+
+                <!-- 保存ボタン -->
+                <button type="submit" class="save-btn">変更を保存</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 共通フッター -->
     <?php require 'footer.php'; ?>
 
-</body>
+    <!-- モーダル開閉・画像プレビュー用JavaScript -->
+    <script>
+    function openModal() {
+        document.getElementById('profile-edit-modal').style.display = 'flex';
+    }
+    function closeModal() {
+        document.getElementById('profile-edit-modal').style.display = 'none';
+    }
+    
+    window.onclick = function(event) {
+        var modal = document.getElementById('profile-edit-modal');
+        if (event.target === modal) {
+            closeModal();
+        }
+    }
 
+    function previewModalEditImage(obj) {
+        if (obj.files && obj.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var modalPreview = document.getElementById('modal-avatar-preview');
+                var modalIcon = document.getElementById('modal-avatar-icon');
+                var pagePreview = document.getElementById('profile-avatar-preview');
+                var pageIcon = document.getElementById('profile-avatar-icon');
+
+                modalPreview.src = e.target.result;
+                modalPreview.style.display = 'block';
+                if (modalIcon) modalIcon.style.display = 'none';
+
+                if (pagePreview) {
+                    pagePreview.src = e.target.result;
+                    pagePreview.style.display = 'block';
+                }
+                if (pageIcon) pageIcon.style.display = 'none';
+            }
+            reader.readAsDataURL(obj.files[0]);
+        }
+    }
+    </script>
+</body>
 </html>

@@ -1,42 +1,46 @@
-/* --- モバイルヘッダーのデザイン（コンパクト版） --- */
+/* --- モバイルヘッダーのデザイン --- */
+.mobile-header,
+.sub-header,
+header, 
+.header {
+    background-color: #f6f8f7 !important;
+    box-shadow: none !important;
+    border-bottom: none !important;
+}
+
 .mobile-header {
     position: sticky;
     top: 0;
     left: 0;
     width: 100%;
-    height: 65px;          /* 高さをスリムに調整 */
-    background-color: #ffffff;
+    height: 65px;
     display: flex;
     align-items: center;
     padding: 0 16px;
-    border-bottom: 1px solid #eaeaea;
     box-sizing: border-box;
     z-index: 1000;
 }
 
-/* 画像と文字の横並び */
 .header-logo {
     display: flex;
     align-items: center;
-    gap: 10px;             /* アイコンと文字の間隔を少し狭く */
+    gap: 10px;
 }
 
-/* アイコンの枠 */
 .header-icon-dummy {
-    width: 36px;           /* アイコン枠のサイズを小さく */
+    width: 36px;
     height: 36px;
     background-color: #1b4d3e;
-    border-radius: 8px;    /* 角丸も少しスッキリ */
+    border-radius: 8px;
     display: flex;
     justify-content: center;
     align-items: center;
     color: #ffffff;
-    font-size: 18px;       /* 中のアイコンのサイズ */
+    font-size: 18px;
 }
 
-/* 「e-reservation」の文字 */
 .header-title {
-    font-size: 18px;       /* フォントサイズを程よい大きさに調整 */
+    font-size: 18px;
     font-weight: bold;
     color: #1a1a1a;
     letter-spacing: 0.5px;
@@ -94,12 +98,12 @@
     border-radius: 100px;
 }
 
-/* --- プロフィール画面全体の背景 --- */
+/* --- プロフィール画面全体のスタイル --- */
 body.profile-page {
-    background-color: #f7f9f8;
+    background-color: #f6f8f7;
     margin: 0;
-    padding-bottom: 90px; /* フッターに隠れないように下部に余白をあける */
-    font-family: sans-serif;
+    padding-bottom: 90px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 .main-container {
@@ -107,7 +111,7 @@ body.profile-page {
     box-sizing: border-box;
 }
 
-/* 共通カードデザイン */
+/* カードデザイン */
 .card {
     background-color: #ffffff;
     border-radius: 14px;
@@ -121,7 +125,6 @@ body.profile-page {
     cursor: pointer;
 }
 
-/* ユーザー情報カード */
 .user-card {
     padding: 20px 16px;
 }
@@ -132,25 +135,28 @@ body.profile-page {
     gap: 14px;
 }
 
-
-/* --- プロフィールアイコンのサイズ調整 --- */
+/* 丸型アバターアイコン */
 .avatar-icon {
-    width: 48px;
-    height: 48px;
-    background-color: #e8f2ee;
-    border-radius: 12px;
+    width: 56px;
+    height: 56px;
+    background-color: #e6f2ed;
+    color: #1b4d3e;
+    border-radius: 50% !important;
+    overflow: hidden !important;
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: hidden; /* 枠からはみ出た部分をきれいに隠す */
+    flex-shrink: 0;
+    font-size: 24px;
 }
 
-/* 枠の中に画像をピッタリ収める */
 .avatar-icon img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover; /* 画像が歪まないように枠いっぱいに収める */
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    border-radius: 50% !important;
 }
+
 .user-details h2 {
     margin: 0 0 4px 0;
     font-size: 18px;
@@ -162,7 +168,12 @@ body.profile-page {
     color: #1b4d3e;
 }
 
-/* メニューカード共通 */
+.simple-menu-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
 .menu-left {
     display: flex;
     align-items: center;
@@ -236,7 +247,7 @@ body.profile-page {
     box-sizing: border-box;
 }
 
-/* 管理者用セクション */
+/* 管理者セクション */
 .section-title {
     font-size: 13px;
     color: #888888;
@@ -247,9 +258,294 @@ body.profile-page {
 .card-group {
     display: flex;
     flex-direction: column;
-    gap: 8px; /* カード同士の間隔 */
+    gap: 8px;
 }
 
 .card-group .card {
     margin-bottom: 0;
+}
+
+/* --- モーダルポップアップのスタイル --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    padding: 16px;
+    box-sizing: border-box;
+}
+
+.modal-content {
+    background-color: #f6f8f7;
+    width: 100%;
+    max-width: 380px;
+    border-radius: 20px;
+    padding: 24px;
+    box-sizing: border-box;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    animation: modalFadeIn 0.2s ease-out;
+}
+
+@keyframes modalFadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.modal-title {
+    font-size: 17px;
+    font-weight: bold;
+    color: #1a1a1a;
+}
+
+.modal-close-btn {
+    background: none;
+    border: none;
+    font-size: 18px;
+    color: #888888;
+    cursor: pointer;
+    padding: 4px;
+}
+
+/* モーダル内のフォーム・アバター編集 */
+.edit-avatar-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px 0 24px 0;
+}
+
+.edit-avatar-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.large-avatar {
+    width: 90px;
+    height: 90px;
+    background-color: #e6f2ed;
+    color: #1b4d3e;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 38px;
+    overflow: hidden;
+}
+
+.camera-badge {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 30px;
+    height: 30px;
+    background-color: #1b4d3e;
+    color: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 12px;
+    border: 2px solid #f6f8f7;
+}
+
+.add-icon-text {
+    margin-top: 10px;
+    font-size: 13px;
+    color: #1b4d3e;
+    font-weight: bold;
+}
+
+.form-group {
+    margin-bottom: 24px;
+}
+
+.form-label {
+    display: block;
+    font-size: 14px;
+    font-weight: bold;
+    color: #1a1a1a;
+    margin-bottom: 8px;
+}
+
+.form-input {
+    width: 100%;
+    padding: 14px 16px;
+    font-size: 15px;
+    border: 1px solid #dce3e0;
+    border-radius: 12px;
+    background-color: #ffffff;
+    box-sizing: border-box;
+    outline: none;
+}
+
+.form-input:focus {
+    border-color: #2b7a62;
+}
+
+.form-hint {
+    display: block;
+    font-size: 12px;
+    color: #888888;
+    margin-top: 6px;
+}
+
+.save-btn {
+    width: 100%;
+    background-color: #2b7a62;
+    color: #ffffff;
+    border: none;
+    border-radius: 14px;
+    padding: 16px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    box-sizing: border-box;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(43, 122, 98, 0.15);
+}
+
+/* --- ゲーム管理画面・サブヘッダーの共通調整 --- */
+.sub-header {
+    background-color: #f6f8f7 !important;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: none !important;
+    box-shadow: none !important;
+}
+
+.sub-header-left {
+    display: flex;
+    align-items: center;
+}
+
+.sub-header-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #1a1a1a;
+    margin: 0;
+}
+
+/* 右上の「＋」追加ボタン */
+.add-game-btn {
+    width: 36px;
+    height: 36px;
+    background-color: #e6f2ed;
+    color: #1b4d3e;
+    border-radius: 50%;
+    border: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    font-size: 15px;
+}
+
+/* ゲームリスト行のレイアウト */
+.game-item-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 14px 16px;
+    box-sizing: border-box;
+}
+
+.game-item-row:not(:last-child) {
+    border-bottom: 1px solid #f0f2f1;
+}
+
+/* ゲーム削除ボタン */
+.game-delete-btn {
+    background-color: #fdf2f2;
+    color: #d9534f;
+    border: none;
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+body.profile-edit-page {
+    background-color: #f6f8f7 !important;
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.sub-header {
+    background-color: #f6f8f7 !important;
+    border-bottom: none !important;
+    box-shadow: none !important;
+}
+/* --- 見本に完全に合わせたヘッダーのスタイル --- */
+.sub-header {
+    background-color: #f6f8f7 !important;
+    height: 70px; /* 高さをしっかりと確保 */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px; /* 左右の余白を広げる */
+    border-bottom: none !important;
+    box-shadow: none !important;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-sizing: border-box;
+}
+
+.sub-header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* 戻るボタン（‹）のサイズ */
+.back-btn-custom {
+    color: #1a1a1a !important;
+    font-size: 30px !important; 
+    font-weight: 300 !important;
+    text-decoration: none !important;
+    display: flex !important;
+    align-items: center !important;
+    line-height: 1 !important;
+    padding: 0 !important;
+    margin-top: -4px !important; /* 文字と高さを完璧に合わせる微調整 */
+}
+
+/* 「ゲーム管理」の文字サイズ */
+.sub-header-title {
+    font-size: 19px;
+    font-weight: bold;
+    color: #1a1a1a;
+    margin: 0;
+    letter-spacing: -0.2px;
+}
+
+/* 右上の丸いプラスボタンのサイズ感 */
+.add-game-circle-btn {
+    width: 40px;
+    height: 40px;
+    background-color: #e6f2ed;
+    color: #1b4d3e;
+    border-radius: 50%;
+    border: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    font-size: 16px;
 }
