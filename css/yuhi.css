@@ -1,3 +1,4 @@
+/* ここからモーダルウィンドウ */
 /* モーダルを開くボタン */
 .modal-open{
   position: fixed;
@@ -84,3 +85,34 @@
 .modal-content p{
   margin: 1em 0;
 }
+/* ここまでモーダルウィンドウ */
+
+/* ここからカレンダーと予約のタイムライン */
+#calendar {
+    max-width: 900px;
+    margin: 20px auto;
+}
+
+#selected-date {
+    max-width: 900px;
+    margin: 30px auto 15px;
+}
+
+#reservation-timeline {
+    max-width: 900px;
+    margin: 0 auto 30px;
+}
+
+.reservation-item {
+    padding: 12px 16px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-left: 5px solid #4a90e2;
+    border-radius: 6px;
+    background: #fff;
+}
+
+.reservation-item p {
+    margin: 8px 0 0;
+}
+/* ここまでカレンダーと予約のタイムライン */
