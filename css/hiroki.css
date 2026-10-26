@@ -126,3 +126,382 @@ body {
 .btn-toggle-password:hover {
     text-decoration: underline;
 }
+
+
+/* account_create */
+
+
+
+.container {
+    background-color: #ffffff;
+    width: 100%;
+    max-width: 360px;
+    padding: 30px 24px;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.header .logo {
+    font-size: 18px;
+    font-weight: bold;
+    color: #0d6e5d;
+    margin: 0 0 10px 0;
+}
+
+.header h1 {
+    font-size: 22px;
+    text-align: center;
+    margin: 0 0 20px 0;
+    color: #333;
+}
+
+/* アイコン画像枠 */
+.icon-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.icon-preview {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background-color: #e6f2f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 40px;
+    overflow: hidden;
+    margin-bottom: 8px;
+    border: 1px solid #ccc;
+}
+
+.icon-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.btn-secondary {
+    background: none;
+    border: none;
+    color: #0d6e5d;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* 入力欄 */
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: bold;
+    margin-bottom: 6px;
+    color: #333;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+
+/* 送信ボタン */
+.btn {
+    width: 100%;
+    padding: 12px;
+    background-color: #0d6e5d;
+    color: white;
+    font-size: 15px;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 8px;
+}
+
+.btn:hover {
+    background-color: #0a5749;
+}
+
+.footer {
+    text-align: center;
+    margin-top: 24px;
+    font-size: 12px;
+    color: #666;
+}
+
+.footer a {
+    color: #0d6e5d;
+    font-weight: bold;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 4px;
+}
+
+
+/* 予約一覧 ここから*/
+
+/* 検索ボックス */
+.search-form-3 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    overflow: hidden;
+    border: 1px solid #777777;
+    border-radius: 3px;
+}
+
+.search-form-3 input {
+    width: 250px;
+    height: 45px;
+    padding: 5px 15px;
+    border: none;
+    box-sizing: border-box;
+    font-size: 1em;
+    outline: none;
+}
+
+.search-form-3 input::placeholder {
+    color: #777777;
+}
+
+.search-form-3 button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 50px;
+    height: 45px;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+}
+
+.search-form-3 button::after {
+    width: 24px;
+    height: 24px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z' fill='%23777777'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    content: '';
+}
+
+
+body.list-page {
+    display: block;
+    min-height: 100vh;
+    max-width: 480px;
+    /* スマホの幅。ここを変えれば幅を調整できる */
+    margin: 0 auto;
+    /* 左右の中央に置く */
+    padding: 0 0 90px 0;
+    /* 下だけフッター用に空ける */
+    box-sizing: border-box;
+    background-color: #f7f9f8;
+    font-family: sans-serif;
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+    /* 左右の境目を見やすくする影(いらなければ消す) */
+}
+
+
+
+/* ---------- ヘッダー ---------- */
+.list-page .header {
+    padding: 12px 16px;
+    background-color: #ffffff;
+    border-bottom: 2px solid #0d6e5d;
+}
+
+.list-page .header .logo {
+    margin: 0 0 4px 0;
+}
+
+.list-page .new-account {
+    color: #333;
+    font-size: 17px;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+/* ---------- 全体の余白 ---------- */
+.list-body {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 16px;
+}
+
+/* ---------- 検索欄 + 並び替えボタン ---------- */
+.search-area {
+    display: flex;
+    gap: 8px;
+}
+
+/* 元の .search-form-3 を、横いっぱいに広げて虫眼鏡を左に出す */
+.search-area .search-form-3 {
+    flex: 1;
+    flex-direction: row-reverse;
+    /* ボタン(虫眼鏡)を左側に */
+    background-color: #ffffff;
+}
+
+.search-area .search-form-3 label {
+    flex: 1;
+}
+
+.search-area .search-form-3 input {
+    width: 100%;
+    /* 元は250px固定だったので、幅いっぱいにする */
+}
+
+.sort-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0 12px;
+    border: 1px solid #777777;
+    border-radius: 3px;
+    background-color: #ffffff;
+    color: #333;
+    font-size: 13px;
+    font-weight: bold;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+/* 並び替えの上下矢印アイコン */
+.sort-btn::before {
+    width: 16px;
+    height: 16px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 4v16M7 4L3 8M7 4l4 4M17 20V4M17 20l-4-4M17 20l4-4'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-size: contain;
+    content: '';
+}
+
+/* ---------- 件数 と 並び順 ---------- */
+.list-info {
+    display: flex;
+    justify-content: space-between;
+    margin: 14px 2px 10px;
+    font-size: 12px;
+    color: #777777;
+}
+
+.list-body .res-card {
+    display: block;
+    /* 中身は上から下に縦に並ぶ */
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 12px;
+    padding: 16px;
+    background-color: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    color: #333;
+    text-decoration: none;
+}
+
+/* 1段目: 日付 と バッジ */
+.res-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.res-date {
+    font-size: 13px;
+    font-weight: bold;
+    color: #333;
+}
+
+.res-badge {
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: bold;
+    white-space: nowrap;
+    /* 「活動中」が縦に折れないように */
+}
+
+.res-badge-active {
+    background-color: #d9f0ea;
+    color: #0d6e5d;
+}
+
+.res-badge-booked {
+    background-color: #eceff1;
+    color: #607078;
+}
+
+/* 2段目: 時間 */
+.res-time {
+    margin: 8px 0 12px;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+/* 3段目: ゲームアイコン + ゲーム名 + 矢印 */
+.res-game {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.res-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+    /* アイコンが潰れないように */
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background-color: #e6f2f0;
+    font-size: 20px;
+    overflow: hidden;
+}
+
+/* DBのゲームアイコン画像(<img>)を枠いっぱいに表示する */
+.res-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.res-text {
+    flex: 1;
+    min-width: 0;
+    /* 文字が長くても枠からはみ出さないように */
+}
+
+.res-name {
+    margin: 0;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.res-sub {
+    margin: 2px 0 0;
+    font-size: 12px;
+    color: #777777;
+}
+
+.res-arrow {
+    flex-shrink: 0;
+    color: #999999;
+    font-size: 18px;
+}
+
+/* 4段目: 参加者 */
+.res-members {
+    margin: 10px 0 0;
+    font-size: 12px;
+    color: #777777;
+}
