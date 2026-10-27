@@ -1,6 +1,6 @@
 <?php require 'header.php'; ?>
 <?php
-
+$host = 'localhost';
 $port = '3306';
 $dbname = 'e-reservation';  //各グループのデータベース名
 $user = 'root';
@@ -8,6 +8,8 @@ $password = 'root';
 
 $dsn = "mysql:host={$host};port={$port};dbname={$dbname};charset=utf8mb4";
 $pdo = new PDO($dsn, $user, $password);
+
+$sql = "SELECT r* g.game_name, g.game_icon FROM reservation r JOIN game g ON r.game_id = g.game_id";
 ?>
 
 <!DOCTYPE html>
@@ -56,9 +58,24 @@ $pdo = new PDO($dsn, $user, $password);
 
 
         <?php foreach ($pdo->query('SELECT * FROM reservation') as $row): ?>
+
             <?php
             $start = strtotime($row['scheduled_start_time']);   // DATETIME → 数値に変える
+            // ゲーム: 予約の game_id を使って、game テーブルから1件取る
+            $game = $pdo->query("SELECT * FROM game WHERE game_id = {$row['game_id']}")->fetch();
+
+            // 席: seat_1〜seat_5 のうち、値が 1 の席の番号を集める
+            $seats = [];
+            for ($i = 1; $i <= 5; $i++) {
+                if ($row['seat_' . $i] == 1) {
+                    $seats[] = $i;
+                }
+            }
             ?>
+
+
+
+
             <a class="res-card" href="#">
                 <div class="res-top">
 
@@ -69,16 +86,29 @@ $pdo = new PDO($dsn, $user, $password);
                 </div>
 
                 <!-- 【DB】時間: scheduled_start_time - scheduled_end_time -->
-                <p class="res-time">15:30 - 18:00</p>
+                <p class="res-time">
+                    <?= date('H:i', $start) ?> - <?= date('H:i', strtotime($row['scheduled_end_time'])) ?>
+                </p>
 
                 <div class="res-game">
                     <!-- 【DB】ゲームアイコン: game.game_icon -->
-                    <span class="res-icon">🎮</span>
+
+                    <span class="res-icon">
+                        <?php if ($game['game_icon'] != ''): ?>
+                            <img src="<?= htmlspecialchars($game['game_icon']) ?>" alt="">
+                        <?php else: ?>
+                            🎮
+                        <?php endif; ?>
+                    </span>
+
+
+
+
                     <div class="res-text">
                         <!-- 【DB】ゲーム名: game.game_name -->
-                        <p class="res-name">エーペックス</p>
+                        <p class="res-name"><?= htmlspecialchars($game['game_name']) ?></p>
                         <!-- 【DB】席: seat_1〜seat_5 / 人数: user_reservation の件数 -->
-                        <p class="res-sub">1・2・3席 / 3人</p>
+                        <p class="res-sub"><?= implode('・', $seats) ?>席 / <?= count($seats) ?>人</p>
                     </div>
                     <span class="res-arrow">&gt;</span>
                 </div>
