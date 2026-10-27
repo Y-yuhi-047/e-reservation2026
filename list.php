@@ -9,7 +9,7 @@ $password = 'root';
 $dsn = "mysql:host={$host};port={$port};dbname={$dbname};charset=utf8mb4";
 $pdo = new PDO($dsn, $user, $password);
 
-$sql = "SELECT r* g.game_name, g.game_icon FROM reservation r JOIN game g ON r.game_id = g.game_id";
+$sql = "SELECT r.*, g.game_name, g.game_icon FROM reservation r JOIN game g ON r.game_id = g.game_id";
 ?>
 
 <!DOCTYPE html>
@@ -46,7 +46,7 @@ $sql = "SELECT r* g.game_name, g.game_icon FROM reservation r JOIN game g ON r.g
         <!-- 件数 と 並び順 -->
         <div class="list-info">
             <!-- 【DB】予約の件数(例: 2) -->
-            <span>すべての予約 2件</span>
+            <span>すべての予約 <?= $pdo->query('SELECT COUNT(*) FROM reservation')->fetchColumn() ?>件</span>
             <span>日時が近い順</span>
         </div>
 
@@ -55,7 +55,6 @@ $sql = "SELECT r* g.game_name, g.game_icon FROM reservation r JOIN game g ON r.g
             ▼ ここから「予約1件分」。DBの件数ぶん繰り返す(foreach)
             下の2枚は表示の見本。DBにつないだら1枚だけ残して繰り返す
             ===================================================== -->
-
 
         <?php foreach ($pdo->query('SELECT * FROM reservation') as $row): ?>
 
@@ -71,10 +70,20 @@ $sql = "SELECT r* g.game_name, g.game_icon FROM reservation r JOIN game g ON r.g
                     $seats[] = $i;
                 }
             }
+
+            // 取り出すのは、userテーブルの名前(user_name)だけ
+            // --参加の記録のテーブルを使う。ur は短い呼び名
+            // userテーブルをくっつける。u は短い呼び名(userは``で囲む)
+            // 学生番号が同じ行どうしをくっつける(学生番号 → 名前がわかる)
+            // その中から、今のカードの予約の分だけに絞る
+            $members = $pdo->query(
+                "SELECT u.user_name
+                FROM user_reservation ur
+                JOIN `user` u 
+                ON ur.student_number = u.student_number
+                WHERE ur.reservation_id = {$row['reservation_id']}"
+            )->fetchAll(PDO::FETCH_COLUMN);
             ?>
-
-
-
 
             <a class="res-card" href="#">
                 <div class="res-top">
@@ -101,9 +110,6 @@ $sql = "SELECT r* g.game_name, g.game_icon FROM reservation r JOIN game g ON r.g
                         <?php endif; ?>
                     </span>
 
-
-
-
                     <div class="res-text">
                         <!-- 【DB】ゲーム名: game.game_name -->
                         <p class="res-name"><?= htmlspecialchars($game['game_name']) ?></p>
@@ -114,7 +120,7 @@ $sql = "SELECT r* g.game_name, g.game_icon FROM reservation r JOIN game g ON r.g
                 </div>
 
                 <!-- 【DB】参加者名: user.user_name -->
-                <p class="res-members">山田 太郎、田中 一郎、中村 健</p>
+                <p class="res-members"><?= implode('、', $members) ?></p>
             </a>
         <?php endforeach; ?>
 
@@ -122,9 +128,7 @@ $sql = "SELECT r* g.game_name, g.game_icon FROM reservation r JOIN game g ON r.g
             予約カード ここまで
             ===================================================== -->
     </div>
-
 </body>
 
 </html>
-
 <?php require 'footer.php'; ?>
