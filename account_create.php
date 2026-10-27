@@ -1,3 +1,44 @@
+<?php
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $name = trim($_POST['name'] ?? '');
+    $imagePath = ''; // 画像パス用
+
+    // アイコン画像がアップロードされている場合
+    if (isset($_FILES['icon']) && $_FILES['icon']['error'] === UPLOAD_ERR_OK) {
+        $fileTmpPath = $_FILES['icon']['tmp_name'];
+        $fileName = $_FILES['icon']['name'];
+        
+        $uploadFileDir = 'uploads/';
+        if (!is_dir($uploadFileDir)) {
+            mkdir($uploadFileDir, 0755, true);
+        }
+        
+        $newFileName = 'user_' . md5(time() . $fileName) . '.' . pathinfo($fileName, PATHINFO_EXTENSION);
+        $dest_path = $uploadFileDir . $newFileName;
+
+        if (move_uploaded_file($fileTmpPath, $dest_path)) {
+            $imagePath = $dest_path; // 保存成功したらパスを格納
+        }
+    }
+
+    if ($name !== '') {
+        $initial = mb_substr($name, 0, 1, 'UTF-8');
+        $newId = count($_SESSION['users']) > 0 ? max(array_column($_SESSION['users'], 'id')) + 1 : 1;
+        
+        // 登録データに 'image' を追加
+        $_SESSION['users'][] = [
+            'id' => $newId,
+            'name' => $name,
+            'initial' => $initial,
+            'image' => $imagePath, // ← 画像パスを保存
+            'role' => '一般'
+        ];
+    }
+
+    header('Location: login-input.php');
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="ja">
 
@@ -18,29 +59,28 @@
             <h1>アカウント作成</h1>
         </div>
 
-        <form id="registerForm">
+        <!-- ① formタグに action と method を追加 -->
+        <form id="registerForm" action="account_create.php" method="POST">
 
             <!-- アイコン選択エリア -->
             <div class="icon-section">
                 <div class="icon-preview" id="iconPreview">
-                    <!-- <span id="iconPlaceholder">👤</span> -->
                     <img id="iconImage" src="images/初期設定アイコン.png" alt="アイコン">
                 </div>
                 <button type="button" id="selectIconBtn" class="btn-secondary">アイコンを追加</button>
-                <!-- ファイル選択の標準入力（画面上は隠す） -->
-                <input type="file" id="iconInput" accept="image/*" style="display: none;">
+                <input type="file" id="iconInput" name="icon" accept="image/*" style="display: none;">
             </div>
 
-            <!-- 名前 -->
+            <!-- 名前 (② name="name" を追加) -->
             <div class="form-group">
                 <label for="name">名前</label>
-                <input type="text" id="name" placeholder="山田 太郎" required>
+                <input type="text" id="name" name="name" placeholder="山田 太郎" required>
             </div>
 
             <!-- 学生番号 -->
             <div class="form-group">
                 <label for="studentId">学生番号</label>
-                <input type="text" id="studentId" placeholder="学生番号か教員番号" required>
+                <input type="text" id="studentId" name="student_id" placeholder="学生番号か教員番号" required>
             </div>
 
             <!-- パスワード -->
@@ -52,9 +92,8 @@
                 </div>
             </div>
 
-
             <!-- 作成ボタン -->
-            <button type="submit" class="btn" href="login-input.php">アカウントを作成</button>
+            <button type="submit" class="btn">アカウントを作成</button>
         </form>
 
         <div class="footer">
