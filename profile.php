@@ -50,7 +50,7 @@ $current_page = 'profile';
         </a>
 
         <!-- 3. ログアウトボタン -->
-        <a href="logout.php" class="logout-btn" style="text-decoration: none;">
+        <a href="logout.php" class="logout-btn" onclick="return confirm('本当にログアウトしますか？');" style="text-decoration: none;">
             <i class="fas fa-sign-out-alt"></i>
             <span>ログアウト</span>
         </a>

@@ -3,8 +3,14 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// セッションにゲームリストがなければ空の配列で初期化
+if (!isset($_SESSION['games'])) {
+    $_SESSION['games'] = [];
+}
+
 // POST送信された場合の処理（追加・削除）
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // 1. ゲーム追加処理
     if (isset($_POST['action']) && $_POST['action'] === 'add') {
         $gameName = trim($_POST['game_name'] ?? '');
         $imagePath = '';
@@ -38,6 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
     
+    // 2. ゲーム削除処理
     if (isset($_POST['action']) && $_POST['action'] === 'delete') {
         $deleteId = intval($_POST['game_id'] ?? 0);
         $_SESSION['games'] = array_values(array_filter($_SESSION['games'], function($g) use ($deleteId) {
@@ -49,6 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $games = $_SESSION['games'];
+$current_page = 'profile';
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -57,8 +65,11 @@ $games = $_SESSION['games'];
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ゲーム管理 - e-reservation</title>
     
+    <!-- アイコン用 Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="css/style2.css">
+    
+    <!-- 共通CSS -->
+    <link rel="stylesheet" href="css/style2.css?v=25">
 </head>
 <body class="profile-edit-page">
 
@@ -74,23 +85,26 @@ $games = $_SESSION['games'];
     </header>
 
     <!-- メインコンテンツ -->
-    <main class="main-container">
+    <main class="main-container" style="padding-bottom: 90px;">
         
+        <!-- セクションタイトルと件数 -->
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 0 4px;">
             <span style="font-size: 13px; font-weight: bold; color: #888888;">登録ゲーム</span>
             <span style="font-size: 13px; color: #888888;"><?php echo count($games); ?>件</span>
         </div>
 
+        <!-- ゲームリストを囲むカード -->
         <div class="card" style="display: flex; flex-direction: column; padding: 0; overflow: hidden; margin-bottom: 16px;">
             <?php if (empty($games)): ?>
-                <div style="padding: 20px; text-align: center; color: #888888; font-size: 14px;">
+                <div style="padding: 24px 16px; text-align: center; color: #888888; font-size: 14px; width: 100%; box-sizing: border-box;">
                     登録されているゲームはありません。
                 </div>
             <?php else: ?>
                 <?php foreach ($games as $game): ?>
                     <div class="game-item-row">
+                        <!-- 左側：アイコン ＋ ゲーム名 -->
                         <div style="display: flex; align-items: center; gap: 14px;">
-                            <div class="menu-icon green-bg" style="width: 40px; height: 40px; background-color: #e8f2ee; color: #1b4d3e; border-radius: 10px; display: flex; justify-content: center; align-items: center; font-size: 18px; overflow: hidden;">
+                            <div class="menu-icon green-bg" style="width: 40px; height: 40px; background-color: #e8f2ee; color: #1b4d3e; border-radius: 10px; display: flex; justify-content: center; align-items: center; font-size: 18px; overflow: hidden; flex-shrink: 0;">
                                 <?php if (!empty($game['image'])): ?>
                                     <img src="<?php echo htmlspecialchars($game['image'], ENT_QUOTES, 'UTF-8'); ?>" alt="" style="width: 100%; height: 100%; object-fit: cover;">
                                 <?php else: ?>
@@ -102,6 +116,7 @@ $games = $_SESSION['games'];
                             </span>
                         </div>
 
+                        <!-- 右側：削除ボタン -->
                         <form action="game_list.php" method="POST" onsubmit="return confirm('本当に削除しますか？');" style="margin: 0;">
                             <input type="hidden" name="action" value="delete">
                             <input type="hidden" name="game_id" value="<?php echo $game['id']; ?>">
@@ -112,6 +127,7 @@ $games = $_SESSION['games'];
             <?php endif; ?>
         </div>
 
+        <!-- 下部の注意書き -->
         <div style="display: flex; align-items: center; gap: 6px; padding: 0 4px; color: #888888; font-size: 12px;">
             <i class="fas fa-info-circle"></i>
             <span>右上の＋からゲームを追加できます。</span>
@@ -130,6 +146,7 @@ $games = $_SESSION['games'];
             <form action="game_list.php" method="POST" enctype="multipart/form-data">
                 <input type="hidden" name="action" value="add">
                 
+                <!-- アイコン選択エリア -->
                 <div class="edit-avatar-section" style="margin: 16px 0 20px 0;">
                     <label for="modal-game-image-input" class="edit-avatar-wrapper" style="cursor: pointer;">
                         <div class="large-avatar" style="width: 75px; height: 75px; border-radius: 14px;">
@@ -144,6 +161,7 @@ $games = $_SESSION['games'];
                     <label for="modal-game-image-input" class="add-icon-text" style="cursor: pointer; font-size: 12px; margin-top: 6px;">アイコン画像を選択</label>
                 </div>
 
+                <!-- ゲーム名入力欄 -->
                 <div class="form-group" style="margin-bottom: 20px;">
                     <label for="game_name" class="form-label">ゲーム名</label>
                     <input type="text" id="game_name" name="game_name" placeholder="例: VALORANT" required class="form-input" autocomplete="off">
@@ -154,13 +172,25 @@ $games = $_SESSION['games'];
         </div>
     </div>
 
+
+    <!-- モーダル開閉・画像プレビュー用JavaScript -->
     <script>
     function openGameModal() {
-        document.getElementById('game-add-modal').style.display = 'flex';
-        document.getElementById('game_name').focus();
+        var modal = document.getElementById('game-add-modal');
+        if (modal) {
+            modal.style.display = 'flex';
+            var input = document.getElementById('game_name');
+            if (input) {
+                input.focus();
+            }
+        }
     }
+
     function closeGameModal() {
-        document.getElementById('game-add-modal').style.display = 'none';
+        var modal = document.getElementById('game-add-modal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
     }
     
     window.onclick = function(event) {
@@ -177,9 +207,13 @@ $games = $_SESSION['games'];
                 var preview = document.getElementById('modal-game-preview');
                 var icon = document.getElementById('modal-game-icon');
 
-                preview.src = e.target.result;
-                preview.style.display = 'block';
-                if (icon) icon.style.display = 'none';
+                if (preview) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                }
+                if (icon) {
+                    icon.style.display = 'none';
+                }
             }
             reader.readAsDataURL(obj.files[0]);
         }
