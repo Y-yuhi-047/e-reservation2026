@@ -1,3 +1,12 @@
+body{
+    padding-bottom: 70px;
+}
+
+.wrapper{
+    min-height: 100vh;
+    position: relative;
+}
+
 /* ここからモーダルウィンドウ */
 /* モーダルを開くボタン */
 .modal-open{
@@ -30,6 +39,7 @@
   visibility: hidden;
   transition: .3s;
   box-sizing: border-box;
+  z-index: 1000;
 }
 
 /* モーダルの擬似要素の指定 */
@@ -79,6 +89,7 @@
   line-height: 1.8;
   padding: 20px;
   border-radius: 5%;
+ 
 }
 
 /* モーダルのコンテンツ部分のテキストの指定 */
@@ -91,19 +102,34 @@
 #calendar {
     max-width: 900px;
     margin: 20px auto;
+    /* height: 50vh; */
+    min-height: 260px;
+    margin: auto;
 }
 
 #selected-date {
     max-width: 900px;
-    margin: 30px auto 15px;
+    margin: 10px auto 8px;
+    font-size: 16px;
 }
 
 #reservation-timeline {
     max-width: 900px;
-    margin: 0 auto 30px;
+    margin: 10px auto 8px;
+    font-size: 16px;
 }
 
-.reservation-item {
+/* 日付の数字まわりの余白を小さく */
+#calendar .ec-day-head,
+#calendar .ec-day {
+    font-size: 13px;
+}
+
+#calendar .ec-toolbar {
+    margin-bottom: 4px;
+}
+
+/* .reservation-item {
     padding: 12px 16px;
     margin-bottom: 10px;
     border: 1px solid #ddd;
@@ -114,5 +140,109 @@
 
 .reservation-item p {
     margin: 8px 0 0;
+} */
+
+/* ここからタイムライン表 */
+.timeline-scroll {
+    overflow-x: auto;
+    border: 1px solid #e3e8ef;
+    border-radius: 10px;
+    background: #fff;
 }
+
+.timeline-table {
+    width: max-content;
+    min-width: 100%;
+}
+
+.timeline-row {
+    display: flex;
+    border-bottom: 1px solid #e3e8ef;
+}
+
+.timeline-row:last-child {
+    border-bottom: none;
+}
+
+/* 左の席番号(横スクロールしても固定) */
+.timeline-seat {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    flex: 0 0 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    font-weight: bold;
+    background: #f5f7fb;
+    border-right: 1px solid #e3e8ef;
+    box-sizing: border-box;
+}
+
+.timeline-track {
+    position: relative;
+    display: flex;
+    flex: 0 0 var(--track-width);
+    height: 40px;
+}
+
+.timeline-cell {
+    flex: 0 0 var(--hour-width);
+    height: 100%;
+    border-left: 1px solid #e3e8ef;
+    box-sizing: border-box;
+}
+
+/* ヘッダー(時刻) */
+.timeline-header .timeline-seat,
+.timeline-header .timeline-track {
+    height: 32px;
+    font-size: 13px;
+    background: #f5f7fb;
+}
+
+.timeline-header .timeline-track {
+    display: flex;
+}
+
+.timeline-hour {
+    flex: 0 0 var(--hour-width);
+    display: flex;
+    align-items: center;
+    padding-left: 6px;
+    box-sizing: border-box;
+    border-left: 1px solid #e3e8ef;
+}
+
+/* 1時間ごとの縦線 */
+.timeline-grid {
+    background-image: repeating-linear-gradient(
+        to right,
+        #e3e8ef 0,
+        #e3e8ef 1px,
+        transparent 1px,
+        transparent var(--hour-width)
+    );
+}
+
+/* 予約の帯 */
+.timeline-bar {
+    position: absolute;
+    top: 5px;
+    height: 30px;
+    padding: 0 10px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    white-space: nowrap;
+    box-sizing: border-box;
+    border-left: 4px solid #0f7b6c;
+    border-radius: 6px;
+    background: #e3f2ee;
+    color: #0f5c50;
+    font-size: 13px;
+    cursor: pointer;
+}
+/* ここまでタイムライン表 */
 /* ここまでカレンダーと予約のタイムライン */
