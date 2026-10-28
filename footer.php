@@ -13,6 +13,7 @@ $current_page = $current_page ?? '';
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <link rel="stylesheet" href="css/style2.css">
+    <link rel="stylesheet" href="css/yuhi.css">
 </head>
 <nav class="mobile-footer">
     <!-- ホーム -->
@@ -22,10 +23,10 @@ $current_page = $current_page ?? '';
     </a>
 
     <!-- 新規予約 -->
-    <a href="create.php" class="footer-item <?php echo ($current_page === 'create') ? 'active' : ''; ?>">
+    <button class="footer-item modal-open js-modal-open <?php echo ($current_page === 'create') ? 'active' : ''; ?>">
         <i class="fas fa-plus-circle" style="font-size: 20px; margin-bottom: 4px;"></i>
         <span>新規予約</span>
-    </a>
+    </button>
 
     <!-- 予約一覧 -->
     <a href="list.php" class="footer-item <?php echo ($current_page === 'list') ? 'active' : ''; ?>">
@@ -40,5 +41,5 @@ $current_page = $current_page ?? '';
     </a>
 
     <!-- iPhoneのホームインジケータ（バー） -->
-    <div class="home-indicator"></div>
+    <!-- <div class="home-indicator"></div> -->
 </nav>

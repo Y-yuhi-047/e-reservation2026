@@ -1,4 +1,4 @@
-console.error("テスト：script.jsを実行しています");
+console.log("テスト：script.jsを実行しています");
 // ここからモーダルウィンドウ
 //要素を取得
 const modal = document.querySelector('.js-modal'),

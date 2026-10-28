@@ -16,8 +16,8 @@
         <script src="js/script.js" defer></script>
     </head>
     <body>
+        <?php require 'header.php'?>
         <div class="wrapper">
-            <?php require 'header.php'?>
             
             <!-- 月間カレンダーの表示場所 -->
             <div id="calendar"></div>
@@ -29,7 +29,7 @@
             <div id="reservation-timeline"></div>
 
             <!-- モーダルを開くボタン -->
-            <button class="modal-open js-modal-open">モーダルを開く</button>
+            <!-- <button class="modal-open js-modal-open">モーダルを開く</button> -->
             <!-- 新規予約モーダル本体 -->
             <div class="modal js-modal">
                 <div class="modal-container">
@@ -107,8 +107,8 @@
                         </div>
                     </div>
                 </div>
+        </div>
             <!-- 新規詳細モーダル本体ここまで -->
             <?php require 'footer.php'?>
-        </div>
     </body>
 </html>
