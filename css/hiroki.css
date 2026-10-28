@@ -440,6 +440,11 @@ body.list-page {
     color: #607078;
 }
 
+.res-badge-ended {
+    background-color: #f1f1f1;
+    color: #999999;
+}
+
 /* 2段目: 時間 */
 .res-time {
     margin: 8px 0 12px;
