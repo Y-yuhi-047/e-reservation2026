@@ -3,7 +3,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// セッションにユーザーリストがまだない場合、初期の仮データをセット（imageキーを追加）
+// セッションにユーザーリストがまだない場合（仮データを無くす場合は [] にしてください）
 if (!isset($_SESSION['users'])) {
     $_SESSION['users'] = [
         ['id' => 1, 'name' => '山田 太郎', 'initial' => '山', 'role' => '管理者', 'image' => ''],
@@ -16,7 +16,6 @@ if (!isset($_SESSION['users'])) {
 
 // POST送信された場合の処理（削除・パスワードリセット）
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // 1. ユーザー削除処理
     if (isset($_POST['action']) && $_POST['action'] === 'delete') {
         $deleteId = intval($_POST['user_id'] ?? 0);
         $_SESSION['users'] = array_values(array_filter($_SESSION['users'], function($u) use ($deleteId) {
@@ -26,7 +25,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
     
-    // 2. パスワードリセット処理
     if (isset($_POST['action']) && $_POST['action'] === 'reset_password') {
         $_SESSION['flash_message'] = 'パスワードをリセットしました。';
         header('Location: user.php');
@@ -35,8 +33,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $users = $_SESSION['users'];
-$current_page = 'profile';
 
+// 検索キーワードの取得と絞り込み処理
+$keyword = trim($_GET['keyword'] ?? '');
+if ($keyword !== '') {
+    $users = array_values(array_filter($users, function($u) use ($keyword) {
+        return mb_stripos($u['name'], $keyword) !== false;
+    }));
+}
+
+// 並び替え（ソート）処理
+$sort = $_GET['sort'] ?? 'new';
+if ($sort === 'old') {
+    usort($users, function($a, $b) {
+        return $a['id'] <=> $b['id'];
+    });
+} elseif ($sort === 'name') {
+    usort($users, function($a, $b) {
+        return strcmp($a['name'], $b['name']);
+    });
+} else {
+    usort($users, function($a, $b) {
+        return $b['id'] <=> $a['id'];
+    });
+}
+
+$current_page = 'profile';
 $flash_message = $_SESSION['flash_message'] ?? '';
 unset($_SESSION['flash_message']);
 ?>
@@ -51,7 +73,7 @@ unset($_SESSION['flash_message']);
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- 共通CSS -->
-    <link rel="stylesheet" href="css/style2.css?v=34">
+    <link rel="stylesheet" href="css/style2.css?v=10">
 </head>
 <body class="profile-edit-page">
 
@@ -64,63 +86,84 @@ unset($_SESSION['flash_message']);
     </header>
 
     <!-- メインコンテンツ -->
-    <main class="main-container" style="padding-bottom: 90px;">
+    <main class="main-container user-main-container">
         
         <?php if (!empty($flash_message)): ?>
-            <div style="background-color: #e8f2ee; color: #1b4d3e; padding: 10px 16px; border-radius: 10px; margin-bottom: 12px; font-size: 13px; font-weight: bold; text-align: center;">
+            <div class="flash-message-box">
                 <?php echo htmlspecialchars($flash_message, ENT_QUOTES, 'UTF-8'); ?>
             </div>
         <?php endif; ?>
 
-        <!-- セクションタイトルと件数 -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 0 4px;">
-            <span style="font-size: 13px; font-weight: bold; color: #888888;">登録ユーザー</span>
-            <span style="font-size: 13px; color: #888888;"><?php echo count($users); ?>人</span>
+        <!-- 検索窓 -->
+        <form action="user.php" method="GET" class="user-search-form">
+            <input type="text" name="keyword" value="<?php echo htmlspecialchars($keyword, ENT_QUOTES, 'UTF-8'); ?>" placeholder="ユーザー名で検索..." class="user-search-input">
+            <?php if ($sort !== 'new'): ?>
+                <input type="hidden" name="sort" value="<?php echo htmlspecialchars($sort, ENT_QUOTES, 'UTF-8'); ?>">
+            <?php endif; ?>
+            <button type="submit" class="user-search-btn">検索</button>
+        </form>
+
+        <!-- セクションタイトル（左） ＆ 並び替えプルダウン（右） -->
+        <div class="user-section-header">
+            <div class="user-section-title-group">
+                <span class="user-section-label">登録ユーザー</span>
+                <span class="user-section-count"><?php echo count($users); ?>人</span>
+            </div>
+
+            <!-- 並び替えフォーム -->
+            <form action="user.php" method="GET" id="sortForm" class="user-sort-form">
+                <?php if ($keyword !== ''): ?>
+                    <input type="hidden" name="keyword" value="<?php echo htmlspecialchars($keyword, ENT_QUOTES, 'UTF-8'); ?>">
+                <?php endif; ?>
+                <label for="sort" class="user-sort-label">並び順:</label>
+                <select name="sort" id="sort" onchange="this.form.submit()" class="user-sort-select">
+                    <option value="new" <?php echo ($sort === 'new') ? 'selected' : ''; ?>>新しい順</option>
+                    <option value="old" <?php echo ($sort === 'old') ? 'selected' : ''; ?>>古い順</option>
+                    <option value="name" <?php echo ($sort === 'name') ? 'selected' : ''; ?>>名前順</option>
+                </select>
+            </form>
         </div>
 
         <!-- ユーザーリストを囲むカード -->
-        <div class="card" style="display: flex; flex-direction: column; padding: 0; overflow: hidden; margin-bottom: 16px;">
+        <div class="card user-card-list">
             <?php if (empty($users)): ?>
-                <div style="padding: 24px 16px; text-align: center; color: #888888; font-size: 14px; width: 100%; box-sizing: border-box;">
-                    登録されているユーザーはありません。
+                <div class="user-empty-text">
+                    該当するユーザーはありません。
                 </div>
             <?php else: ?>
                 <?php foreach ($users as $user): ?>
-                    <div style="display: flex; flex-direction: column; width: 100%; padding: 16px; box-sizing: border-box; border-bottom: 1px solid #f0f2f1;">
+                    <div class="user-item">
                         
                         <!-- 上段：アイコン、名前、権限 -->
-                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
-                            <div style="display: flex; align-items: center; gap: 14px;">
-                                <!-- アイコン部分（設定画像があれば画像、なければ頭文字を表示） -->
-                                <div style="width: 40px; height: 40px; background-color: #e8f2ee; color: #1b4d3e; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 16px; font-weight: bold; flex-shrink: 0; overflow: hidden;">
+                        <div class="user-item-top">
+                            <div class="user-info-group">
+                                <div class="user-avatar">
                                     <?php if (!empty($user['image'])): ?>
-                                        <img src="<?php echo htmlspecialchars($user['image'], ENT_QUOTES, 'UTF-8'); ?>" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+                                        <img src="<?php echo htmlspecialchars($user['image'], ENT_QUOTES, 'UTF-8'); ?>" alt="">
                                     <?php else: ?>
                                         <?php echo htmlspecialchars($user['initial'], ENT_QUOTES, 'UTF-8'); ?>
                                     <?php endif; ?>
                                 </div>
-                                <span style="font-size: 15px; font-weight: bold; color: #1a1a1a;">
+                                <span class="user-name">
                                     <?php echo htmlspecialchars($user['name'], ENT_QUOTES, 'UTF-8'); ?>
                                 </span>
                             </div>
-                            <span style="font-size: 12px; color: #888888;">
+                            <span class="user-role">
                                 <?php echo htmlspecialchars($user['role'], ENT_QUOTES, 'UTF-8'); ?>
                             </span>
                         </div>
 
                         <!-- 下段：操作ボタン（パスワードリセット ＆ 削除） -->
-                        <div style="display: flex; align-items: center; gap: 8px; padding-left: 54px;">
-                            <!-- パスワードリセットボタン -->
-                            <form action="user.php" method="POST" onsubmit="return confirm('<?php echo htmlspecialchars($user['name'], ENT_QUOTES, 'UTF-8'); ?>さんのパスワードをリセットしますか？');" style="margin: 0;">
+                        <div class="user-actions">
+                            <form action="user.php" method="POST" onsubmit="return confirm('<?php echo htmlspecialchars($user['name'], ENT_QUOTES, 'UTF-8'); ?>さんのパスワードをリセットしますか？');" class="user-inline-form">
                                 <input type="hidden" name="action" value="reset_password">
                                 <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
-                                <button type="submit" style="background-color: #ffffff; color: #1b4d3e; border: 1px solid #dce3e0; border-radius: 8px; padding: 6px 12px; font-size: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 6px;">
-                                    <i class="fas fa-key" style="font-size: 11px;"></i> パスワードリセット
+                                <button type="submit" class="user-btn-reset">
+                                    <i class="fas fa-key"></i> パスワードリセット
                                 </button>
                             </form>
 
-                            <!-- 削除ボタン -->
-                            <form action="user.php" method="POST" onsubmit="return confirm('本当に <?php echo htmlspecialchars($user['name'], ENT_QUOTES, 'UTF-8'); ?> さんを削除しますか？');" style="margin: 0;">
+                            <form action="user.php" method="POST" onsubmit="return confirm('本当に <?php echo htmlspecialchars($user['name'], ENT_QUOTES, 'UTF-8'); ?> さんを削除しますか？');" class="user-inline-form">
                                 <input type="hidden" name="action" value="delete">
                                 <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
                                 <button type="submit" class="game-delete-btn">削除</button>
@@ -133,7 +176,7 @@ unset($_SESSION['flash_message']);
         </div>
 
         <!-- 下部の注意書き -->
-        <div style="display: flex; align-items: center; gap: 6px; padding: 0 4px; color: #888888; font-size: 12px;">
+        <div class="user-footer-notice">
             <i class="fas fa-shield-alt"></i>
             <span>ユーザーのパスワードリセット・削除を行えます。</span>
         </div>
