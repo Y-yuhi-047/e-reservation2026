@@ -1,15 +1,24 @@
-body{
-    padding-bottom: 70px;
+:root {
+    --footer-height: 70px;   /* footer.php の実際の高さに合わせる */
 }
 
-.wrapper{
-    min-height: 100vh;
-    position: relative;
+html, body {
+    height: 100%;
+    margin: 0;
 }
 
+body {
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;                      
+    /*dvhはビューポートのサイズが動的に変化するのに合わせて、単位の値も変化 */
+    padding-bottom: var(--footer-height);
+    box-sizing: border-box;
+    overflow: hidden;                    /* ページ全体はスクロールさせない */
+}
 /* ここからモーダルウィンドウ */
-/* モーダルを開くボタン */
-.modal-open{
+/* モーダルを開くボタン style2.cssの方で指定するように変更した*/
+/* .modal-open{
   position: fixed;
   top: 50%;
   left: 50%;
@@ -22,7 +31,7 @@ body{
   border: none;
   cursor: pointer;
   translate: -50% -50%;
-}
+} */
 
 /* モーダルと背景の指定 */
 .modal{
@@ -88,7 +97,7 @@ body{
   text-align: left;
   line-height: 1.8;
   padding: 20px;
-  border-radius: 5%;
+  border-radius: 20px;
  
 }
 
@@ -99,24 +108,32 @@ body{
 /* ここまでモーダルウィンドウ */
 
 /* ここからカレンダーと予約のタイムライン */
+/* カレンダー:残りの高さの 55% */
 #calendar {
+    flex: 55 1 0;
+    min-height: 0;          /* ← これが無いと縮まない */
+    width: 100%;
     max-width: 900px;
-    margin: 20px auto;
-    /* height: 50vh; */
-    min-height: 260px;
-    margin: auto;
+    margin: 4px auto;
 }
 
+/* 日付の見出し:自分の高さだけ */
 #selected-date {
+    flex: 0 0 auto;
+    width: 100%;
     max-width: 900px;
-    margin: 10px auto 8px;
+    margin: 6px auto 4px;
     font-size: 16px;
+    box-sizing: border-box;
 }
 
+/* タイムライン:残りの高さの 45% */
 #reservation-timeline {
+    flex: 45 1 0;
+    min-height: 0;
+    width: 100%;
     max-width: 900px;
-    margin: 10px auto 8px;
-    font-size: 16px;
+    margin: 0 auto 4px;
 }
 
 /* 日付の数字まわりの余白を小さく */
@@ -246,3 +263,17 @@ body{
 }
 /* ここまでタイムライン表 */
 /* ここまでカレンダーと予約のタイムライン */
+
+/* 画面が極端に小さいときだけスクロールを許可するため */
+@media (max-height: 800px) {
+    body {
+        height: auto;
+        overflow: auto;
+    }
+    #calendar {
+        flex: 0 0 280px;
+    }
+    #reservation-timeline {
+        flex: 0 0 220px;
+    }
+}
