@@ -57,7 +57,7 @@ $reservations = $stmt->fetchAll();
 <body class="list-page">
 
     <div class="header">
-        <a class="new-account" href="#">&lt; 予約一覧</a>
+        <a class="new-account" href="javascript:history.back()">&lt; 予約一覧</a>
     </div>
 
     <div class="list-body">
