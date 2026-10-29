@@ -1,7 +1,7 @@
 /* --- モバイルヘッダーのデザイン --- */
 .mobile-header,
 .sub-header,
-header, 
+header,
 .header {
     background-color: #f6f8f7 !important;
     box-shadow: none !important;
@@ -99,8 +99,8 @@ header,
 }
 
 /* 新規予約をモーダルウィンドウで開くために追加しやした */
-.mobile-footer button{
-     background: transparent;
+.mobile-footer button {
+    background: transparent;
     border: none;
     /* outline: none; */
     box-shadow: none;
@@ -301,8 +301,15 @@ body.profile-page {
 }
 
 @keyframes modalFadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .modal-header {
@@ -499,14 +506,17 @@ body.profile-edit-page {
     border-bottom: none !important;
     box-shadow: none !important;
 }
+
 /* --- 見本に完全に合わせたヘッダーのスタイル --- */
 .sub-header {
     background-color: #f6f8f7 !important;
-    height: 70px; /* 高さをしっかりと確保 */
+    height: 70px;
+    /* 高さをしっかりと確保 */
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 20px; /* 左右の余白を広げる */
+    padding: 0 20px;
+    /* 左右の余白を広げる */
     border-bottom: none !important;
     box-shadow: none !important;
     position: sticky;
@@ -524,14 +534,15 @@ body.profile-edit-page {
 /* 戻るボタン（‹）のサイズ */
 .back-btn-custom {
     color: #1a1a1a !important;
-    font-size: 30px !important; 
+    font-size: 30px !important;
     font-weight: 300 !important;
     text-decoration: none !important;
     display: flex !important;
     align-items: center !important;
     line-height: 1 !important;
     padding: 0 !important;
-    margin-top: -4px !important; /* 文字と高さを完璧に合わせる微調整 */
+    margin-top: -4px !important;
+    /* 文字と高さを完璧に合わせる微調整 */
 }
 
 /* 「ゲーム管理」の文字サイズ */
@@ -560,7 +571,7 @@ body.profile-edit-page {
 
 
 /* ==========================================
-   ユーザー管理画面用スタイル
+    ユーザー管理画面用スタイル
    ================================---------- */
 .user-main-container {
     padding-bottom: 90px;
@@ -612,6 +623,12 @@ body.profile-edit-page {
     padding: 0 4px;
 }
 
+.user-section-title-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
 .user-section-label,
 .user-section-count {
     font-size: 13px;
@@ -620,6 +637,64 @@ body.profile-edit-page {
 
 .user-section-label {
     font-weight: bold;
+}
+
+/* アイコン付き並び替えボタンとメニューのスタイル */
+.user-sort-dropdown {
+    position: relative;
+}
+
+.user-sort-toggle-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background-color: #ffffff;
+    color: #1b4d3e;
+    border: 1px solid #dce3e0;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.user-sort-toggle-btn:hover {
+    background-color: #e8f2ee;
+}
+
+.user-sort-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: calc(100% + 6px);
+    background-color: #ffffff;
+    border: 1px solid #dce3e0;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    z-index: 100;
+    min-width: 110px;
+    overflow: hidden;
+}
+
+.user-sort-menu a {
+    display: block;
+    padding: 8px 14px;
+    font-size: 12px;
+    color: #1a1a1a;
+    text-decoration: none;
+    transition: background-color 0.2s;
+}
+
+.user-sort-menu a:hover {
+    background-color: #e8f2ee;
+    color: #1b4d3e;
+}
+
+.user-sort-menu a.active {
+    font-weight: bold;
+    color: #1b4d3e;
+    background-color: #f0f5f3;
 }
 
 .user-card-list {
@@ -725,33 +800,4 @@ body.profile-edit-page {
     padding: 0 4px;
     color: #888888;
     font-size: 12px;
-}
-
-/* 並び替えフォームのデザイン */
-.user-section-title-group {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.user-sort-form {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin: 0;
-}
-
-.user-sort-label {
-    font-size: 12px;
-    color: #888888;
-}
-
-.user-sort-select {
-    padding: 4px 8px;
-    border: 1px solid #dce3e0;
-    border-radius: 6px;
-    font-size: 12px;
-    background-color: #fff;
-    color: #1a1a1a;
-    cursor: pointer;
 }
