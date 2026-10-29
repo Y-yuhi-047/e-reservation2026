@@ -22,8 +22,8 @@
                 <input type="text" id="name" name="name" class="form-control" placeholder="名前を入力" required>
             </div>
             <div class="form-group">
-                <label for="student_id" class="form-label">学生番号</label>
-                <input type="text" id="student_id" name="student_id" class="form-control" placeholder="学生番号または教員番号を入力" required>
+                <label for="student_number" class="form-label">学生番号</label>
+                <input type="text" id="student_number" name="student_number" class="form-control" placeholder="学生番号または教員番号を入力" required>
             </div>
             <div class="form-group">
                 <label for="password" class="form-label">パスワード</label>
