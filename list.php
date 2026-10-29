@@ -9,8 +9,6 @@ $password = 'root';
 $dsn = "mysql:host={$host};port={$port};dbname={$dbname};charset=utf8mb4";
 $pdo = new PDO($dsn, $user, $password);
 
-
-
 $keyword = $_GET['keyword'] ?? '';
 
 // 並び順を受け取る(指定がなければ asc = 昇順)
@@ -100,7 +98,6 @@ $reservations = $stmt->fetchAll();
                     $seats[] = $i;
                 }
             }
-
 
             // 活動中の判定
             if ($row["start_time"] == null && $row["end_time"] == null) {

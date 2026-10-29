@@ -2,8 +2,42 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-$username = $_SESSION['user']['name'] ?? '田中 太郎';
-$userAvatar = $_SESSION['user']['avatar'] ?? ''; // 保存された画像のパス
+
+// --- データベース接続設定 ---
+$host = 'localhost';
+$dbname = 'e-reservation';
+$username = 'root';
+$password = 'root'; // ※パスワードが設定されていない場合は '' に変更してください
+
+try {
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    die('データベース接続エラー: ' . $e->getMessage());
+}
+
+// 【重要】テスト用に、ログイン中の学籍番号を強制的に 'A2301001' に指定（ログイン機能が未実装の場合の対策）
+if (!isset($_SESSION['user']['student_number'])) {
+    $_SESSION['user']['student_number'] = 'A2301001';
+}
+$loginStudentNumber = $_SESSION['user']['student_number'];
+
+// データベースから最新のユーザー情報を取得
+$stmt = $pdo->prepare("SELECT * FROM user WHERE student_number = ?");
+$stmt->execute([$loginStudentNumber]);
+$currentUser = $stmt->fetch(PDO::FETCH_ASSOC);
+
+// ユーザーが見つからない場合のフォールバック
+if (!$currentUser) {
+    $currentUser = [
+        'student_number' => $loginStudentNumber,
+        'user_name' => 'テストユーザー',
+        'profile_picture' => ''
+    ];
+}
+
+$username = $currentUser['user_name'];
+$userAvatar = $currentUser['profile_picture'];
 $current_page = 'profile';
 ?>
 <!DOCTYPE html>
@@ -55,35 +89,40 @@ $current_page = 'profile';
             <span>ログアウト</span>
         </a>
 
-        <!-- 4. 管理者用セクション -->
-        <div class="section-title">管理者用</div>
-        <div class="card-group">
-            <a href="user.php" class="card menu-card inner-card" style="text-decoration: none; color: inherit;">
-                <div class="menu-left">
-                    <div class="menu-icon light-green-bg">
-                        <i class="fas fa-users"></i>
+        <!-- 4. 管理者用セクション（学籍番号がMで始まらない場合は管理者メニューを表示） -->
+        <?php 
+            $isAdmin = !str_starts_with($currentUser['student_number'], 'M');
+        ?>
+        <?php if ($isAdmin): ?>
+            <div class="section-title">管理者用</div>
+            <div class="card-group">
+                <a href="user.php" class="card menu-card inner-card" style="text-decoration: none; color: inherit;">
+                    <div class="menu-left">
+                        <div class="menu-icon light-green-bg">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="menu-text-group">
+                            <span class="menu-title">ユーザー管理</span>
+                            <span class="menu-desc">アカウント・パスワード管理</span>
+                        </div>
                     </div>
-                    <div class="menu-text-group">
-                        <span class="menu-title">ユーザー管理</span>
-                        <span class="menu-desc">アカウント・パスワード管理</span>
-                    </div>
-                </div>
-                <i class="fas fa-chevron-right arrow-icon"></i>
-            </a>
+                    <i class="fas fa-chevron-right arrow-icon"></i>
+                </a>
 
-            <a href="game_list.php" class="card menu-card inner-card" style="text-decoration: none; color: inherit;">
-                <div class="menu-left">
-                    <div class="menu-icon light-green-bg">
-                        <i class="fas fa-gamepad"></i>
+                <a href="game_list.php" class="card menu-card inner-card" style="text-decoration: none; color: inherit;">
+                    <div class="menu-left">
+                        <div class="menu-icon light-green-bg">
+                            <i class="fas fa-gamepad"></i>
+                        </div>
+                        <div class="menu-text-group">
+                            <span class="menu-title">ゲーム管理</span>
+                            <span class="menu-desc">登録ゲームの追加・削除</span>
+                        </div>
                     </div>
-                    <div class="menu-text-group">
-                        <span class="menu-title">ゲーム管理</span>
-                        <span class="menu-desc">登録ゲームの追加・削除</span>
-                    </div>
-                </div>
-                <i class="fas fa-chevron-right arrow-icon"></i>
-            </a>
-        </div>
+                    <i class="fas fa-chevron-right arrow-icon"></i>
+                </a>
+            </div>
+        <?php endif; ?>
     </main>
 
     <!-- ── プロフィール編集モーダル ── -->
