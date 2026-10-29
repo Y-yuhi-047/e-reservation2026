@@ -30,85 +30,9 @@
 
             <!-- モーダルを開くボタン -->
             <!-- <button class="modal-open js-modal-open">モーダルを開く</button> -->
-            <!-- 新規予約モーダル本体 -->
-            <div class="modal js-modal">
-                <div class="modal-container">
-                    <!-- モーダル内部のコンテンツ -->
-                    <div class="modal-content">
-                        <h2>新規予約</h2>
-                        <!-- モーダルを閉じるボタン -->
-                        <div class="modal-close js-modal-close">×</div>
-                            <form action="" method="post"> 
-                            <div>
-                                <p>開始日時</p>
-                                <input type="datetime-local">
-                            </div>
-                            <div>
-                                <p>終了日時</p>
-                                <input type="datetime-local">
-                            </div>
-                            <div>
-                                <p>ゲーム</p>
-                                <select id="fruit" name="fruit">
-                                    <option value=""></option>
-                                </select>
-                            </div>
-                            <div>
-                                <p>席を選択</p>
-                            </div>
-                            <div>
-                                <p>メンバー</p>
-                            </div>
-                            <div>
-                                <p>メモ</p>
-                                <input type="text">
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            <!-- 新規予約モーダル本体ここまで -->
+            
 
-            <!-- 予約詳細モーダル本体 -->
-            <div class="modal js-modal">
-                <div class="modal-container">
-                    <!-- モーダル内部のコンテンツ -->
-                    <div class="modal-content">
-                        <h2>新規編集</h2>
-                        <!-- モーダルを閉じるボタン -->
-                        <div class="modal-close js-modal-close">×</div>
-                        <div> <!-- 日時、するゲーム、使う席、人数を表示したい-->
-                            
-                        </div>
-                        <div> <!-- 利用者を表示したい-->
-                                
-                        </div>
-                        <div> <!-- メモを表示したい-->
-                                    
-                        </div>
-                        <form action="" method="post"> 
-                            <div>
-                                <button> <!-- 活動開始ボタン-->
-
-                                </button>
-                                <button> <!-- 活動終了ボタン-->
-
-                                </button>
-                            </div>
-                            <div>
-                                <button> <!-- 予約編集を開くボタン-->
-
-                                </button>
-                                <button> <!-- 予約削除ボタン-->
-
-                                </button>
-                            </div>
-                        </form>
-                        </div>
-                    </div>
-                </div>
-        </div>
-            <!-- 新規詳細モーダル本体ここまで -->
+            
             <?php require 'footer.php'?>
     </body>
 </html>

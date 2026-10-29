@@ -139,13 +139,18 @@ body {
 /* 日付の数字まわりの余白を小さく */
 #calendar .ec-day-head,
 #calendar .ec-day {
-    font-size: 13px;
+    font-size: 12px;
 }
 
 #calendar .ec-toolbar {
     margin-bottom: 4px;
 }
 
+/* カレンダーのセルの余白をけしてやる */
+#calendar .ec-day{
+    min-height: 0;
+    padding: 0;
+}
 /* .reservation-item {
     padding: 12px 16px;
     margin-bottom: 10px;
