@@ -3,59 +3,88 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// セッションにユーザーリストがまだない場合（仮データを無くす場合は [] にしてください）
-if (!isset($_SESSION['users'])) {
-    $_SESSION['users'] = [
-        ['id' => 1, 'name' => '山田 太郎', 'initial' => '山', 'role' => '管理者', 'image' => ''],
-        ['id' => 2, 'name' => '田中 一郎', 'initial' => '田', 'role' => '一般', 'image' => ''],
-        ['id' => 3, 'name' => '山本 花子', 'initial' => '山', 'role' => '一般', 'image' => ''],
-        ['id' => 4, 'name' => '鈴木 しゅん', 'initial' => '鈴', 'role' => '一般', 'image' => ''],
-        ['id' => 5, 'name' => '松本 あいこ', 'initial' => '松', 'role' => '一般', 'image' => ''],
-    ];
+// --- データベース接続設定（MAMP等のローカル環境用） ---
+$host = 'localhost';
+$dbname = 'e-reservation';
+$username = 'root';
+$password = 'root'; // ※もしパスワードを設定していない場合は ''（空文字）にしてください
+
+try {
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    die('データベース接続エラー: ' . $e->getMessage());
 }
 
 // POST送信された場合の処理（削除・パスワードリセット）
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['action']) && $_POST['action'] === 'delete') {
-        $deleteId = intval($_POST['user_id'] ?? 0);
-        $_SESSION['users'] = array_values(array_filter($_SESSION['users'], function($u) use ($deleteId) {
-            return $u['id'] !== $deleteId;
-        }));
+        $deleteId = trim($_POST['user_id'] ?? '');
+        
+        $stmt = $pdo->prepare("DELETE FROM user WHERE student_number = ?");
+        $stmt->execute([$deleteId]);
+
+        $_SESSION['flash_message'] = 'ユーザーを削除しました。';
         header('Location: user.php');
         exit();
     }
     
     if (isset($_POST['action']) && $_POST['action'] === 'reset_password') {
+        $resetId = trim($_POST['user_id'] ?? '');
+
         $_SESSION['flash_message'] = 'パスワードをリセットしました。';
         header('Location: user.php');
         exit();
     }
 }
 
-$users = $_SESSION['users'];
-
-// 検索キーワードの取得と絞り込み処理
+// 検索キーワードと並び順の取得
 $keyword = trim($_GET['keyword'] ?? '');
+$sort = $_GET['sort'] ?? 'new';
+
+// SQLの組み立て
+$sql = "SELECT * FROM user WHERE 1=1";
+$params = [];
+
 if ($keyword !== '') {
-    $users = array_values(array_filter($users, function($u) use ($keyword) {
-        return mb_stripos($u['name'], $keyword) !== false;
-    }));
+    $sql .= " AND user_name LIKE ?";
+    $params[] = '%' . $keyword . '%';
 }
 
-// 並び替え（ソート）処理
-$sort = $_GET['sort'] ?? 'new';
 if ($sort === 'old') {
-    usort($users, function($a, $b) {
-        return $a['id'] <=> $b['id'];
-    });
+    $sql .= " ORDER BY student_number ASC";
 } elseif ($sort === 'name') {
-    usort($users, function($a, $b) {
-        return strcmp($a['name'], $b['name']);
-    });
+    $sql .= " ORDER BY user_name ASC";
 } else {
-    usort($users, function($a, $b) {
-        return $b['id'] <=> $a['id'];
-    });
+    $sql .= " ORDER BY student_number DESC";
+}
+
+// データベースからデータ取得
+$stmt = $pdo->prepare($sql);
+$stmt->execute($params);
+$raw_users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$users = [];
+foreach ($raw_users as $u) {
+    $studentId = $u['student_number'] ?? '';
+    $name = $u['user_name'] ?? '';
+    
+    // 学籍番号が "M" で始まる場合は「一般」、それ以外は「管理者」
+    if (str_starts_with($studentId, 'M')) {
+        $role = '一般';
+    } else {
+        $role = '管理者';
+    }
+
+    $initial = !empty($name) ? mb_substr($name, 0, 1) : 'U';
+
+    $users[] = [
+        'id' => $studentId,
+        'name' => $name,
+        'role' => $role,
+        'image' => $u['profile_picture'] ?? '',
+        'initial' => $initial
+    ];
 }
 
 $current_page = 'profile';
@@ -69,15 +98,11 @@ unset($_SESSION['flash_message']);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ユーザー管理 - e-reservation</title>
     
-    <!-- アイコン用 Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- 共通CSS -->
-    <link rel="stylesheet" href="css/style2.css?v=10">
+    <link rel="stylesheet" href="css/style2.css?v=44">
 </head>
 <body class="profile-edit-page">
 
-    <!-- ヘッダー -->
     <header class="sub-header">
         <div class="sub-header-left">
             <a href="profile.php" class="back-btn-custom">‹</a>
@@ -85,7 +110,6 @@ unset($_SESSION['flash_message']);
         </div>
     </header>
 
-    <!-- メインコンテンツ -->
     <main class="main-container user-main-container">
         
         <?php if (!empty($flash_message)): ?>
@@ -94,7 +118,6 @@ unset($_SESSION['flash_message']);
             </div>
         <?php endif; ?>
 
-        <!-- 検索窓 -->
         <form action="user.php" method="GET" class="user-search-form">
             <input type="text" name="keyword" value="<?php echo htmlspecialchars($keyword, ENT_QUOTES, 'UTF-8'); ?>" placeholder="ユーザー名で検索..." class="user-search-input">
             <?php if ($sort !== 'new'): ?>
@@ -103,28 +126,25 @@ unset($_SESSION['flash_message']);
             <button type="submit" class="user-search-btn">検索</button>
         </form>
 
-        <!-- セクションタイトル（左） ＆ 並び替えプルダウン（右） -->
         <div class="user-section-header">
             <div class="user-section-title-group">
                 <span class="user-section-label">登録ユーザー</span>
                 <span class="user-section-count"><?php echo count($users); ?>人</span>
             </div>
 
-            <!-- 並び替えフォーム -->
-            <form action="user.php" method="GET" id="sortForm" class="user-sort-form">
-                <?php if ($keyword !== ''): ?>
-                    <input type="hidden" name="keyword" value="<?php echo htmlspecialchars($keyword, ENT_QUOTES, 'UTF-8'); ?>">
-                <?php endif; ?>
-                <label for="sort" class="user-sort-label">並び順:</label>
-                <select name="sort" id="sort" onchange="this.form.submit()" class="user-sort-select">
-                    <option value="new" <?php echo ($sort === 'new') ? 'selected' : ''; ?>>新しい順</option>
-                    <option value="old" <?php echo ($sort === 'old') ? 'selected' : ''; ?>>古い順</option>
-                    <option value="name" <?php echo ($sort === 'name') ? 'selected' : ''; ?>>名前順</option>
-                </select>
-            </form>
+            <div class="user-sort-dropdown">
+                <?php $kw_param = ($keyword !== '') ? '&keyword=' . urlencode($keyword) : ''; ?>
+                <button type="button" class="user-sort-toggle-btn" onclick="toggleSortMenu()">
+                    <i class="fas fa-arrow-up-down"></i> 並び替え
+                </button>
+                <div id="sortMenu" class="user-sort-menu">
+                    <a href="user.php?sort=new<?php echo $kw_param; ?>" class="<?php echo ($sort === 'new') ? 'active' : ''; ?>">新しい順</a>
+                    <a href="user.php?sort=old<?php echo $kw_param; ?>" class="<?php echo ($sort === 'old') ? 'active' : ''; ?>">古い順</a>
+                    <a href="user.php?sort=name<?php echo $kw_param; ?>" class="<?php echo ($sort === 'name') ? 'active' : ''; ?>">名前順</a>
+                </div>
+            </div>
         </div>
 
-        <!-- ユーザーリストを囲むカード -->
         <div class="card user-card-list">
             <?php if (empty($users)): ?>
                 <div class="user-empty-text">
@@ -134,7 +154,6 @@ unset($_SESSION['flash_message']);
                 <?php foreach ($users as $user): ?>
                     <div class="user-item">
                         
-                        <!-- 上段：アイコン、名前、権限 -->
                         <div class="user-item-top">
                             <div class="user-info-group">
                                 <div class="user-avatar">
@@ -146,18 +165,18 @@ unset($_SESSION['flash_message']);
                                 </div>
                                 <span class="user-name">
                                     <?php echo htmlspecialchars($user['name'], ENT_QUOTES, 'UTF-8'); ?>
+                                    <span style="font-size: 11px; color: #888; margin-left: 6px;">(<?php echo htmlspecialchars($user['id'], ENT_QUOTES, 'UTF-8'); ?>)</span>
                                 </span>
                             </div>
-                            <span class="user-role">
+                            <span class="user-role" style="<?php echo ($user['role'] === '管理者') ? 'color: #1b4d3e; font-weight: bold;' : ''; ?>">
                                 <?php echo htmlspecialchars($user['role'], ENT_QUOTES, 'UTF-8'); ?>
                             </span>
                         </div>
 
-                        <!-- 下段：操作ボタン（パスワードリセット ＆ 削除） -->
                         <div class="user-actions">
                             <form action="user.php" method="POST" onsubmit="return confirm('<?php echo htmlspecialchars($user['name'], ENT_QUOTES, 'UTF-8'); ?>さんのパスワードをリセットしますか？');" class="user-inline-form">
                                 <input type="hidden" name="action" value="reset_password">
-                                <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
+                                <input type="hidden" name="user_id" value="<?php echo htmlspecialchars($user['id'], ENT_QUOTES, 'UTF-8'); ?>">
                                 <button type="submit" class="user-btn-reset">
                                     <i class="fas fa-key"></i> パスワードリセット
                                 </button>
@@ -165,7 +184,7 @@ unset($_SESSION['flash_message']);
 
                             <form action="user.php" method="POST" onsubmit="return confirm('本当に <?php echo htmlspecialchars($user['name'], ENT_QUOTES, 'UTF-8'); ?> さんを削除しますか？');" class="user-inline-form">
                                 <input type="hidden" name="action" value="delete">
-                                <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
+                                <input type="hidden" name="user_id" value="<?php echo htmlspecialchars($user['id'], ENT_QUOTES, 'UTF-8'); ?>">
                                 <button type="submit" class="game-delete-btn">削除</button>
                             </form>
                         </div>
@@ -175,7 +194,6 @@ unset($_SESSION['flash_message']);
             <?php endif; ?>
         </div>
 
-        <!-- 下部の注意書き -->
         <div class="user-footer-notice">
             <i class="fas fa-shield-alt"></i>
             <span>ユーザーのパスワードリセット・削除を行えます。</span>
@@ -183,6 +201,21 @@ unset($_SESSION['flash_message']);
 
     </main>
 
+
+    <script>
+    function toggleSortMenu() {
+        const menu = document.getElementById('sortMenu');
+        menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+    }
+
+    window.addEventListener('click', function(e) {
+        const dropdown = document.querySelector('.user-sort-dropdown');
+        const menu = document.getElementById('sortMenu');
+        if (dropdown && !dropdown.contains(e.target)) {
+            menu.style.display = 'none';
+        }
+    });
+    </script>
 
 </body>
 </html>

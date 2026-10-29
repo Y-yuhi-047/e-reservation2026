@@ -3,14 +3,21 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// セッションにゲームリストがなければ空の配列で初期化
-if (!isset($_SESSION['games'])) {
-    $_SESSION['games'] = [];
+// --- データベース接続設定 ---
+$host = 'localhost';
+$dbname = 'e-reservation';
+$username = 'root';
+$password = 'root'; // ※パスワードが設定されていない場合は '' に変更してください
+
+try {
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    die('データベース接続エラー: ' . $e->getMessage());
 }
 
-// POST送信された場合の処理（追加・削除）
+// POST送信された場合の処理（ゲーム追加）
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // 1. ゲーム追加処理
     if (isset($_POST['action']) && $_POST['action'] === 'add') {
         $gameName = trim($_POST['game_name'] ?? '');
         $imagePath = '';
@@ -33,29 +40,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if ($gameName !== '') {
-            $newId = count($_SESSION['games']) > 0 ? max(array_column($_SESSION['games'], 'id')) + 1 : 1;
-            $_SESSION['games'][] = [
-                'id' => $newId, 
-                'name' => $gameName, 
-                'image' => $imagePath
-            ];
+            $stmt = $pdo->prepare("INSERT INTO game (game_name, game_icon) VALUES (?, ?)");
+            $stmt->execute([$gameName, $imagePath]);
         }
-        header('Location: game_list.php');
-        exit();
-    }
-    
-    // 2. ゲーム削除処理
-    if (isset($_POST['action']) && $_POST['action'] === 'delete') {
-        $deleteId = intval($_POST['game_id'] ?? 0);
-        $_SESSION['games'] = array_values(array_filter($_SESSION['games'], function($g) use ($deleteId) {
-            return $g['id'] !== $deleteId;
-        }));
+        
         header('Location: game_list.php');
         exit();
     }
 }
 
-$games = $_SESSION['games'];
+// データベースからゲーム一覧を取得（新しい順に表示）
+$stmt = $pdo->query("SELECT * FROM game ORDER BY game_id DESC");
+$games = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 $current_page = 'profile';
 ?>
 <!DOCTYPE html>
@@ -69,7 +66,7 @@ $current_page = 'profile';
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- 共通CSS -->
-    <link rel="stylesheet" href="css/style2.css?v=25">
+    <link rel="stylesheet" href="css/style2.css?v=26">
 </head>
 <body class="profile-edit-page">
 
@@ -105,21 +102,20 @@ $current_page = 'profile';
                         <!-- 左側：アイコン ＋ ゲーム名 -->
                         <div style="display: flex; align-items: center; gap: 14px;">
                             <div class="menu-icon green-bg" style="width: 40px; height: 40px; background-color: #e8f2ee; color: #1b4d3e; border-radius: 10px; display: flex; justify-content: center; align-items: center; font-size: 18px; overflow: hidden; flex-shrink: 0;">
-                                <?php if (!empty($game['image'])): ?>
-                                    <img src="<?php echo htmlspecialchars($game['image'], ENT_QUOTES, 'UTF-8'); ?>" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+                                <?php if (!empty($game['game_icon'])): ?>
+                                    <img src="<?php echo htmlspecialchars($game['game_icon'], ENT_QUOTES, 'UTF-8'); ?>" alt="" style="width: 100%; height: 100%; object-fit: cover;">
                                 <?php else: ?>
                                     <i class="fas fa-gamepad"></i>
                                 <?php endif; ?>
                             </div>
                             <span style="font-size: 15px; font-weight: bold; color: #1a1a1a;">
-                                <?php echo htmlspecialchars($game['name'], ENT_QUOTES, 'UTF-8'); ?>
+                                <?php echo htmlspecialchars($game['game_name'], ENT_QUOTES, 'UTF-8'); ?>
                             </span>
                         </div>
 
-                        <!-- 右側：削除ボタン -->
-                        <form action="game_list.php" method="POST" onsubmit="return confirm('本当に削除しますか？');" style="margin: 0;">
-                            <input type="hidden" name="action" value="delete">
-                            <input type="hidden" name="game_id" value="<?php echo $game['id']; ?>">
+                        <!-- 右側：削除ボタン（game_delete.phpへ送信） -->
+                        <form action="game_delete.php" method="POST" onsubmit="return confirm('本当に削除しますか？');" style="margin: 0;">
+                            <input type="hidden" name="game_id" value="<?php echo $game['game_id']; ?>">
                             <button type="submit" class="game-delete-btn">削除</button>
                         </form>
                     </div>
@@ -171,7 +167,6 @@ $current_page = 'profile';
             </form>
         </div>
     </div>
-
 
     <!-- モーダル開閉・画像プレビュー用JavaScript -->
     <script>
