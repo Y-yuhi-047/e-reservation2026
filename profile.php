@@ -16,25 +16,22 @@ try {
     die('データベース接続エラー: ' . $e->getMessage());
 }
 
-// 【重要】テスト用に、ログイン中の学籍番号を強制的に 'A2301001' に指定（ログイン機能が未実装の場合の対策）
-if (!isset($_SESSION['user']['student_number'])) {
-    $_SESSION['user']['student_number'] = 'A2301001';
-}
-$loginStudentNumber = $_SESSION['user']['student_number'];
+// セッションからログイン中の学籍番号を取得する
+$loginStudentNumber = $_SESSION['user']['student_number'] ?? '';
 
 // データベースから最新のユーザー情報を取得
 $stmt = $pdo->prepare("SELECT * FROM user WHERE student_number = ?");
 $stmt->execute([$loginStudentNumber]);
 $currentUser = $stmt->fetch(PDO::FETCH_ASSOC);
 
-// ユーザーが見つからない場合のフォールバック
-if (!$currentUser) {
-    $currentUser = [
-        'student_number' => $loginStudentNumber,
-        'user_name' => 'テストユーザー',
-        'profile_picture' => ''
-    ];
-}
+// // ユーザーが見つからない場合のフォールバック
+// if (!$currentUser) {
+//     $currentUser = [
+//         'student_number' => $loginStudentNumber,
+//         'user_name' => 'テストユーザー',
+//         'profile_picture' => ''
+//     ];
+// }
 
 $username = $currentUser['user_name'];
 $userAvatar = $currentUser['profile_picture'];
@@ -72,8 +69,8 @@ $current_page = 'profile';
             <i class="fas fa-chevron-right arrow-icon"></i>
         </div>
 
-        <!-- 2. 自分の予約メニュー -->
-        <a href="list.php" class="card simple-menu-item" style="text-decoration: none; color: inherit;">
+<!-- 2. 自分の予約メニュー -->
+        <a href="list.php?keyword=<?php echo urlencode($username); ?>" class="card simple-menu-item" style="text-decoration: none; color: inherit;">
             <div class="menu-left">
                 <div class="menu-icon green-bg">
                     <i class="fas fa-calendar-alt"></i>
@@ -82,16 +79,17 @@ $current_page = 'profile';
             </div>
             <i class="fas fa-chevron-right arrow-icon"></i>
         </a>
-
         <!-- 3. ログアウトボタン -->
         <a href="logout.php" class="logout-btn" onclick="return confirm('本当にログアウトしますか？');" style="text-decoration: none;">
             <i class="fas fa-sign-out-alt"></i>
             <span>ログアウト</span>
         </a>
 
-        <!-- 4. 管理者用セクション（学籍番号がMで始まらない場合は管理者メニューを表示） -->
+    <!-- 4. 管理者用セクション（学籍番号がMで始まらない場合＝管理者メニューを表示） -->
         <?php 
-            $isAdmin = !str_starts_with($currentUser['student_number'], 'M');
+            // 「M」から始まる場合は生徒（false）、それ以外は管理者（true）にする
+            $studentNumber = $currentUser['student_number'] ?? '';
+            $isAdmin = !empty($studentNumber) && !str_starts_with($studentNumber, 'M');
         ?>
         <?php if ($isAdmin): ?>
             <div class="section-title">管理者用</div>
