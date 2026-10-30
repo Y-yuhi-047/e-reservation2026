@@ -21,28 +21,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     if ($deleteId > 0) {
         try {
-            // トランザクション開始
-            $pdo->beginTransaction();
-
-            // ① 関連する user_reservation（中間テーブル）のデータを削除
-            $stmt = $pdo->prepare("DELETE ur FROM user_reservation ur INNER JOIN reservation r ON ur.reservation_id = r.reservation_id WHERE r.game_id = ?");
-            $stmt->execute([$deleteId]);
-
-            // ② 関連する reservation（予約）データを削除
-            $stmt = $pdo->prepare("DELETE FROM reservation WHERE game_id = ?");
-            $stmt->execute([$deleteId]);
-
-            // ③ 最後に game 本体を削除
+            // ゲーム本体を削除する
+            // ※データベース側で ON DELETE SET NULL が設定されているため、
+            //   紐づく予約データの game_id は自動的に NULL になり、履歴は残ります。
             $stmt = $pdo->prepare("DELETE FROM game WHERE game_id = ?");
             $stmt->execute([$deleteId]);
 
-            // コミット
-            $pdo->commit();
-            $_SESSION['flash_message'] = 'ゲームと関連する予約データを削除しました。';
+            $_SESSION['flash_message'] = 'ゲームを削除しました（予約履歴は保持されます）。';
 
         } catch (PDOException $e) {
-            // 失敗時はロールバック
-            $pdo->rollBack();
             $_SESSION['error_message'] = '削除に失敗しました: ' . $e->getMessage();
         }
     }
