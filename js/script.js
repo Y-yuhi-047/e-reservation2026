@@ -195,3 +195,11 @@ const calendar = EventCalendar.create(calendarElement, {
         showReservations(dateStr);
     }
 });
+
+// #calendar の大きさが変わったら、カレンダーに再計算させる
+// #calendar の大きさが変わったら、カレンダーに再計算させる
+const resizeObserver = new ResizeObserver(() => {
+    calendar.setOption("height", "100%");
+});
+resizeObserver.observe(calendarElement);
+
