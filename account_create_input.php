@@ -7,12 +7,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_FILES['icon']) && $_FILES['icon']['error'] === UPLOAD_ERR_OK) {
         $fileTmpPath = $_FILES['icon']['tmp_name'];
         $fileName = $_FILES['icon']['name'];
-        
+
         $uploadFileDir = 'uploads/';
         if (!is_dir($uploadFileDir)) {
             mkdir($uploadFileDir, 0755, true);
         }
-        
+
         $newFileName = 'user_' . md5(time() . $fileName) . '.' . pathinfo($fileName, PATHINFO_EXTENSION);
         $dest_path = $uploadFileDir . $newFileName;
 
@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($name !== '') {
         $initial = mb_substr($name, 0, 1, 'UTF-8');
         $newId = count($_SESSION['users']) > 0 ? max(array_column($_SESSION['users'], 'id')) + 1 : 1;
-        
+
         // 登録データに 'image' を追加
         $_SESSION['users'][] = [
             'id' => $newId,
@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
 
         <!-- ① formタグに action と method を追加 -->
-        <form id="registerForm" action="account_create.php" method="POST">
+        <form id="registerForm" action="account_create_output.php" method="POST" enctype="multipart/form-data">
 
             <!-- アイコン選択エリア -->
             <div class="icon-section">

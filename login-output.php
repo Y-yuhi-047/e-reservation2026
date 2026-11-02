@@ -11,8 +11,24 @@ $pdo = new PDO(
     'root'
 );
 
-$sql = $pdo->prepare('select * from user where user_name=? and student_number=? and password=?');
-$sql->execute([$_POST['name'], $_POST['student_number'], $_POST['password']]);
+function remove_space($str)
+{
+    $str = str_replace(" ", "", $str);
+    $str = str_replace("　", "", $str);
+    return $str;
+}
+
+$name = remove_space($_POST['name']);
+$student_number = remove_space($_POST['student_number']);
+$password = remove_space($_POST['password']);
+
+
+
+$sql = $pdo->prepare('select * from user 
+                        WHERE REPLACE(REPLACE(user_name, " ", ""), "　", "") = ? 
+                        AND student_number = ? 
+                        AND password = ?');
+$sql->execute([$name, $student_number, $password]);
 foreach ($sql as $row) {
     $_SESSION['user'] = [
         'number' => $row['student_number'],
@@ -25,7 +41,7 @@ if (isset($_SESSION['user'])) {
     header('Location: home.php');
     exit();
 } else {
-    echo 'ログイン名またはパスワードが違います。';
+    echo '<h1>ログイン名またはパスワードが違います。</h1>';
     echo '<a href="login-input.php">戻る</a>';
 }
 
