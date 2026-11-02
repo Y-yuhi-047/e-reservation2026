@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
 
         <!-- ① formタグに action と method を追加 -->
-        <form id="registerForm" action="account_create_output.php" method="POST">
+        <form id="registerForm" action="account_create_output.php" method="POST" enctype="multipart/form-data">
 
             <!-- アイコン選択エリア -->
             <div class="icon-section">
