@@ -21,6 +21,8 @@ function remove_space($str)
 $name = remove_space($_POST['name']);
 $student_number = remove_space($_POST['student_number']);
 $password = remove_space($_POST['password']);
+// 最初は「失敗」にしておく
+$success = true;
 
 
 
@@ -41,8 +43,35 @@ if (isset($_SESSION['user'])) {
     header('Location: home.php');
     exit();
 } else {
-    echo '<h1>ログイン名またはパスワードが違います。</h1>';
-    echo '<a href="login-input.php">戻る</a>';
+    $success = false;
 }
 
 ?>
+
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>ログイン完了</title>
+    <meta name="description" content="">
+    <link rel="stylesheet" href="css/hiroki.css">
+</head>
+
+<body>
+    <div class="container">
+        <main>
+            <?php if ($success == false) : ?>
+                <h1>ログインに失敗しました。</h1>
+                <a>ログイン名またはパスワードが違います。</a>
+                <img class="result-image" src="images/Gemini_error_character.jpg" alt="エラーキャラクター">
+                <form action="login-input.php">
+                    <button type="submit" class="btn">ログインページへ</button>
+                </form>
+            <?php else : ?>
+            <?php endif; ?>
+        </main>
+    </div>
+</body>
+
+</html>

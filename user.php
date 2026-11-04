@@ -20,7 +20,7 @@ try {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['action']) && $_POST['action'] === 'delete') {
         $deleteId = trim($_POST['user_id'] ?? '');
-        
+
         $stmt = $pdo->prepare("DELETE FROM user WHERE student_number = ?");
         $stmt->execute([$deleteId]);
 
@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header('Location: user.php');
         exit();
     }
-    
+
     if (isset($_POST['action']) && $_POST['action'] === 'reset_password') {
         $resetId = trim($_POST['user_id'] ?? '');
 
@@ -68,9 +68,9 @@ $users = [];
 foreach ($raw_users as $u) {
     $studentId = $u['student_number'] ?? '';
     $name = $u['user_name'] ?? '';
-    
+
     // 学籍番号が "M" で始まる場合は「一般」、それ以外は「管理者」
-    if (str_starts_with($studentId, 'M')) {
+    if ($name !== "管理者") {
         $role = '一般';
     } else {
         $role = '管理者';
@@ -93,14 +93,16 @@ unset($_SESSION['flash_message']);
 ?>
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ユーザー管理 - e-reservation</title>
-    
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/style2.css?v=44">
 </head>
+
 <body class="profile-edit-page">
 
     <header class="sub-header">
@@ -111,7 +113,7 @@ unset($_SESSION['flash_message']);
     </header>
 
     <main class="main-container user-main-container">
-        
+
         <?php if (!empty($flash_message)): ?>
             <div class="flash-message-box">
                 <?php echo htmlspecialchars($flash_message, ENT_QUOTES, 'UTF-8'); ?>
@@ -153,7 +155,7 @@ unset($_SESSION['flash_message']);
             <?php else: ?>
                 <?php foreach ($users as $user): ?>
                     <div class="user-item">
-                        
+
                         <div class="user-item-top">
                             <div class="user-info-group">
                                 <div class="user-avatar">
@@ -203,19 +205,20 @@ unset($_SESSION['flash_message']);
 
 
     <script>
-    function toggleSortMenu() {
-        const menu = document.getElementById('sortMenu');
-        menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
-    }
-
-    window.addEventListener('click', function(e) {
-        const dropdown = document.querySelector('.user-sort-dropdown');
-        const menu = document.getElementById('sortMenu');
-        if (dropdown && !dropdown.contains(e.target)) {
-            menu.style.display = 'none';
+        function toggleSortMenu() {
+            const menu = document.getElementById('sortMenu');
+            menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
         }
-    });
+
+        window.addEventListener('click', function(e) {
+            const dropdown = document.querySelector('.user-sort-dropdown');
+            const menu = document.getElementById('sortMenu');
+            if (dropdown && !dropdown.contains(e.target)) {
+                menu.style.display = 'none';
+            }
+        });
     </script>
 
 </body>
+
 </html>

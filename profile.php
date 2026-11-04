@@ -1,4 +1,5 @@
 <?php
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -36,9 +37,11 @@ $currentUser = $stmt->fetch(PDO::FETCH_ASSOC);
 $username = $currentUser['user_name'];
 $userAvatar = $currentUser['profile_picture'];
 $current_page = 'profile';
+
 ?>
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -48,6 +51,7 @@ $current_page = 'profile';
     <!-- 共通CSS -->
     <link rel="stylesheet" href="css/style2.css">
 </head>
+
 <body class="profile-page">
 
     <!-- 共通ヘッダー -->
@@ -69,7 +73,7 @@ $current_page = 'profile';
             <i class="fas fa-chevron-right arrow-icon"></i>
         </div>
 
-<!-- 2. 自分の予約メニュー -->
+        <!-- 2. 自分の予約メニュー -->
         <a href="list.php?keyword=<?php echo urlencode($username); ?>" class="card simple-menu-item" style="text-decoration: none; color: inherit;">
             <div class="menu-left">
                 <div class="menu-icon green-bg">
@@ -85,11 +89,11 @@ $current_page = 'profile';
             <span>ログアウト</span>
         </a>
 
-    <!-- 4. 管理者用セクション（学籍番号がMで始まらない場合＝管理者メニューを表示） -->
-        <?php 
-            // 「M」から始まる場合は生徒（false）、それ以外は管理者（true）にする
-            $studentNumber = $currentUser['student_number'] ?? '';
-            $isAdmin = !empty($studentNumber) && !str_starts_with($studentNumber, 'M');
+        <!-- 4. 管理者用セクション（学籍番号がMで始まらない場合＝管理者メニューを表示） -->
+        <?php
+        // 「M」から始まる場合は生徒（false）、それ以外は管理者（true）にする
+        $studentNumber = $currentUser['student_number'] ?? '';
+        $isAdmin  = ($_SESSION['user']) === '管理者';
         ?>
         <?php if ($isAdmin): ?>
             <div class="section-title">管理者用</div>
@@ -130,7 +134,7 @@ $current_page = 'profile';
                 <span class="modal-title">プロフィール編集</span>
                 <button type="button" class="modal-close-btn" onclick="closeModal();"><i class="fas fa-times"></i></button>
             </div>
-            
+
             <form action="profile_update.php" method="POST" enctype="multipart/form-data">
                 <!-- アイコン編集エリア -->
                 <div class="edit-avatar-section">
@@ -165,42 +169,44 @@ $current_page = 'profile';
 
     <!-- モーダル開閉・画像プレビュー用JavaScript -->
     <script>
-    function openModal() {
-        document.getElementById('profile-edit-modal').style.display = 'flex';
-    }
-    function closeModal() {
-        document.getElementById('profile-edit-modal').style.display = 'none';
-    }
-    
-    window.onclick = function(event) {
-        var modal = document.getElementById('profile-edit-modal');
-        if (event.target === modal) {
-            closeModal();
+        function openModal() {
+            document.getElementById('profile-edit-modal').style.display = 'flex';
         }
-    }
 
-    function previewModalEditImage(obj) {
-        if (obj.files && obj.files[0]) {
-            var reader = new FileReader();
-            reader.onload = function(e) {
-                var modalPreview = document.getElementById('modal-avatar-preview');
-                var modalIcon = document.getElementById('modal-avatar-icon');
-                var pagePreview = document.getElementById('profile-avatar-preview');
-                var pageIcon = document.getElementById('profile-avatar-icon');
+        function closeModal() {
+            document.getElementById('profile-edit-modal').style.display = 'none';
+        }
 
-                modalPreview.src = e.target.result;
-                modalPreview.style.display = 'block';
-                if (modalIcon) modalIcon.style.display = 'none';
-
-                if (pagePreview) {
-                    pagePreview.src = e.target.result;
-                    pagePreview.style.display = 'block';
-                }
-                if (pageIcon) pageIcon.style.display = 'none';
+        window.onclick = function(event) {
+            var modal = document.getElementById('profile-edit-modal');
+            if (event.target === modal) {
+                closeModal();
             }
-            reader.readAsDataURL(obj.files[0]);
         }
-    }
+
+        function previewModalEditImage(obj) {
+            if (obj.files && obj.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    var modalPreview = document.getElementById('modal-avatar-preview');
+                    var modalIcon = document.getElementById('modal-avatar-icon');
+                    var pagePreview = document.getElementById('profile-avatar-preview');
+                    var pageIcon = document.getElementById('profile-avatar-icon');
+
+                    modalPreview.src = e.target.result;
+                    modalPreview.style.display = 'block';
+                    if (modalIcon) modalIcon.style.display = 'none';
+
+                    if (pagePreview) {
+                        pagePreview.src = e.target.result;
+                        pagePreview.style.display = 'block';
+                    }
+                    if (pageIcon) pageIcon.style.display = 'none';
+                }
+                reader.readAsDataURL(obj.files[0]);
+            }
+        }
     </script>
 </body>
+
 </html>
