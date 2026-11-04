@@ -1,31 +1,44 @@
 <?php
+//フォームが送信されたときに中の処理を実行します。
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    //name が送られていなければ空文字にします。
     $name = trim($_POST['name'] ?? '');
+
+    //$imagePath は、画像の保存先を入れる変数です。最初は空にしておきます。
     $imagePath = ''; // 画像パス用
 
     // アイコン画像がアップロードされている場合
+    //$_FILES['icon'] が存在し、アップロードエラーがない場合だけ処理します。
     if (isset($_FILES['icon']) && $_FILES['icon']['error'] === UPLOAD_ERR_OK) {
+        //$fileTmpPath は、アップロードされたファイルの一時保存場所です。
         $fileTmpPath = $_FILES['icon']['tmp_name'];
+        //$fileName は、アップロード時の元のファイル名です。
         $fileName = $_FILES['icon']['name'];
 
+        //保存先を uploads/ にします。
         $uploadFileDir = 'uploads/';
         if (!is_dir($uploadFileDir)) {
+            //フォルダがまだなければ mkdir() で作成します。
             mkdir($uploadFileDir, 0755, true);
         }
-
+        //元のファイル名をそのまま使わず、user_ とハッシュ値を使った名前を作ります
         $newFileName = 'user_' . md5(time() . $fileName) . '.' . pathinfo($fileName, PATHINFO_EXTENSION);
         $dest_path = $uploadFileDir . $newFileName;
 
+        //一時保存場所から uploads/ にファイルを移動します。成功したら、その保存先を $imagePath に入れます
         if (move_uploaded_file($fileTmpPath, $dest_path)) {
             $imagePath = $dest_path; // 保存成功したらパスを格納
         }
     }
-
+    //名前が空でない場合だけ登録します
     if ($name !== '') {
+        // mb_substr() で名前の最初の1文字を取得します。UTF-8 を指定して、日本語なども正しく扱います。
         $initial = mb_substr($name, 0, 1, 'UTF-8');
+        // 新しいユーザーIDを生成します。既存のユーザーがいれば最大IDに1を足し、いなければ1にします。
         $newId = count($_SESSION['users']) > 0 ? max(array_column($_SESSION['users'], 'id')) + 1 : 1;
 
-        // 登録データに 'image' を追加
+        // 新しいユーザー情報をセッションに追加します。画像パスも保存します。
         $_SESSION['users'][] = [
             'id' => $newId,
             'name' => $name,
