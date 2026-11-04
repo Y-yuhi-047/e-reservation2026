@@ -8,6 +8,7 @@ header,
     border-bottom: none !important;
 }
 
+
 .mobile-header {
     position: sticky;
     top: 0;
@@ -111,7 +112,7 @@ body.profile-page {
     background-color: #f6f8f7;
     margin: 0;
     padding-bottom: 90px;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    /* font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; */
 }
 
 .main-container {
@@ -800,4 +801,268 @@ body.profile-edit-page {
     padding: 0 4px;
     color: #888888;
     font-size: 12px;
+}
+
+/* ==========================================================
+   予約一覧ページ & 予約編集モーダル専用スタイル
+   ========================================================== */
+
+html, body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    text-align: left !important;
+}
+
+body.list-page {
+    display: flex;
+    flex-direction: column;
+    background-color: #f8f9fa;
+}
+
+/* リスト全体のコンテナ */
+.list-body {
+    flex: 1;
+    overflow-y: auto !important;
+    padding: 0 16px 100px 16px !important;
+    box-sizing: border-box;
+    background-color: #f8f9fa;
+    position: relative;
+    text-align: left;
+}
+
+/* 上部の固定エリア（がくつき防止・下線を完全に消す） */
+.sticky-top-wrapper {
+    position: sticky;
+    top: 0;
+    background-color: #f8f9fa;
+    z-index: 1000;
+    padding-top: 16px;
+    padding-bottom: 8px;
+    margin-left: -16px;
+    margin-right: -16px;
+    padding-left: 16px;
+    padding-right: 16px;
+    box-shadow: none !important;
+    border-bottom: none !important;
+}
+
+/* 予約一覧タイトルの左寄せ＆スタイル */
+.page-title-area {
+    font-size: 18px;
+    font-weight: bold;
+    color: #1a1a1a;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.back-link {
+    color: #1a1a1a;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+/* 検索ボックスの角丸 */
+.search-form-3 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    overflow: hidden;
+    border: 1px solid #777777;
+    border-radius: 12px;
+    flex: 1;
+    flex-direction: row-reverse;
+    background-color: #ffffff;
+}
+
+/* 並び替えボタンの角丸 ＆ 下線削除 */
+.sort-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0 12px;
+    border: 1px solid #777777;
+    border-radius: 12px;
+    background-color: #ffffff;
+    color: #333;
+    font-size: 13px;
+    font-weight: bold;
+    white-space: nowrap;
+    cursor: pointer;
+    text-decoration: none !important;
+}
+
+/* ==========================================================
+   予約編集モーダル内パーツ（スリム＆コンパクト化）
+   ========================================================== */
+
+.form-group {
+    margin-bottom: 12px;
+}
+
+.custom-input-box {
+    background-color: #fff;
+    border: 1px solid #dce3e0;
+    border-radius: 12px;
+    height: 46px;
+    box-sizing: border-box;
+    position: relative;
+}
+
+.form-control-hidden-date {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.custom-time-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+}
+
+.form-control-time {
+    border: none;
+    background: transparent;
+    font-size: 15px;
+    color: #333;
+    width: 100%;
+    outline: none;
+}
+
+/* 擬似要素を使って時計アイコンを綺麗に右側に配置 */
+.custom-time-box::after {
+    content: "\f017"; /* FontAwesomeの時計アイコン(fa-clock)の文字コード */
+    font-family: "Font Awesome 6 Free";
+    font-weight: 400;
+    position: absolute;
+    right: 14px; /* ← この数字を小さくするとさらに右に移動します（例: 10px） */
+    font-size: 18px;
+    color: #666;
+    pointer-events: none;
+}
+
+.custom-game-box {
+    background-color: #fff;
+    border: 1px solid #dce3e0;
+    border-radius: 12px;
+    height: 46px;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+.custom-game-select {
+    border: none;
+    background: transparent;
+    font-size: 15px;
+    color: #333;
+    width: 100%;
+    outline: none;
+    cursor: pointer;
+    appearance: auto;
+}
+
+/* 席選択の周りを囲む枠 */
+.seat-group-box {
+    background-color: #fafafa;
+    border: 1px solid #e1e7e4;
+    border-radius: 12px;
+    padding: 10px 16px;
+    box-sizing: border-box;
+}
+
+/* 席を選ぶチップボタン */
+.seat-container {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.seat-row {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+}
+.seat-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 38px;
+    border: 1px solid #1b4d3e;
+    border-radius: 8px;
+    background: #fff;
+    color: #1b4d3e;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.seat-chip input {
+    display: none;
+}
+.seat-chip:has(input:checked) {
+    background: #1b4d3e;
+    color: #fff;
+}
+
+/* メンバー選択のスクロール枠 */
+.member-list-box {
+    background: #fff;
+    border: 1px solid #dce3e0;
+    border-radius: 12px;
+    padding: 6px 12px;
+    max-height: 120px;
+    overflow-y: auto;
+}
+.member-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 4px;
+    font-size: 14px;
+    cursor: pointer;
+    border-bottom: 1px solid #f5f5f5;
+}
+.member-item:last-child {
+    border-bottom: none;
+}
+.member-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #1b4d3e;
+    cursor: pointer;
+}
+
+/* ボタン類 */
+.btn-save {
+    background-color: #1b4d3e;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    width: 100%;
+    padding: 12px;
+    font-weight: bold;
+    font-size: 15px;
+    cursor: pointer;
+}
+.btn-cancel {
+    background-color: #fff;
+    color: #1b4d3e;
+    border: 1px solid #1b4d3e;
+    border-radius: 12px;
+    width: 100%;
+    padding: 12px;
+    font-weight: bold;
+    font-size: 15px;
+    cursor: pointer;
 }
