@@ -80,7 +80,9 @@ const timelineElement = document.getElementById("reservation-timeline");
 // タイムラインの設定
 const TIMELINE_START_HOUR = 12;   // 表示開始時刻
 const TIMELINE_END_HOUR = 19;    // 表示終了時刻
-const HOUR_WIDTH = 45;           // 1時間あたりの横幅(px)
+const WIDTH = timelineElement.offsetWidth - 60; //席番号の部分を引いたタイムライン表の幅
+const HOUR_WIDTH = WIDTH / 7;           // 1時間あたりの横幅(px)
+console.log(HOUR_WIDTH);
 const SEATS = [1, 2, 3, 4, 5];   // 席の一覧
 
 // "10:30" → 630(分)に変換

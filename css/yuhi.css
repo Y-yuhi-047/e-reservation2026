@@ -231,6 +231,7 @@ body {
     display: flex;
     flex: 0 0 var(--track-width);
     height: 40px;
+    /* min-width: 100%; */
 }
 
 .timeline-cell {
@@ -310,5 +311,10 @@ body {
 @media(max-height: 667px){
     #reservation-timeline{
         margin-bottom: 50dvh;
+    }
+}
+@media(max-width: 900px){
+    .wrapper{
+        margin: 0 1dvh 0;
     }
 }
