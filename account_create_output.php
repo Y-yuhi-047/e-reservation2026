@@ -10,9 +10,16 @@ $pdo = new PDO(
 $name = $_POST['name'];
 $student_number = $_POST['student_id'];
 $password = $_POST['password'];
-$picture = $_FILES['icon']['name'] ?? null; // アイコン画像のファイル名を取得
+$picture = "";
 // 最初は「失敗」にしておく
 $success = false;
+
+if (strlen($student_number) < 8 || strlen($password) < 8) {
+    $_SESSION['error'] = "<a>学生番号とパスワードは8文字以上で入力してください。</a>";
+    $success = false;
+    // header('Location: account_create_input.php');
+    // exit();
+}
 
 //iconというファイルが送信されたか確認 アップロード時にエラーがなかったか確認
 if (isset($_FILES['icon']) && $_FILES['icon']['error'] === UPLOAD_ERR_OK) {
@@ -27,25 +34,24 @@ if (isset($_FILES['icon']) && $_FILES['icon']['error'] === UPLOAD_ERR_OK) {
         $newname = 'user_' . md5(time() . $filename) . '.' . $ext;
         $dest = 'uploads/' . $newname;   // 保存先 = DBに入れる文字(uploads/user_xxxx.png)
 
-        try {
-            $sql = $pdo->prepare('INSERT INTO user (profile_picture, user_name, student_number, password) VALUES (?, ?, ?, ?)');
-            $sql->execute([$picture, $name, $student_number, $password]);
-
-            $success = true;  // ← エラーなく、ここまで来たら成功
-        } catch (PDOException $e) {
-            $_SESSION['error'] = $e->getMessage();
-        }
-
-        if (move_uploaded_file($_FILES['icon']['tmp_name'], $dest) && $success) {
+        if (move_uploaded_file($_FILES['icon']['tmp_name'], $dest)) {
             // アップロード成功
             $picture = $dest;
+            try {
+                $sql = $pdo->prepare('INSERT INTO user (profile_picture, user_name, student_number, password) VALUES (?, ?, ?, ?)');
+                $sql->execute([$picture, $name, $student_number, $password]);
+
+                $success = true;  // ← エラーなく、ここまで来たら成功
+            } catch (PDOException $e) {
+                // $_SESSION['error'] = $e->getMessage();
+                unlink($dest);
+            }
         } else {
             // アップロード失敗
             $_SESSION['error'] = "<a>アイコン画像のアップロードに失敗しました。</a>";
-            if (file_exists($picture)) {
-                unlink($picture);
-            }
         }
+    } else {
+        $_SESSION['error'] = "<a>不正なファイル形式です。</a>";
     }
 }
 
