@@ -17,7 +17,7 @@ $current_page = $current_page ?? '';
     <script src="js/script.js" defer></script>
 </head>
 <!-- 新規予約のモーダルの読み込み -->
-<?php require 'create.php'?>
+<?php require 'create-input.php'?>
 <nav class="mobile-footer">
     <!-- ホーム -->
     <a href="home.php" class="footer-item <?php echo ($current_page === 'home') ? 'active' : ''; ?>">
