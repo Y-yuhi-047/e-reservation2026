@@ -894,6 +894,12 @@ body.list-page {
     text-decoration: none !important;
 }
 
+/* 「日時が近い順」「日時が遠い順」と表示されるテキストの文字色を変更 */
+.sort-order-text { /* クラス名は実際のHTMLに合わせて書き換えてください */
+    color: #1b4d3e; /* アプリ全体のテーマカラー（深緑）にする場合 */
+    font-size: 13px;
+    font-weight: bold;
+}
 /* ==========================================================
    予約編集モーダル内パーツ（スリム＆コンパクト化）
    ========================================================== */
@@ -1066,3 +1072,19 @@ body.list-page {
     font-size: 15px;
     cursor: pointer;
 }
+
+/* 予約詳細モーダルの利用者一覧用スクロールボックス */
+.detail-member-list-box {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 140px;      /* 表示する高さを制限（必要に応じて変更OKです） */
+    overflow-y: auto;       /* はみ出したらスクロール */
+    padding-right: 4px;     /* スクロールバーの重なり防止用 */
+}
+/* 日時入力欄および内部の選択ハイライト色をアプリのテーマカラーに合わせる */
+input[type="datetime-local"] {
+    accent-color: #1b4d3e;
+    color-scheme: light; /* ブラウザのダーク/ライトモードの強制を避ける */
+}
+
