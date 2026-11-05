@@ -18,7 +18,7 @@ try {
 }
 
 // セッションからログイン中の学籍番号を取得する
-$loginStudentNumber = $_SESSION['user']['student_number'] ?? '';
+$loginStudentNumber = $_SESSION['user']['number'] ?? '';
 
 // データベースから最新のユーザー情報を取得
 $stmt = $pdo->prepare("SELECT * FROM user WHERE student_number = ?");
@@ -93,7 +93,7 @@ $current_page = 'profile';
         <?php
         // 「M」から始まる場合は生徒（false）、それ以外は管理者（true）にする
         $studentNumber = $currentUser['student_number'] ?? '';
-        $isAdmin  = ($_SESSION['user']) === '管理者';
+        $isAdmin  = ($username === '管理者');
         ?>
         <?php if ($isAdmin): ?>
             <div class="section-title">管理者用</div>
