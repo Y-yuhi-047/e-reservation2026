@@ -92,7 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <!-- 学生番号 -->
             <div class="form-group">
-                <label for="studentId">学生番号・教員番号</label>
+                <label for="studentId">学生番号</label>
                 <input type="text" id="studentId" name="student_id" placeholder="8桁の番号の英数字" required>
             </div>
 

@@ -91,7 +91,7 @@ $current_page = 'profile';
 
         <!-- 4. 管理者用セクション（学籍番号がMで始まらない場合＝管理者メニューを表示） -->
         <?php
-        // 「M」から始まる場合は生徒（false）、それ以外は管理者（true）にする
+        // 「管理者」の場合は管理者（true）、それ以外は生徒（false）にする
         $studentNumber = $currentUser['student_number'] ?? '';
         $isAdmin  = ($username === '管理者');
         ?>

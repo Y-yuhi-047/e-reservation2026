@@ -15,7 +15,7 @@ $show_back = isset($_GET['from']) && $_GET['from'] === 'profile';
 // --- ボタンが押されたときの処理（活動開始・終了・編集・削除） ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['reservation_id'])) {
     $targetId = $_POST['reservation_id'];
-    
+
     if ($_POST['action'] === 'start') {
         $updateStmt = $pdo->prepare("UPDATE reservation SET start_time = NOW() WHERE reservation_id = ?");
         $updateStmt->execute([$targetId]);
@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['res
         $scheduledStart = $date . ' ' . $startTime . ':00';
         $scheduledEnd = $date . ' ' . $endTime . ':00';
         $gameId = !empty($_POST['game_id']) ? $_POST['game_id'] : null;
-        
+
         $selectedSeats = $_POST['seats'] ?? [];
         $seat1 = in_array(1, $selectedSeats) ? 1 : 0;
         $seat2 = in_array(2, $selectedSeats) ? 1 : 0;
@@ -61,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['res
         $delStmt = $pdo->prepare("DELETE FROM reservation WHERE reservation_id = ?");
         $delStmt->execute([$targetId]);
     }
-    
+
     $redirect_url = "list.php" . ($show_back ? "?from=profile" : "");
     header("Location: " . $redirect_url);
     exit;
@@ -73,7 +73,7 @@ $allUsersList = $pdo->query("SELECT * FROM `user`")->fetchAll(PDO::FETCH_ASSOC);
 $keyword = $_GET['keyword'] ?? '';
 $order = $_GET['order'] ?? 'asc';
 if ($order !== 'desc') {
-    $order = 'asc';   
+    $order = 'asc';
 }
 $next_order = ($order === 'asc') ? 'desc' : 'asc';
 $order_label = ($order === 'asc') ? '日時が近い順' : '日時が遠い順';
@@ -114,8 +114,8 @@ $reservations = $stmt->fetchAll();
     <title>予約一覧</title>
     <meta name="description" content="">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="css/hiroki.css">
     <link rel="stylesheet" href="css/style2.css">
+    <link rel="stylesheet" href="css/hiroki.css">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <script src="js/hiroki.js" defer></script>
 </head>
@@ -126,7 +126,7 @@ $reservations = $stmt->fetchAll();
 
         <!-- ── スクロールしても上に残るエリア ── -->
         <div class="sticky-top-wrapper">
-            
+
             <div class="page-title-area">
                 <?php if ($show_back): ?>
                     <a href="javascript:history.back()" class="back-link">&lt;</a>
@@ -156,7 +156,7 @@ $reservations = $stmt->fetchAll();
         <?php foreach ($reservations as $row): ?>
 
             <?php
-            $start = strtotime($row['scheduled_start_time']);   
+            $start = strtotime($row['scheduled_start_time']);
             $end = strtotime($row['scheduled_end_time']);
 
             $seats = [];
@@ -168,7 +168,7 @@ $reservations = $stmt->fetchAll();
 
             $status = "活動前";
             $badge = "res-badge-booked";
-            
+
             if ($row["start_time"] == null && $row["end_time"] == null) {
                 $status = "活動前";
                 $badge = "res-badge-booked";
@@ -235,9 +235,9 @@ $reservations = $stmt->fetchAll();
                 </div>
 
                 <p class="res-members">
-                    <?php 
+                    <?php
                     $names = array_column($members, 'user_name');
-                    echo implode('、', $names); 
+                    echo implode('、', $names);
                     ?>
                 </p>
             </a>
@@ -245,7 +245,7 @@ $reservations = $stmt->fetchAll();
             <!-- ── 1. 予約詳細モーダル ── -->
             <div id="detail-modal-<?= $row['reservation_id'] ?>" class="modal-overlay" style="display: none;">
                 <div class="modal-content">
-                    
+
                     <div class="modal-header">
                         <span class="modal-title">予約詳細</span>
                         <button type="button" class="modal-close-btn" onclick="closeDetailModal(<?= $row['reservation_id'] ?>);">
@@ -339,7 +339,7 @@ $reservations = $stmt->fetchAll();
             <!-- ── 2. 予約編集モーダル ── -->
             <div id="edit-modal-<?= $row['reservation_id'] ?>" class="modal-overlay" style="display: none;">
                 <div class="modal-content">
-                    
+
                     <div class="modal-header">
                         <span class="modal-title" style="display: flex; align-items: center; gap: 8px;">
                             <span style="cursor: pointer; font-weight: bold;" onclick="closeEditModal(<?= $row['reservation_id'] ?>); openDetailModal(<?= $row['reservation_id'] ?>);">&lt;</span> 予約編集
@@ -433,7 +433,7 @@ $reservations = $stmt->fetchAll();
                             <div class="member-list-box">
                                 <?php foreach ($allUsersList as $usr): ?>
                                     <label class="member-item">
-                                        <input type="checkbox" name="student_numbers[]" class="member-checkbox" value="<?= htmlspecialchars($usr['student_number']) ?>" 
+                                        <input type="checkbox" name="student_numbers[]" class="member-checkbox" value="<?= htmlspecialchars($usr['student_number']) ?>"
                                             <?= in_array($usr['student_number'], $memberStudentNumbers) ? 'checked' : '' ?>>
                                         <span style="font-weight: 500; color: #333;"><?= htmlspecialchars($usr['user_name']) ?></span>
                                     </label>
@@ -462,53 +462,53 @@ $reservations = $stmt->fetchAll();
 
     <!-- モーダル開閉 & リアルタイム連動用JavaScript -->
     <script>
-    function openDetailModal(id) {
-        var modal = document.getElementById('detail-modal-' + id);
-        if (modal) modal.style.display = 'flex';
-    }
-
-    function closeDetailModal(id) {
-        var modal = document.getElementById('detail-modal-' + id);
-        if (modal) modal.style.display = 'none';
-    }
-
-    function openEditModal(id) {
-        closeDetailModal(id);
-        var modal = document.getElementById('edit-modal-' + id);
-        if (modal) modal.style.display = 'flex';
-    }
-
-    function closeEditModal(id) {
-        var modal = document.getElementById('edit-modal-' + id);
-        if (modal) modal.style.display = 'none';
-    }
-
-    window.onclick = function(event) {
-        if (event.target.classList.contains('modal-overlay')) {
-            event.target.style.display = 'none';
+        function openDetailModal(id) {
+            var modal = document.getElementById('detail-modal-' + id);
+            if (modal) modal.style.display = 'flex';
         }
-    }
 
-    // 席数・人数のリアルタイム更新処理
-    document.addEventListener('change', function(e) {
-        if (e.target.classList.contains('seat-checkbox') || e.target.classList.contains('member-checkbox')) {
-            var modal = e.target.closest('.modal-content');
-            if (modal) {
-                var checkedSeats = modal.querySelectorAll('.seat-checkbox:checked').length;
-                var checkedMembers = modal.querySelectorAll('.member-checkbox:checked').length;
-                
-                var seatCountText = modal.querySelector('.seat-count-text');
-                if (seatCountText) {
-                    seatCountText.textContent = checkedSeats + '席 ・ ' + checkedMembers + '人';
-                }
-                
-                var memberCountText = modal.querySelector('.member-count-text');
-                if (memberCountText) {
-                    memberCountText.textContent = checkedMembers + '人を選択中';
-                }
+        function closeDetailModal(id) {
+            var modal = document.getElementById('detail-modal-' + id);
+            if (modal) modal.style.display = 'none';
+        }
+
+        function openEditModal(id) {
+            closeDetailModal(id);
+            var modal = document.getElementById('edit-modal-' + id);
+            if (modal) modal.style.display = 'flex';
+        }
+
+        function closeEditModal(id) {
+            var modal = document.getElementById('edit-modal-' + id);
+            if (modal) modal.style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal-overlay')) {
+                event.target.style.display = 'none';
             }
         }
-    });
+
+        // 席数・人数のリアルタイム更新処理
+        document.addEventListener('change', function(e) {
+            if (e.target.classList.contains('seat-checkbox') || e.target.classList.contains('member-checkbox')) {
+                var modal = e.target.closest('.modal-content');
+                if (modal) {
+                    var checkedSeats = modal.querySelectorAll('.seat-checkbox:checked').length;
+                    var checkedMembers = modal.querySelectorAll('.member-checkbox:checked').length;
+
+                    var seatCountText = modal.querySelector('.seat-count-text');
+                    if (seatCountText) {
+                        seatCountText.textContent = checkedSeats + '席 ・ ' + checkedMembers + '人';
+                    }
+
+                    var memberCountText = modal.querySelector('.member-count-text');
+                    if (memberCountText) {
+                        memberCountText.textContent = checkedMembers + '人を選択中';
+                    }
+                }
+            }
+        });
     </script>
 </body>
 
