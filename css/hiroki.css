@@ -523,3 +523,32 @@ body.list-page {
     font-size: 12px;
     color: #777777;
 }
+
+@media (min-width: 768px) {
+    html body.list-page {
+        max-width: none;
+        margin: 0;
+        box-shadow: none;
+    }
+
+    html body.list-page .list-body {
+        max-width: none;
+        padding: 24px 32px;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 16px;
+    }
+
+    html body.list-page .list-body .search-area,
+    html body.list-page .list-body .list-info {
+        grid-column: 1 / -1;
+    }
+
+    html body.list-page .list-body .search-area {
+        max-width: 560px;
+    }
+
+    html body.list-page .list-body .res-card {
+        margin-bottom: 0;
+    }
+}

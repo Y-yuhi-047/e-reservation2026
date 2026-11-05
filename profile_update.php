@@ -17,10 +17,10 @@ try {
 }
 
 // ログイン中のユーザー識別子（学籍番号）を取得
-$loginStudentNumber = $_SESSION['user']['student_number'] ?? $_SESSION['student_number'] ?? 'M1234567';
+$loginStudentNumber = $_SESSION['user']['number'] ?? $_SESSION['number'] ?? 'M1234567';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    
+
     // 1. ユーザー名の更新処理
     if (isset($_POST['username'])) {
         $newUserName = trim($_POST['username']);
@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // user テーブルの user_name を更新
             $stmt = $pdo->prepare("UPDATE user SET user_name = ? WHERE student_number = ?");
             $stmt->execute([$newUserName, $loginStudentNumber]);
-            
+
             // セッション側の名前も同期しておく
             if (isset($_SESSION['user'])) {
                 $_SESSION['user']['name'] = $newUserName;
@@ -40,13 +40,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] === UPLOAD_ERR_OK) {
         $fileTmpPath = $_FILES['avatar']['tmp_name'];
         $fileName = $_FILES['avatar']['name'];
-        
+
         // 保存先のディレクトリ
         $uploadFileDir = 'uploads/';
         if (!is_dir($uploadFileDir)) {
             mkdir($uploadFileDir, 0755, true);
         }
-        
+
         // ファイル名が被らないようにユニークな名前に変更
         $newFileName = md5(time() . $fileName) . '.' . pathinfo($fileName, PATHINFO_EXTENSION);
         $dest_path = $uploadFileDir . $newFileName;
