@@ -15,7 +15,7 @@ $show_back = isset($_GET['from']) && $_GET['from'] === 'profile';
 // --- ボタンが押されたときの処理（活動開始・終了・編集・削除） ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['reservation_id'])) {
     $targetId = $_POST['reservation_id'];
-    
+
     if ($_POST['action'] === 'start') {
         $updateStmt = $pdo->prepare("UPDATE reservation SET start_time = NOW() WHERE reservation_id = ?");
         $updateStmt->execute([$targetId]);
@@ -23,13 +23,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['res
         $updateStmt = $pdo->prepare("UPDATE reservation SET end_time = NOW() WHERE reservation_id = ?");
         $updateStmt->execute([$targetId]);
     } elseif ($_POST['action'] === 'edit') {
-        $date = $_POST['date'] ?? '';
-        $startTime = $_POST['start_time'] ?? '';
-        $endTime = $_POST['end_time'] ?? '';
-        $scheduledStart = $date . ' ' . $startTime . ':00';
-        $scheduledEnd = $date . ' ' . $endTime . ':00';
+        // datetime-local の形式（例: 2026-11-15T10:00）をデータベース用（2026-11-15 10:00:00）に変換
+        $scheduledStartInput = $_POST['scheduled_start'] ?? '';
+        $scheduledEndInput = $_POST['scheduled_end'] ?? '';
+
+        $scheduledStart = str_replace('T', ' ', $scheduledStartInput) . ':00';
+        $scheduledEnd = str_replace('T', ' ', $scheduledEndInput) . ':00';
+
         $gameId = !empty($_POST['game_id']) ? $_POST['game_id'] : null;
-        
+
         $selectedSeats = $_POST['seats'] ?? [];
         $seat1 = in_array(1, $selectedSeats) ? 1 : 0;
         $seat2 = in_array(2, $selectedSeats) ? 1 : 0;
@@ -61,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['res
         $delStmt = $pdo->prepare("DELETE FROM reservation WHERE reservation_id = ?");
         $delStmt->execute([$targetId]);
     }
-    
+
     $redirect_url = "list.php" . ($show_back ? "?from=profile" : "");
     header("Location: " . $redirect_url);
     exit;
@@ -73,7 +75,7 @@ $allUsersList = $pdo->query("SELECT * FROM `user`")->fetchAll(PDO::FETCH_ASSOC);
 $keyword = $_GET['keyword'] ?? '';
 $order = $_GET['order'] ?? 'asc';
 if ($order !== 'desc') {
-    $order = 'asc';   
+    $order = 'asc';
 }
 $next_order = ($order === 'asc') ? 'desc' : 'asc';
 $order_label = ($order === 'asc') ? '日時が近い順' : '日時が遠い順';
@@ -86,9 +88,9 @@ if ($show_back) {
 if ($keyword === '') {
     $stmt = $pdo->query(
         "SELECT r.*, g.game_name, g.game_icon 
-         FROM reservation r 
-         LEFT JOIN game g ON r.game_id = g.game_id 
-         ORDER BY r.scheduled_start_time {$order}"
+     FROM reservation r 
+     LEFT JOIN game g ON r.game_id = g.game_id 
+     ORDER BY r.scheduled_start_time {$order}"
     );
 } else {
     $stmt = $pdo->prepare(
@@ -126,7 +128,7 @@ $reservations = $stmt->fetchAll();
 
         <!-- ── スクロールしても上に残るエリア ── -->
         <div class="sticky-top-wrapper">
-            
+
             <div class="page-title-area">
                 <?php if ($show_back): ?>
                     <a href="javascript:history.back()" class="back-link">&lt;</a>
@@ -149,14 +151,24 @@ $reservations = $stmt->fetchAll();
 
             <div class="list-info" style="margin-bottom: 0;">
                 <span>すべての予約 <?= count($reservations) ?>件</span>
-                <span><?= $order_label ?></span>
+                <span>
+                    <?php 
+                        // 「近い」「遠い」の文字を、カラー付きのHTMLタグに置き換える
+                        $formatted_label = str_replace(
+                            ['近い', '遠い'], 
+                            ['<span style="color: #44685d; font-weight: bold;">近い</span>', '<span style="color: #44685d; font-weight: bold;">遠い</span>'], 
+                            $order_label
+                        );
+                        echo $formatted_label;
+                    ?>
+                </span>
             </div>
         </div>
 
         <?php foreach ($reservations as $row): ?>
 
             <?php
-            $start = strtotime($row['scheduled_start_time']);   
+            $start = strtotime($row['scheduled_start_time']);
             $end = strtotime($row['scheduled_end_time']);
 
             $seats = [];
@@ -168,7 +180,7 @@ $reservations = $stmt->fetchAll();
 
             $status = "活動前";
             $badge = "res-badge-booked";
-            
+
             if ($row["start_time"] == null && $row["end_time"] == null) {
                 $status = "活動前";
                 $badge = "res-badge-booked";
@@ -235,9 +247,9 @@ $reservations = $stmt->fetchAll();
                 </div>
 
                 <p class="res-members">
-                    <?php 
+                    <?php
                     $names = array_column($members, 'user_name');
-                    echo implode('、', $names); 
+                    echo implode('、', $names);
                     ?>
                 </p>
             </a>
@@ -245,7 +257,7 @@ $reservations = $stmt->fetchAll();
             <!-- ── 1. 予約詳細モーダル ── -->
             <div id="detail-modal-<?= $row['reservation_id'] ?>" class="modal-overlay" style="display: none;">
                 <div class="modal-content">
-                    
+
                     <div class="modal-header">
                         <span class="modal-title">予約詳細</span>
                         <button type="button" class="modal-close-btn" onclick="closeDetailModal(<?= $row['reservation_id'] ?>);">
@@ -279,8 +291,9 @@ $reservations = $stmt->fetchAll();
                     </div>
 
                     <div style="margin-bottom: 16px;">
-                        <div style="font-size: 12px; font-weight: bold; color: #888888; margin-bottom: 8px;">利用者</div>
-                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <div style="font-size: 12px; font-weight: bold; color: #888888; margin-bottom: 8px;">メンバー</div>
+                        <!-- ▼ クラス名を付与してスクロール可能にする -->
+                        <div class="detail-member-list-box">
                             <?php foreach ($members as $mem): ?>
                                 <div style="display: flex; align-items: center; gap: 10px; background: #ffffff; padding: 8px 12px; border-radius: 10px; border: 1px solid #f0f2f1;">
                                     <div style="width: 32px; height: 32px; background: #e8f2ee; color: #1b4d3e; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; overflow: hidden; flex-shrink: 0;">
@@ -326,11 +339,14 @@ $reservations = $stmt->fetchAll();
                             </div>
                         <?php endif; ?>
 
-                        <div style="display: flex; gap: 8px; margin-top: 4px;">
-                            <button type="button" class="save-btn" style="flex: 1; background-color: #ffffff; color: #1b4d3e; border: 1px solid #dce3e0; font-size: 14px; padding: 12px;" onclick="openEditModal(<?= $row['reservation_id'] ?>);">
-                                <i class="fas fa-pen"></i> 予約編集
-                            </button>
-                        </div>
+                        <!-- ▼ 活動がまだ終了していない（end_time が空）のときだけ「予約編集」ボタンを表示する -->
+                        <?php if (empty($row['end_time'])): ?>
+                            <div style="display: flex; gap: 8px; margin-top: 4px;">
+                                <button type="button" class="save-btn" style="flex: 1; background-color: #ffffff; color: #1b4d3e; border: 1px solid #dce3e0; font-size: 14px; padding: 12px;" onclick="openEditModal(<?= $row['reservation_id'] ?>);">
+                                    <i class="fas fa-pen"></i> 予約編集
+                                </button>
+                            </div>
+                        <?php endif; ?>
                     </div>
 
                 </div>
@@ -339,7 +355,7 @@ $reservations = $stmt->fetchAll();
             <!-- ── 2. 予約編集モーダル ── -->
             <div id="edit-modal-<?= $row['reservation_id'] ?>" class="modal-overlay" style="display: none;">
                 <div class="modal-content">
-                    
+
                     <div class="modal-header">
                         <span class="modal-title" style="display: flex; align-items: center; gap: 8px;">
                             <span style="cursor: pointer; font-weight: bold;" onclick="closeEditModal(<?= $row['reservation_id'] ?>); openDetailModal(<?= $row['reservation_id'] ?>);">&lt;</span> 予約編集
@@ -353,7 +369,7 @@ $reservations = $stmt->fetchAll();
                         <input type="hidden" name="reservation_id" value="<?= $row['reservation_id'] ?>">
                         <input type="hidden" name="action" value="edit">
 
-                        <!-- 日付入力欄（見本に合わせた大きな角丸） -->
+                        <!-- 日付入力欄（見本に合わせた大きな角丸）
                         <div class="form-group">
                             <label class="form-label">日付</label>
                             <div class="custom-input-box" style="display: flex; align-items: center; justify-content: space-between; padding: 0 16px;">
@@ -361,40 +377,44 @@ $reservations = $stmt->fetchAll();
                                 <input type="date" name="date" class="form-control-hidden-date" value="<?= date('Y-m-d', $start) ?>" required>
                                 <i class="far fa-calendar-alt" style="font-size: 18px; color: #666; cursor: pointer;"></i>
                             </div>
-                        </div>
+                        </div> -->
 
-                        <!-- 開始時間・終了時間 -->
-                        <div style="display: flex; gap: 12px; margin-bottom: 20px;">
-                            <div style="flex: 1;">
-                                <label class="form-label">開始時間</label>
-                                <div class="custom-input-box" style="display: flex; align-items: center; justify-content: space-between; padding: 0 16px;">
-                                    <input type="time" name="start_time" class="form-control-time" value="<?= date('H:i', $start) ?>" required>
-                                </div>
-                            </div>
-                            <div style="flex: 1;">
-                                <label class="form-label">終了時間</label>
-                                <div class="custom-input-box" style="display: flex; align-items: center; justify-content: space-between; padding: 0 16px;">
-                                    <input type="time" name="end_time" class="form-control-time" value="<?= date('H:i', $end) ?>" required>
-                                </div>
+                        <!-- 開始日時 -->
+                        <div class="form-group">
+                            <label class="form-label">開始日時</label>
+                            <div class="custom-input-box" style="display: flex; align-items: center; padding: 0 16px; height: 48px;">
+                                <input type="datetime-local" name="scheduled_start" value="<?= date('Y-m-d\TH:i', $start) ?>" required style="width: 100%; border: none; background: transparent; font-size: 15px; color: #333; outline: none;">
                             </div>
                         </div>
 
-                        <!-- ゲーム選択（見本に合わせた大きな角丸＆アイコン付きボックス） -->
+                        <!-- 終了日時 -->
+                        <div class="form-group">
+                            <label class="form-label">終了日時</label>
+                            <div class="custom-input-box" style="display: flex; align-items: center; padding: 0 16px; height: 48px;">
+                                <input type="datetime-local" name="scheduled_end" value="<?= date('Y-m-d\TH:i', $end) ?>" required style="width: 100%; border: none; background: transparent; font-size: 15px; color: #333; outline: none;">
+                            </div>
+                        </div>
+
+                        <!-- ゲーム選択（リアルタイム連動版） -->
                         <div class="form-group">
                             <label class="form-label">ゲーム</label>
                             <div class="custom-game-box">
                                 <div style="display: flex; align-items: center; gap: 10px; width: 100%; position: relative;">
-                                    <div style="width: 32px; height: 32px; background: #e6f2ed; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0;">
-                                        <?php if ($selectedGame && !empty($selectedGame['game_icon'])): ?>
-                                            <img src="<?= htmlspecialchars($selectedGame['game_icon']) ?>" alt="" style="width:100%; height:100%; object-fit:cover;">
+
+                                    <!-- ▼ アイコンを表示するエリア（IDを付与） -->
+                                    <div id="game-icon-preview-<?= $row['reservation_id'] ?>" style="width: 32px; height: 32px; background: #e6f2ed; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0;">
+                                        <?php if (!empty($gameIcon)): ?>
+                                            <img src="<?= htmlspecialchars($gameIcon) ?>" alt="" style="width:100%; height:100%; object-fit:cover;">
                                         <?php else: ?>
                                             🎮
                                         <?php endif; ?>
                                     </div>
-                                    <select name="game_id" class="custom-game-select">
+
+                                    <!-- ▼ onchangeイベントと data-icon を追加 -->
+                                    <select name="game_id" class="custom-game-select" onchange="updateGameIcon(this, <?= $row['reservation_id'] ?>)">
                                         <option value="">（ゲームなし）</option>
                                         <?php foreach ($gamesList as $g): ?>
-                                            <option value="<?= $g['game_id'] ?>" <?= $row['game_id'] == $g['game_id'] ? 'selected' : '' ?>>
+                                            <option value="<?= $g['game_id'] ?>" data-icon="<?= htmlspecialchars($g['game_icon'] ?? '') ?>" <?= $row['game_id'] == $g['game_id'] ? 'selected' : '' ?>>
                                                 <?= htmlspecialchars($g['game_name']) ?>
                                             </option>
                                         <?php endforeach; ?>
@@ -424,7 +444,7 @@ $reservations = $stmt->fetchAll();
                             </div>
                         </div>
 
-                        <!-- メンバー選択 -->
+                        <!-- メンバー選択（アイコン付き） -->
                         <div class="form-group">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                                 <label class="form-label" style="margin-bottom: 0;">メンバー</label>
@@ -432,15 +452,26 @@ $reservations = $stmt->fetchAll();
                             </div>
                             <div class="member-list-box">
                                 <?php foreach ($allUsersList as $usr): ?>
-                                    <label class="member-item">
+                                    <label class="member-item" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                                        <!-- チェックボックス -->
                                         <input type="checkbox" name="student_numbers[]" class="member-checkbox" value="<?= htmlspecialchars($usr['student_number']) ?>" 
                                             <?= in_array($usr['student_number'], $memberStudentNumbers) ? 'checked' : '' ?>>
+                                        
+                                        <!-- ▼ プロフィール画像のアイコン（丸型プレビュー） -->
+                                        <div style="width: 28px; height: 28px; background: #e6f2ed; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0;">
+                                            <?php if (!empty($usr['profile_picture'])): ?>
+                                                <img src="<?= htmlspecialchars($usr['profile_picture']) ?>" alt="" style="width:100%; height:100%; object-fit:cover;">
+                                            <?php else: ?>
+                                                👤
+                                            <?php endif; ?>
+                                        </div>
+
+                                        <!-- ユーザー名 -->
                                         <span style="font-weight: 500; color: #333;"><?= htmlspecialchars($usr['user_name']) ?></span>
                                     </label>
                                 <?php endforeach; ?>
                             </div>
                         </div>
-
                         <!-- 保存・予約取り消しボタン（横並び） -->
                         <div style="display: flex; gap: 10px; margin-top: 24px;">
                             <button type="submit" class="btn-save" style="flex: 1;">保存</button>
@@ -462,53 +493,67 @@ $reservations = $stmt->fetchAll();
 
     <!-- モーダル開閉 & リアルタイム連動用JavaScript -->
     <script>
-    function openDetailModal(id) {
-        var modal = document.getElementById('detail-modal-' + id);
-        if (modal) modal.style.display = 'flex';
-    }
-
-    function closeDetailModal(id) {
-        var modal = document.getElementById('detail-modal-' + id);
-        if (modal) modal.style.display = 'none';
-    }
-
-    function openEditModal(id) {
-        closeDetailModal(id);
-        var modal = document.getElementById('edit-modal-' + id);
-        if (modal) modal.style.display = 'flex';
-    }
-
-    function closeEditModal(id) {
-        var modal = document.getElementById('edit-modal-' + id);
-        if (modal) modal.style.display = 'none';
-    }
-
-    window.onclick = function(event) {
-        if (event.target.classList.contains('modal-overlay')) {
-            event.target.style.display = 'none';
+        function openDetailModal(id) {
+            var modal = document.getElementById('detail-modal-' + id);
+            if (modal) modal.style.display = 'flex';
         }
-    }
 
-    // 席数・人数のリアルタイム更新処理
-    document.addEventListener('change', function(e) {
-        if (e.target.classList.contains('seat-checkbox') || e.target.classList.contains('member-checkbox')) {
-            var modal = e.target.closest('.modal-content');
-            if (modal) {
-                var checkedSeats = modal.querySelectorAll('.seat-checkbox:checked').length;
-                var checkedMembers = modal.querySelectorAll('.member-checkbox:checked').length;
-                
-                var seatCountText = modal.querySelector('.seat-count-text');
-                if (seatCountText) {
-                    seatCountText.textContent = checkedSeats + '席 ・ ' + checkedMembers + '人';
+        function closeDetailModal(id) {
+            var modal = document.getElementById('detail-modal-' + id);
+            if (modal) modal.style.display = 'none';
+        }
+
+        function openEditModal(id) {
+            closeDetailModal(id);
+            var modal = document.getElementById('edit-modal-' + id);
+            if (modal) modal.style.display = 'flex';
+        }
+
+        function closeEditModal(id) {
+            var modal = document.getElementById('edit-modal-' + id);
+            if (modal) modal.style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal-overlay')) {
+                event.target.style.display = 'none';
+            }
+        }
+
+        // 席数・人数のリアルタイム更新処理
+        document.addEventListener('change', function(e) {
+            if (e.target.classList.contains('seat-checkbox') || e.target.classList.contains('member-checkbox')) {
+                var modal = e.target.closest('.modal-content');
+                if (modal) {
+                    var checkedSeats = modal.querySelectorAll('.seat-checkbox:checked').length;
+                    var checkedMembers = modal.querySelectorAll('.member-checkbox:checked').length;
+
+                    var seatCountText = modal.querySelector('.seat-count-text');
+                    if (seatCountText) {
+                        seatCountText.textContent = checkedSeats + '席 ・ ' + checkedMembers + '人';
+                    }
+
+                    var memberCountText = modal.querySelector('.member-count-text');
+                    if (memberCountText) {
+                        memberCountText.textContent = checkedMembers + '人を選択中';
+                    }
                 }
-                
-                var memberCountText = modal.querySelector('.member-count-text');
-                if (memberCountText) {
-                    memberCountText.textContent = checkedMembers + '人を選択中';
+            }
+        });
+        // ゲームのセレクトボックスが変更されたときにアイコンをリアルタイムで切り替える関数
+        function updateGameIcon(selectElement, reservationId) {
+            var selectedOption = selectElement.options[selectElement.selectedIndex];
+            var iconUrl = selectedOption.getAttribute('data-icon');
+            var previewContainer = document.getElementById('game-icon-preview-' + reservationId);
+
+            if (previewContainer) {
+                if (iconUrl && iconUrl !== '') {
+                    previewContainer.innerHTML = '<img src="' + iconUrl + '" alt="" style="width:100%; height:100%; object-fit:cover;">';
+                } else {
+                    previewContainer.innerHTML = '🎮';
                 }
             }
         }
-    });
     </script>
 </body>
 
