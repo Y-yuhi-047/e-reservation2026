@@ -807,11 +807,27 @@ body.profile-edit-page {
    予約一覧ページ & 予約編集モーダル専用スタイル
    ========================================================== */
 
-html, body {
-    height: 100%;
+html,
+body {
+    /* height: 100%; */
     margin: 0;
-    overflow: hidden;
+    /* overflow: hidden; */
     text-align: left !important;
+}
+
+/* 予約一覧ページだけ、画面固定＋内部スクロールにする */
+html:has(body.list-page),
+body.list-page {
+    height: 100%;
+    overflow: hidden;
+}
+
+html.user-management-page,
+body.user-management-page {
+    height: auto;
+    min-height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 body.list-page {
@@ -895,11 +911,14 @@ body.list-page {
 }
 
 /* 「日時が近い順」「日時が遠い順」と表示されるテキストの文字色を変更 */
-.sort-order-text { /* クラス名は実際のHTMLに合わせて書き換えてください */
-    color: #1b4d3e; /* アプリ全体のテーマカラー（深緑）にする場合 */
+.sort-order-text {
+    /* クラス名は実際のHTMLに合わせて書き換えてください */
+    color: #1b4d3e;
+    /* アプリ全体のテーマカラー（深緑）にする場合 */
     font-size: 13px;
     font-weight: bold;
 }
+
 /* ==========================================================
    予約編集モーダル内パーツ（スリム＆コンパクト化）
    ========================================================== */
@@ -946,11 +965,13 @@ body.list-page {
 
 /* 擬似要素を使って時計アイコンを綺麗に右側に配置 */
 .custom-time-box::after {
-    content: "\f017"; /* FontAwesomeの時計アイコン(fa-clock)の文字コード */
+    content: "\f017";
+    /* FontAwesomeの時計アイコン(fa-clock)の文字コード */
     font-family: "Font Awesome 6 Free";
     font-weight: 400;
     position: absolute;
-    right: 14px; /* ← この数字を小さくするとさらに右に移動します（例: 10px） */
+    right: 14px;
+    /* ← この数字を小さくするとさらに右に移動します（例: 10px） */
     font-size: 18px;
     color: #666;
     pointer-events: none;
@@ -993,11 +1014,13 @@ body.list-page {
     flex-direction: column;
     gap: 6px;
 }
+
 .seat-row {
     display: flex;
     gap: 6px;
     justify-content: center;
 }
+
 .seat-chip {
     display: inline-flex;
     align-items: center;
@@ -1013,9 +1036,11 @@ body.list-page {
     cursor: pointer;
     transition: all 0.2s;
 }
+
 .seat-chip input {
     display: none;
 }
+
 .seat-chip:has(input:checked) {
     background: #1b4d3e;
     color: #fff;
@@ -1030,6 +1055,7 @@ body.list-page {
     max-height: 120px;
     overflow-y: auto;
 }
+
 .member-item {
     display: flex;
     align-items: center;
@@ -1039,9 +1065,11 @@ body.list-page {
     cursor: pointer;
     border-bottom: 1px solid #f5f5f5;
 }
+
 .member-item:last-child {
     border-bottom: none;
 }
+
 .member-item input[type="checkbox"] {
     width: 18px;
     height: 18px;
@@ -1061,6 +1089,7 @@ body.list-page {
     font-size: 15px;
     cursor: pointer;
 }
+
 .btn-cancel {
     background-color: #fff;
     color: #1b4d3e;
@@ -1078,13 +1107,17 @@ body.list-page {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    max-height: 140px;      /* 表示する高さを制限（必要に応じて変更OKです） */
-    overflow-y: auto;       /* はみ出したらスクロール */
-    padding-right: 4px;     /* スクロールバーの重なり防止用 */
+    max-height: 140px;
+    /* 表示する高さを制限（必要に応じて変更OKです） */
+    overflow-y: auto;
+    /* はみ出したらスクロール */
+    padding-right: 4px;
+    /* スクロールバーの重なり防止用 */
 }
+
 /* 日時入力欄および内部の選択ハイライト色をアプリのテーマカラーに合わせる */
 input[type="datetime-local"] {
     accent-color: #1b4d3e;
-    color-scheme: light; /* ブラウザのダーク/ライトモードの強制を避ける */
+    color-scheme: light;
+    /* ブラウザのダーク/ライトモードの強制を避ける */
 }
-

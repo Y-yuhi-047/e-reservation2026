@@ -21,10 +21,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['action']) && $_POST['action'] === 'delete') {
         $deleteId = trim($_POST['user_id'] ?? '');
 
-        $stmt = $pdo->prepare("DELETE FROM user WHERE student_number = ?");
-        $stmt->execute([$deleteId]);
+        $check = $pdo->prepare("SELECT COUNT(*) FROM user_reservation WHERE student_number = ?");
+        $check->execute([$deleteId]);
 
-        $_SESSION['flash_message'] = 'ユーザーを削除しました。';
+        if ($check->fetchColumn() > 0) {
+            $_SESSION['flash_message'] = 'このユーザーは予約情報が存在するため、削除できません。';
+            header('Location: user.php');
+            exit();
+        } else {
+            try {
+                $stmt = $pdo->prepare("DELETE FROM user WHERE student_number = ?");
+                $stmt->execute([$deleteId]);
+                $_SESSION['flash_message'] = 'ユーザーを削除しました。';
+            } catch (PDOException $e) {
+                $_SESSION['flash_message'] = 'ユーザーの削除に失敗しました。' . $e->getMessage();
+            }
+        }
+
         header('Location: user.php');
         exit();
     }
@@ -92,7 +105,7 @@ $flash_message = $_SESSION['flash_message'] ?? '';
 unset($_SESSION['flash_message']);
 ?>
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" class="user-management-page">
 
 <head>
     <meta charset="UTF-8">
@@ -103,7 +116,7 @@ unset($_SESSION['flash_message']);
     <link rel="stylesheet" href="css/style2.css?v=44">
 </head>
 
-<body class="profile-edit-page">
+<body class="profile-edit-page user-management-page">
 
     <header class="sub-header">
         <div class="sub-header-left">
