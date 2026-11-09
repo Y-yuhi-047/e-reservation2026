@@ -570,6 +570,37 @@ body.profile-edit-page {
     font-size: 16px;
 }
 
+/* ゲーム管理画面のスクロール・リスト用スタイル */
+.game-list-card {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    padding: 0;
+    max-height: 78vh; /* ← ここを 72vh から 82vh（またはお好みで85vhなど）に変更！ */
+    overflow-y: auto;
+    overflow-x: hidden;
+    margin-bottom: 16px;
+}
+
+/* スクロールバーのデザイン */
+.game-list-card::-webkit-scrollbar {
+    width: 6px;
+}
+
+.game-list-card::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.game-list-card::-webkit-scrollbar-thumb {
+    background: #c5d4cd;
+    border-radius: 3px;
+}
+
+.game-list-card::-webkit-scrollbar-thumb:hover {
+    background: #1b4d3e;
+}
+
 
 /* ==========================================
     ユーザー管理画面用スタイル

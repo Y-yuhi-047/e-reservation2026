@@ -106,6 +106,7 @@ if ($keyword === '') {
 }
 
 $reservations = $stmt->fetchAll();
+$current_page = 'list';
 ?>
 
 <!DOCTYPE html>
@@ -137,7 +138,7 @@ $reservations = $stmt->fetchAll();
             </div>
 
             <div class="search-area">
-                <form action="#" class="search-form-3">
+                <form action="list.php" class="search-form-3">
                     <?php if ($show_back): ?>
                         <input type="hidden" name="from" value="profile">
                     <?php endif; ?>
@@ -152,14 +153,14 @@ $reservations = $stmt->fetchAll();
             <div class="list-info" style="margin-bottom: 0;">
                 <span>すべての予約 <?= count($reservations) ?>件</span>
                 <span>
-                    <?php 
-                        // 「近い」「遠い」の文字を、カラー付きのHTMLタグに置き換える
-                        $formatted_label = str_replace(
-                            ['近い', '遠い'], 
-                            ['<span style="color: #44685d; font-weight: bold;">近い</span>', '<span style="color: #44685d; font-weight: bold;">遠い</span>'], 
-                            $order_label
-                        );
-                        echo $formatted_label;
+                    <?php
+                    // 「近い」「遠い」の文字を、カラー付きのHTMLタグに置き換える
+                    $formatted_label = str_replace(
+                        ['近い', '遠い'],
+                        ['<span style="color: #44685d; font-weight: bold;">近い</span>', '<span style="color: #44685d; font-weight: bold;">遠い</span>'],
+                        $order_label
+                    );
+                    echo $formatted_label;
                     ?>
                 </span>
             </div>
@@ -454,9 +455,9 @@ $reservations = $stmt->fetchAll();
                                 <?php foreach ($allUsersList as $usr): ?>
                                     <label class="member-item" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
                                         <!-- チェックボックス -->
-                                        <input type="checkbox" name="student_numbers[]" class="member-checkbox" value="<?= htmlspecialchars($usr['student_number']) ?>" 
+                                        <input type="checkbox" name="student_numbers[]" class="member-checkbox" value="<?= htmlspecialchars($usr['student_number']) ?>"
                                             <?= in_array($usr['student_number'], $memberStudentNumbers) ? 'checked' : '' ?>>
-                                        
+
                                         <!-- ▼ プロフィール画像のアイコン（丸型プレビュー） -->
                                         <div style="width: 28px; height: 28px; background: #e6f2ed; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0;">
                                             <?php if (!empty($usr['profile_picture'])): ?>
@@ -554,6 +555,31 @@ $reservations = $stmt->fetchAll();
                 }
             }
         }
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.querySelector('input[name="keyword"]');
+
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    // 入力されたキーワード（小文字に統一し、前後の余白を削除）
+                    const keyword = searchInput.value.toLowerCase().trim();
+
+                    // 予約カードの要素をすべて取得（クラス名 .res-card を指定）
+                    const reservationCards = document.querySelectorAll('.res-card');
+
+                    reservationCards.forEach(card => {
+                        // カード内のテキスト（日付、ゲーム名、メンバーの名前など全て）を取得
+                        const cardText = card.textContent.toLowerCase();
+
+                        // キーワードが空、またはカード内のテキストにキーワードが含まれている場合は表示
+                        if (keyword === '' || cardText.includes(keyword)) {
+                            card.style.display = ''; // 表示する
+                        } else {
+                            card.style.display = 'none'; // 一致しない場合は非表示にする
+                        }
+                    });
+                });
+            }
+        });
     </script>
 </body>
 
