@@ -25,12 +25,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (isset($_FILES['game_image']) && $_FILES['game_image']['error'] === UPLOAD_ERR_OK) {
             $fileTmpPath = $_FILES['game_image']['tmp_name'];
             $fileName = $_FILES['game_image']['name'];
-            
+
             $uploadFileDir = 'uploads/';
             if (!is_dir($uploadFileDir)) {
                 mkdir($uploadFileDir, 0755, true);
             }
-            
+
             $newFileName = 'game_' . md5(time() . $fileName) . '.' . pathinfo($fileName, PATHINFO_EXTENSION);
             $dest_path = $uploadFileDir . $newFileName;
 
@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt = $pdo->prepare("INSERT INTO game (game_name, game_icon) VALUES (?, ?)");
             $stmt->execute([$gameName, $imagePath]);
         }
-        
+
         header('Location: game_list.php');
         exit();
     }
@@ -57,17 +57,19 @@ $current_page = 'profile';
 ?>
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ゲーム管理 - e-reservation</title>
-    
+
     <!-- アイコン用 Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <!-- 共通CSS -->
     <link rel="stylesheet" href="css/style2.css?v=26">
 </head>
+
 <body class="profile-edit-page">
 
     <!-- ヘッダー -->
@@ -83,7 +85,7 @@ $current_page = 'profile';
 
     <!-- メインコンテンツ -->
     <main class="main-container" style="padding-bottom: 90px;">
-        
+
         <!-- セクションタイトルと件数 -->
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 0 4px;">
             <span style="font-size: 13px; font-weight: bold; color: #888888;">登録ゲーム</span>
@@ -91,7 +93,7 @@ $current_page = 'profile';
         </div>
 
         <!-- ゲームリストを囲むカード -->
-        <div class="card" style="display: flex; flex-direction: column; padding: 0; overflow: hidden; margin-bottom: 16px;">
+        <div class="card game-list-card">
             <?php if (empty($games)): ?>
                 <div style="padding: 24px 16px; text-align: center; color: #888888; font-size: 14px; width: 100%; box-sizing: border-box;">
                     登録されているゲームはありません。
@@ -138,10 +140,10 @@ $current_page = 'profile';
                 <span class="modal-title">ゲームを追加</span>
                 <button type="button" class="modal-close-btn" onclick="closeGameModal();"><i class="fas fa-times"></i></button>
             </div>
-            
+
             <form action="game_list.php" method="POST" enctype="multipart/form-data">
                 <input type="hidden" name="action" value="add">
-                
+
                 <!-- アイコン選択エリア -->
                 <div class="edit-avatar-section" style="margin: 16px 0 20px 0;">
                     <label for="modal-game-image-input" class="edit-avatar-wrapper" style="cursor: pointer;">
@@ -170,50 +172,51 @@ $current_page = 'profile';
 
     <!-- モーダル開閉・画像プレビュー用JavaScript -->
     <script>
-    function openGameModal() {
-        var modal = document.getElementById('game-add-modal');
-        if (modal) {
-            modal.style.display = 'flex';
-            var input = document.getElementById('game_name');
-            if (input) {
-                input.focus();
-            }
-        }
-    }
-
-    function closeGameModal() {
-        var modal = document.getElementById('game-add-modal');
-        if (modal) {
-            modal.style.display = 'none';
-        }
-    }
-    
-    window.onclick = function(event) {
-        var modal = document.getElementById('game-add-modal');
-        if (event.target === modal) {
-            closeGameModal();
-        }
-    }
-
-    function previewGameImage(obj) {
-        if (obj.files && obj.files[0]) {
-            var reader = new FileReader();
-            reader.onload = function(e) {
-                var preview = document.getElementById('modal-game-preview');
-                var icon = document.getElementById('modal-game-icon');
-
-                if (preview) {
-                    preview.src = e.target.result;
-                    preview.style.display = 'block';
-                }
-                if (icon) {
-                    icon.style.display = 'none';
+        function openGameModal() {
+            var modal = document.getElementById('game-add-modal');
+            if (modal) {
+                modal.style.display = 'flex';
+                var input = document.getElementById('game_name');
+                if (input) {
+                    input.focus();
                 }
             }
-            reader.readAsDataURL(obj.files[0]);
         }
-    }
+
+        function closeGameModal() {
+            var modal = document.getElementById('game-add-modal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        window.onclick = function(event) {
+            var modal = document.getElementById('game-add-modal');
+            if (event.target === modal) {
+                closeGameModal();
+            }
+        }
+
+        function previewGameImage(obj) {
+            if (obj.files && obj.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    var preview = document.getElementById('modal-game-preview');
+                    var icon = document.getElementById('modal-game-icon');
+
+                    if (preview) {
+                        preview.src = e.target.result;
+                        preview.style.display = 'block';
+                    }
+                    if (icon) {
+                        icon.style.display = 'none';
+                    }
+                }
+                reader.readAsDataURL(obj.files[0]);
+            }
+        }
     </script>
 
 </body>
+
 </html>
