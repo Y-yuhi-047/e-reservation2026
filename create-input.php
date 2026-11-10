@@ -11,7 +11,7 @@ try {
     );
 
     // ゲーム一覧（アイコン表示用に game_icon も取得）
-    $games = $pdo->query('SELECT game_name, game_icon FROM game')->fetchAll();
+    $games = $pdo->query('SELECT * FROM game')->fetchAll();
 
     // メンバー選択用のユーザー一覧
     $allUsersList = $pdo->query('SELECT student_number, user_name FROM `user`')->fetchAll();
@@ -69,9 +69,9 @@ $firstGame = $games[0] ?? null;
                                     🎮
                                 <?php endif; ?>
                             </div>
-                            <select name="game_name" class="custom-game-select js-game-select">
+                            <select name="game_id" class="custom-game-select js-game-select">
                                 <?php foreach ($games as $game): ?>
-                                    <option value="<?= htmlspecialchars($game['game_name'], ENT_QUOTES, 'UTF-8') ?>"
+                                    <option value="<?= htmlspecialchars($game['game_id'], ENT_QUOTES, 'UTF-8') ?>"
                                             data-icon="<?= htmlspecialchars($game['game_icon'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
                                         <?= htmlspecialchars($game['game_name'], ENT_QUOTES, 'UTF-8') ?>
                                     </option>
