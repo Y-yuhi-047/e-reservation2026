@@ -310,17 +310,13 @@ body {
 body.list-page {
     display: block;
     min-height: 100vh;
-    max-width: 480px;
-    /* スマホの幅。ここを変えれば幅を調整できる */
-    margin: 0 auto;
-    /* 左右の中央に置く */
+    margin: 0;
+    /* 変更: 0 auto → 0 */
     padding: 0 0 90px 0;
-    /* 下だけフッター用に空ける */
     box-sizing: border-box;
     background-color: #f7f9f8;
     font-family: sans-serif;
-    box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
-    /* 左右の境目を見やすくする影(いらなければ消す) */
+    /* max-width: 480px; と box-shadow は削除 */
 }
 
 
@@ -522,33 +518,4 @@ body.list-page {
     margin: 10px 0 0;
     font-size: 12px;
     color: #777777;
-}
-
-@media (min-width: 768px) {
-    html body.list-page {
-        max-width: none;
-        margin: 0;
-        box-shadow: none;
-    }
-
-    html body.list-page .list-body {
-        max-width: none;
-        padding: 24px 32px;
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-        gap: 16px;
-    }
-
-    html body.list-page .list-body .search-area,
-    html body.list-page .list-body .list-info {
-        grid-column: 1 / -1;
-    }
-
-    html body.list-page .list-body .search-area {
-        max-width: 560px;
-    }
-
-    html body.list-page .list-body .res-card {
-        margin-bottom: 0;
-    }
 }

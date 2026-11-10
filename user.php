@@ -71,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['temp_password'] = [
             'name' => $targetName,
             'password' => $plainPassword,
-            'expires' => $expires
+            'expires' => date('Y年m月d日 H時i分', $expires)
         ];
     }
     header('Location: user.php');
@@ -142,6 +142,7 @@ unset($_SESSION['temp_password']);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ユーザー管理 - e-reservation</title>
 
+    <!-- <link rel="stylesheet" href="css/hiroki.css"> -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/style2.css?v=44">
 </head>
@@ -169,7 +170,7 @@ unset($_SESSION['temp_password']);
                     <?php echo htmlspecialchars($temp_password['name'], ENT_QUOTES, 'UTF-8'); ?>さんの仮パスワード
                 </div>
                 <div class="temp-password-code">
-                    <?php echo htmlspecialchars($temp_password['code'], ENT_QUOTES, 'UTF-8'); ?>
+                    <?php echo htmlspecialchars($temp_password['password'], ENT_QUOTES, 'UTF-8'); ?>
                 </div>
                 <div class="temp-password-note">
                     有効期限<?php echo htmlspecialchars($temp_password['expires'], ENT_QUOTES, 'UTF-8'); ?>まで<br>
