@@ -83,6 +83,16 @@ $current_page = 'profile';
             </div>
             <i class="fas fa-chevron-right arrow-icon"></i>
         </a>
+        <a href="password_change.php" class="card simple-menu-item" style="text-decoration: none;">
+            <div class="menu-left">
+                <div class="menu-icon green-bg"><i class="fas fa-key"></i></div>
+                <div class="menu-text-group">
+                    <span class="menu-title">パスワード変更</span>
+                    <span class="menu-desc">ログイン用のパスワードを変更します</span>
+                </div>
+            </div>
+            <i class="fas fa-chevron-right arrow-icon"></i>
+        </a>
         <!-- 3. ログアウトボタン -->
         <a href="logout.php" class="logout-btn" onclick="return confirm('本当にログアウトしますか？');" style="text-decoration: none;">
             <i class="fas fa-sign-out-alt"></i>

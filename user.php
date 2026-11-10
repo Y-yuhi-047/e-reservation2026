@@ -2,6 +2,7 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+require_once 'password_helper.php';
 
 // --- データベース接続設定（MAMP等のローカル環境用） ---
 $host = 'localhost';
@@ -45,10 +46,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['action']) && $_POST['action'] === 'reset_password') {
         $resetId = trim($_POST['user_id'] ?? '');
 
+        // リセット対象のユーザー名をDBから探す（画面に「〇〇さんの仮パスワード」と出すため）
+        $nameStmt = $pdo->prepare("SELECT user_name FROM user WHERE student_number = ?");
+        // ? の部分に学籍番号を入れて実行する
+        $nameStmt->execute([$resetId]);
+        // 結果の1列目（ユーザー名）を取り出す。見つからなければ false になる
+        $targetName = $nameStmt->fetchColumn();
+
+        if ($targetName === false) {
+            $_SESSION['flash_message'] = 'ユーザーが見つかりません。';
+            header('Location: user.php');
+            exit();
+        } else {
+
+            // 仮パスワードと期限を作る。[ ] で、戻り値の2つをそれぞれの変数に受け取る
+            [$plainPassword, $expires] = generateTempPassword();
+
+            // DBのパスワード列を、仮パスワードで上書きする（※ハッシュ化なし）
+            $stmt = $pdo->prepare("UPDATE user SET password = ? WHERE student_number = ?");
+            // ? の部分に仮パスワードと学籍番号を入れて実行する
+            $stmt->execute([$plainPassword, $resetId]);
+        }
         $_SESSION['flash_message'] = 'パスワードをリセットしました。';
-        header('Location: user.php');
-        exit();
+        $_SESSION['temp_password'] = [
+            'name' => $targetName,
+            'password' => $plainPassword,
+            'expires' => date('Y年m月d日 H時i分', $expires)
+        ];
     }
+    header('Location: user.php');
+    exit();
 }
 
 // 検索キーワードと並び順の取得
@@ -102,7 +129,10 @@ foreach ($raw_users as $u) {
 
 $current_page = 'profile';
 $flash_message = $_SESSION['flash_message'] ?? '';
+// セッションに入っている仮パスワード情報を取り出す（なければ null）
+$temp_password = $_SESSION['temp_password'] ?? null;
 unset($_SESSION['flash_message']);
+unset($_SESSION['temp_password']);
 ?>
 <!DOCTYPE html>
 <html lang="ja" class="user-management-page">
@@ -112,6 +142,7 @@ unset($_SESSION['flash_message']);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ユーザー管理 - e-reservation</title>
 
+    <!-- <link rel="stylesheet" href="css/hiroki.css"> -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/style2.css?v=44">
 </head>
@@ -133,6 +164,20 @@ unset($_SESSION['flash_message']);
             </div>
         <?php endif; ?>
 
+        <?php if (!empty($temp_password)): ?>
+            <div class="temp-password-box">
+                <div class="temp-password-label">
+                    <?php echo htmlspecialchars($temp_password['name'], ENT_QUOTES, 'UTF-8'); ?>さんの仮パスワード
+                </div>
+                <div class="temp-password-code">
+                    <?php echo htmlspecialchars($temp_password['password'], ENT_QUOTES, 'UTF-8'); ?>
+                </div>
+                <div class="temp-password-note">
+                    有効期限<?php echo htmlspecialchars($temp_password['expires'], ENT_QUOTES, 'UTF-8'); ?>まで<br>
+                    この画面を離れると再表示できませんので、必ず控えておいてください。
+                </div>
+            </div>
+        <?php endif; ?>
         <form action="user.php" method="GET" class="user-search-form">
             <input type="text" name="keyword" value="<?php echo htmlspecialchars($keyword, ENT_QUOTES, 'UTF-8'); ?>" placeholder="ユーザー名で検索..." class="user-search-input">
             <?php if ($sort !== 'new'): ?>

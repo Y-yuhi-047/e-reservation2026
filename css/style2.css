@@ -1152,3 +1152,150 @@ input[type="datetime-local"] {
     color-scheme: light;
     /* ブラウザのダーク/ライトモードの強制を避ける */
 }
+
+/* パス再設定 */
+
+.temp-password-box {
+    background-color: #ffffff;
+    border: 2px solid #1b4d3e;
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    text-align: center;
+}
+
+.temp-password-label {
+    font-size: 13px;
+    color: #888888;
+    font-weight: bold;
+}
+
+.temp-password-code {
+    font-size: 18px;
+    font-weight: bold;
+    color: #1b4d3e;
+    letter-spacing: 1px;
+    margin: 8px 0;
+    word-break: break-all;
+    user-select: all;
+    /* タップで全選択してコピーしやすくする */
+}
+
+.temp-password-note {
+    font-size: 11px;
+    color: #888888;
+    line-height: 1.6;
+}
+
+/* ==========================================
+パスワード変更ページ
+   ========================================== */
+body.password-change-page {
+    background-color: #f6f8f7;
+}
+
+.password-change-page main {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 16px 16px 90px;
+    box-sizing: border-box;
+}
+
+/* 入力グループ */
+.password-change-page .form-group {
+    margin-bottom: 20px;
+}
+
+.password-change-page .form-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: bold;
+    color: #1a1a1a;
+    margin-bottom: 8px;
+}
+
+.password-change-page .form-group input {
+    width: 100%;
+    padding: 14px 16px;
+    font-size: 15px;
+    color: #1a1a1a;
+    background-color: #ffffff;
+    border: 1px solid #dce3e0;
+    border-radius: 12px;
+    box-sizing: border-box;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.password-change-page .form-group input:focus {
+    border-color: #2b7a62;
+    box-shadow: 0 0 0 3px rgba(43, 122, 98, 0.12);
+}
+
+/* 変更ボタン */
+.password-change-page button[type="submit"] {
+    width: 100%;
+    padding: 16px;
+    margin-top: 8px;
+    background-color: #2b7a62;
+    color: #ffffff;
+    border: none;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    box-sizing: border-box;
+    box-shadow: 0 2px 4px rgba(43, 122, 98, 0.15);
+}
+
+.password-change-page button[type="submit"]:hover {
+    background-color: #246a54;
+}
+
+/* 成功後の「プロフィールへ戻る」ボタン */
+.password-back-btn {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    margin-top: 8px;
+    background-color: #2b7a62;
+    color: #ffffff;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: bold;
+    text-align: center;
+    text-decoration: none;
+    box-sizing: border-box;
+}
+
+
+/* パスワード表示設定 */
+
+.btn-toggle-password {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #147d69;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 4px;
+    line-height: 1;
+}
+
+.btn-toggle-password:hover {
+    text-decoration: underline;
+}
+
+.password-change-page .password-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+/* ボタンと文字が重ならないよう、右に余白を空ける */
+.password-change-page .password-wrapper input {
+    padding-right: 64px;
+}
