@@ -154,7 +154,6 @@ $current_page = 'list';
                 <span>すべての予約 <?= count($reservations) ?>件</span>
                 <span>
                     <?php
-                    // 「近い」「遠い」の文字を、カラー付きのHTMLタグに置き換える
                     $formatted_label = str_replace(
                         ['近い', '遠い'],
                         ['<span style="color: #44685d; font-weight: bold;">近い</span>', '<span style="color: #44685d; font-weight: bold;">遠い</span>'],
@@ -204,7 +203,7 @@ $current_page = 'list';
             $members = $membersStmt->fetchAll(PDO::FETCH_ASSOC);
             $memberStudentNumbers = array_column($members, 'student_number');
 
-            $gameName = $row['game_name'] !== null ? $row['game_name'] : '（削除されたゲーム）';
+            $gameName = $row['game_name'] !== null ? $row['game_name'] : '未選択';
             $gameIcon = $row['game_icon'] ?? '';
             $memo = $row['memo'] ?? '';
             $selectedGame = null;
@@ -215,7 +214,6 @@ $current_page = 'list';
                 }
             }
 
-            // 曜日の日本語表記用配列
             $weekdays = ['日', '月', '火', '水', '木', '金', '土'];
             $weekday = $weekdays[date('w', $start)];
             ?>
@@ -293,7 +291,6 @@ $current_page = 'list';
 
                     <div style="margin-bottom: 16px;">
                         <div style="font-size: 12px; font-weight: bold; color: #888888; margin-bottom: 8px;">メンバー</div>
-                        <!-- ▼ クラス名を付与してスクロール可能にする -->
                         <div class="detail-member-list-box">
                             <?php foreach ($members as $mem): ?>
                                 <div style="display: flex; align-items: center; gap: 10px; background: #ffffff; padding: 8px 12px; border-radius: 10px; border: 1px solid #f0f2f1;">
@@ -340,7 +337,6 @@ $current_page = 'list';
                             </div>
                         <?php endif; ?>
 
-                        <!-- ▼ 活動がまだ終了していない（end_time が空）のときだけ「予約編集」ボタンを表示する -->
                         <?php if (empty($row['end_time'])): ?>
                             <div style="display: flex; gap: 8px; margin-top: 4px;">
                                 <button type="button" class="save-btn" style="flex: 1; background-color: #ffffff; color: #1b4d3e; border: 1px solid #dce3e0; font-size: 14px; padding: 12px;" onclick="openEditModal(<?= $row['reservation_id'] ?>);">
@@ -370,16 +366,6 @@ $current_page = 'list';
                         <input type="hidden" name="reservation_id" value="<?= $row['reservation_id'] ?>">
                         <input type="hidden" name="action" value="edit">
 
-                        <!-- 日付入力欄（見本に合わせた大きな角丸）
-                        <div class="form-group">
-                            <label class="form-label">日付</label>
-                            <div class="custom-input-box" style="display: flex; align-items: center; justify-content: space-between; padding: 0 16px;">
-                                <span style="font-size: 15px; color: #333; font-weight: 500;"><?= date('Y年n月j日', $start) ?>（<?= $weekday ?>）</span>
-                                <input type="date" name="date" class="form-control-hidden-date" value="<?= date('Y-m-d', $start) ?>" required>
-                                <i class="far fa-calendar-alt" style="font-size: 18px; color: #666; cursor: pointer;"></i>
-                            </div>
-                        </div> -->
-
                         <!-- 開始日時 -->
                         <div class="form-group">
                             <label class="form-label">開始日時</label>
@@ -396,30 +382,50 @@ $current_page = 'list';
                             </div>
                         </div>
 
-                        <!-- ゲーム選択（リアルタイム連動版） -->
+                        <!-- ゲーム選択（アイコン付きカスタムドロップダウン） -->
                         <div class="form-group">
                             <label class="form-label">ゲーム</label>
-                            <div class="custom-game-box">
-                                <div style="display: flex; align-items: center; gap: 10px; width: 100%; position: relative;">
-
-                                    <!-- ▼ アイコンを表示するエリア（IDを付与） -->
-                                    <div id="game-icon-preview-<?= $row['reservation_id'] ?>" style="width: 32px; height: 32px; background: #e6f2ed; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0;">
-                                        <?php if (!empty($gameIcon)): ?>
-                                            <img src="<?= htmlspecialchars($gameIcon) ?>" alt="" style="width:100%; height:100%; object-fit:cover;">
-                                        <?php else: ?>
-                                            🎮
-                                        <?php endif; ?>
+                            <div class="custom-game-dropdown-wrapper" style="position: relative; width: 100%;">
+                                <!-- 選択中表示（トリガー） -->
+                                <div onclick="toggleCustomGameDropdown(event, <?= $row['reservation_id'] ?>)" style="background: #f7f9f8; border: 1px solid #dce3e0; border-radius: 12px; padding: 0 12px; height: 48px; display: flex; align-items: center; justify-content: space-between; cursor: pointer;">
+                                    <div style="display: flex; align-items: center; gap: 10px; width: 100%;">
+                                        <div id="game-icon-preview-<?= $row['reservation_id'] ?>" style="width: 28px; height: 28px; background: #e6f2ed; color: #1b4d3e; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0;">
+                                            <?php if (!empty($gameIcon)): ?>
+                                                <img src="<?= htmlspecialchars($gameIcon) ?>" alt="" style="width:100%; height:100%; object-fit:cover;">
+                                            <?php else: ?>
+                                                <i class="fas fa-gamepad" style="font-size: 14px;"></i>
+                                            <?php endif; ?>
+                                        </div>
+                                        <span id="game-name-preview-<?= $row['reservation_id'] ?>" style="font-size: 15px; color: #333; font-weight: 500;"><?= htmlspecialchars($gameName) ?></span>
                                     </div>
+                                    <i class="fas fa-chevron-down" style="font-size: 12px; color: #666;"></i>
+                                </div>
 
-                                    <!-- ▼ onchangeイベントと data-icon を追加 -->
-                                    <select name="game_id" class="custom-game-select" onchange="updateGameIcon(this, <?= $row['reservation_id'] ?>)">
-                                        <option value="">（ゲームなし）</option>
-                                        <?php foreach ($gamesList as $g): ?>
-                                            <option value="<?= $g['game_id'] ?>" data-icon="<?= htmlspecialchars($g['game_icon'] ?? '') ?>" <?= $row['game_id'] == $g['game_id'] ? 'selected' : '' ?>>
-                                                <?= htmlspecialchars($g['game_name']) ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
+                                <!-- フォーム送信用の隠しinput -->
+                                <input type="hidden" name="game_id" id="selected-game-id-<?= $row['reservation_id'] ?>" value="<?= htmlspecialchars($row['game_id'] ?? '') ?>">
+
+                                <!-- 選択肢のポップアップリスト -->
+                                <div id="game-dropdown-list-<?= $row['reservation_id'] ?>" class="custom-game-dropdown-list" style="display: none; position: absolute; top: 100%; left: 0; width: 100%; background: #fff; border: 1px solid #dce3e0; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 1000; max-height: 220px; overflow-y: auto; margin-top: 4px;">
+                                    <!-- 未選択オプション -->
+                                    <div onclick="selectCustomGame(event, <?= $row['reservation_id'] ?>, '', '未選択', '')" style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; cursor: pointer; border-bottom: 1px solid #f0f2f1;" onmouseover="this.style.background='#f7f9f8'" onmouseout="this.style.background='#fff'">
+                                        <div style="width: 28px; height: 28px; background: #f0f2f1; color: #888; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                            <i class="fas fa-ban" style="font-size: 12px;"></i>
+                                        </div>
+                                        <span style="font-size: 14px; color: #333;">未選択</span>
+                                    </div>
+                                    <!-- ゲーム一覧 -->
+                                    <?php foreach ($gamesList as $g): ?>
+                                        <div onclick="selectCustomGame(event, <?= $row['reservation_id'] ?>, '<?= $g['game_id'] ?>', '<?= htmlspecialchars($g['game_name'], ENT_QUOTES) ?>', '<?= htmlspecialchars($g['game_icon'] ?? '', ENT_QUOTES) ?>')" style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; cursor: pointer; border-bottom: 1px solid #f0f2f1; transition: background 0.2s;" onmouseover="this.style.background='#f7f9f8'" onmouseout="this.style.background='#fff'">
+                                            <div style="width: 28px; height: 28px; background: #e6f2ed; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0;">
+                                                <?php if (!empty($g['game_icon'])): ?>
+                                                    <img src="<?= htmlspecialchars($g['game_icon']) ?>" alt="" style="width:100%; height:100%; object-fit:cover;">
+                                                <?php else: ?>
+                                                    <i class="fas fa-gamepad" style="font-size: 14px;"></i>
+                                                <?php endif; ?>
+                                            </div>
+                                            <span style="font-size: 14px; color: #333; font-weight: 500;"><?= htmlspecialchars($g['game_name']) ?></span>
+                                        </div>
+                                    <?php endforeach; ?>
                                 </div>
                             </div>
                         </div>
@@ -445,34 +451,101 @@ $current_page = 'list';
                             </div>
                         </div>
 
-                        <!-- メンバー選択（アイコン付き） -->
+                        <!-- メンバー選択セクション -->
                         <div class="form-group">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                                 <label class="form-label" style="margin-bottom: 0;">メンバー</label>
                                 <span class="member-count-text" style="font-size: 12px; color: #1b4d3e; font-weight: bold;"><?= count($members) ?>人を選択中</span>
                             </div>
-                            <div class="member-list-box">
-                                <?php foreach ($allUsersList as $usr): ?>
-                                    <label class="member-item" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                                        <!-- チェックボックス -->
-                                        <input type="checkbox" name="student_numbers[]" class="member-checkbox" value="<?= htmlspecialchars($usr['student_number']) ?>"
-                                            <?= in_array($usr['student_number'], $memberStudentNumbers) ? 'checked' : '' ?>>
-
-                                        <!-- ▼ プロフィール画像のアイコン（丸型プレビュー） -->
-                                        <div style="width: 28px; height: 28px; background: #e6f2ed; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0;">
-                                            <?php if (!empty($usr['profile_picture'])): ?>
-                                                <img src="<?= htmlspecialchars($usr['profile_picture']) ?>" alt="" style="width:100%; height:100%; object-fit:cover;">
-                                            <?php else: ?>
-                                                👤
-                                            <?php endif; ?>
+                            
+                            <div style="background: #f7f9f8; border: 1px solid #dce3e0; border-radius: 12px; padding: 12px; display: flex; align-items: center; gap: 8px; overflow-x: auto;">
+                                <!-- 選択中のメンバーアバター横並びエリア -->
+                                <div class="sub-avatar-preview-list" style="display: flex; gap: 8px; align-items: center; flex-shrink: 0;">
+                                    <?php foreach ($members as $mem): ?>
+                                        <div style="display: flex; flex-direction: column; align-items: center; gap: 2px; flex-shrink: 0;" title="<?= htmlspecialchars($mem['user_name']) ?>">
+                                            <div style="width: 38px; height: 38px; background: #f0f2f1; color: #1b4d3e; border: 1.5px solid #1b4d3e; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; overflow: hidden;">
+                                                <?php if (!empty($mem['profile_picture'])): ?>
+                                                    <img src="<?= htmlspecialchars($mem['profile_picture']) ?>" alt="" style="width:100%; height:100%; object-fit:cover;">
+                                                <?php else: ?>
+                                                    <i class="fas fa-user" style="font-size: 14px; color: #aaa;"></i>
+                                                <?php endif; ?>
+                                            </div>
+                                            <span style="font-size: 10px; color: #333; max-width: 42px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"><?= htmlspecialchars($mem['user_name']) ?></span>
                                         </div>
+                                    <?php endforeach; ?>
+                                </div>
 
-                                        <!-- ユーザー名 -->
-                                        <span style="font-weight: 500; color: #333;"><?= htmlspecialchars($usr['user_name']) ?></span>
-                                    </label>
-                                <?php endforeach; ?>
+                                <!-- ＋ボタン（クリックで利用者一覧モーダルを開く） -->
+                                <div onclick="openMemberSubModal(<?= $row['reservation_id'] ?>)" style="width: 38px; height: 38px; background: #e6f2ed; color: #1b4d3e; border: 1.5px dashed #1b4d3e; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; margin-left: auto;" title="メンバーを追加・変更">
+                                    <i class="fas fa-plus" style="font-size: 14px;"></i>
+                                </div>
                             </div>
                         </div>
+
+                        <!-- ▼ 予約編集モーダルの中に内包する「利用者一覧サブモーダル」 -->
+                        <div id="sub-member-modal-<?= $row['reservation_id'] ?>" class="modal-overlay" style="display: none; z-index: 1000;">
+                            <div class="modal-content" style="max-width: 380px; max-height: 85vh; display: flex; flex-direction: column;">
+                                
+                                <!-- サブモーダルヘッダー -->
+                                <div style="display: flex; align-items: center; margin-bottom: 14px;">
+                                    <button type="button" onclick="closeMemberSubModal(<?= $row['reservation_id'] ?>)" style="background: none; border: none; font-size: 20px; cursor: pointer; margin-right: 12px; color: #333;">‹</button>
+                                    <h2 style="font-size: 17px; margin: 0; font-weight: bold; color: #1a1a1a;">利用者一覧</h2>
+                                </div>
+
+                                <!-- 検索バー -->
+                                <div style="display: flex; align-items: center; background: #f4f6f5; border-radius: 10px; padding: 8px 12px; margin-bottom: 14px; position: relative;">
+                                    <i class="fas fa-search" style="margin-right: 8px; color: #1b4d3e; font-size: 14px;"></i>
+                                    <input type="text" class="sub-modal-search" placeholder="利用者名で検索" oninput="filterSubModalMembers(this, <?= $row['reservation_id'] ?>)" style="border: none; background: transparent; width: 100%; outline: none; font-size: 14px;" />
+                                </div>
+
+                                <!-- 選択中のメンバーアイコンプレビューエリア -->
+                                <div style="margin-bottom: 14px; background: #fafbfc; border: 1px solid #edf1ef; border-radius: 12px; padding: 10px;">
+                                    <div style="display: flex; justify-content: space-between; font-size: 12px; color: #666; margin-bottom: 8px;">
+                                        <span>メンバー</span>
+                                        <span class="sub-selected-count-label" style="color: #1b4d3e; font-weight: bold;"><?= count($members) ?>人を選択中</span>
+                                    </div>
+                                    <div class="sub-avatar-preview-list" style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px;">
+                                        <!-- JSで動的にアバターが並びます -->
+                                    </div>
+                                </div>
+
+                                <!-- 利用者リスト（スクロール） -->
+                                <div style="overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 8px; padding-right: 2px; max-height: 240px;">
+                                    <?php foreach ($allUsersList as $usr): ?>
+                                        <?php $isChecked = in_array($usr['student_number'], $memberStudentNumbers); ?>
+                                        <div class="sub-member-row" data-name="<?= htmlspecialchars($usr['user_name']) ?>" onclick="toggleSubMemberItem(this, <?= $row['reservation_id'] ?>)" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border: 1px solid <?= $isChecked ? '#1b4d3e' : '#eee' ?>; background: <?= $isChecked ? '#f2f8f5' : '#fff' ?>; border-radius: 12px; cursor: pointer; transition: all 0.2s;">
+                                            <div style="display: flex; align-items: center; gap: 10px;">
+                                                <div style="width: 38px; height: 38px; background: #f0f2f1; color: #888; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; border: 1px solid #e0e4e2;">
+                                                    <?php if (!empty($usr['profile_picture'])): ?>
+                                                        <img src="<?= htmlspecialchars($usr['profile_picture']) ?>" alt="" style="width:100%; height:100%; object-fit:cover;">
+                                                    <?php else: ?>
+                                                        <i class="fas fa-user" style="font-size: 18px; color: #aaa;"></i>
+                                                    <?php endif; ?>
+                                                </div>
+                                                <span style="font-size: 14px; font-weight: 500; color: #333;"><?= htmlspecialchars($usr['user_name']) ?></span>
+                                            </div>
+                                            
+                                            <!-- 実送信用の隠しチェックボックス -->
+                                            <input type="checkbox" name="student_numbers[]" class="member-checkbox sub-member-chk" value="<?= htmlspecialchars($usr['student_number']) ?>" data-name="<?= htmlspecialchars($usr['user_name']) ?>" data-picture="<?= htmlspecialchars($usr['profile_picture'] ?? '') ?>" <?= $isChecked ? 'checked' : '' ?> style="display: none;">
+                                            
+                                            <!-- チェックアイコンの見た目 -->
+                                            <div class="sub-select-icon" style="width: 26px; height: 26px; border-radius: 50%; border: 1px solid <?= $isChecked ? '#1b4d3e' : '#d1d5db' ?>; background: <?= $isChecked ? '#1b4d3e' : 'transparent' ?>; color: <?= $isChecked ? '#fff' : 'transparent' ?>; display: flex; align-items: center; justify-content: center; font-size: 12px;">
+                                                ✓
+                                            </div>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+
+                                <!-- サブモーダルを閉じるボタン -->
+                                <div style="margin-top: 14px;">
+                                    <button type="button" class="save-btn" onclick="closeMemberSubModal(<?= $row['reservation_id'] ?>)" style="background-color: #1b4d3e; width: 100%; padding: 10px; font-size: 14px;">
+                                        決定する
+                                    </button>
+                                </div>
+
+                            </div>
+                        </div>
+
                         <!-- 保存・予約取り消しボタン（横並び） -->
                         <div style="display: flex; gap: 10px; margin-top: 24px;">
                             <button type="submit" class="btn-save" style="flex: 1;">保存</button>
@@ -507,13 +580,156 @@ $current_page = 'list';
         function openEditModal(id) {
             closeDetailModal(id);
             var modal = document.getElementById('edit-modal-' + id);
-            if (modal) modal.style.display = 'flex';
+            if (modal) {
+                modal.style.display = 'flex';
+                updateSubModalPreview(id);
+            }
         }
 
         function closeEditModal(id) {
             var modal = document.getElementById('edit-modal-' + id);
             if (modal) modal.style.display = 'none';
         }
+
+        // 利用者一覧サブモーダルの開閉
+        function openMemberSubModal(reservationId) {
+            var modal = document.getElementById('sub-member-modal-' + reservationId);
+            if (modal) {
+                modal.style.display = 'flex';
+                updateSubModalPreview(reservationId);
+            }
+        }
+
+        function closeMemberSubModal(reservationId) {
+            var modal = document.getElementById('sub-member-modal-' + reservationId);
+            if (modal) modal.style.display = 'none';
+        }
+
+        // サブモーダル内の行クリック時
+        function toggleSubMemberItem(rowElement, reservationId) {
+            var checkbox = rowElement.querySelector('.sub-member-chk');
+            var icon = rowElement.querySelector('.sub-select-icon');
+            if (!checkbox) return;
+
+            checkbox.checked = !checkbox.checked;
+
+            if (checkbox.checked) {
+                rowElement.style.borderColor = '#1b4d3e';
+                rowElement.style.background = '#f2f8f5';
+                icon.style.borderColor = '#1b4d3e';
+                icon.style.background = '#1b4d3e';
+                icon.style.color = '#fff';
+            } else {
+                rowElement.style.borderColor = '#eee';
+                rowElement.style.background = '#fff';
+                icon.style.borderColor = '#d1d5db';
+                icon.style.background = 'transparent';
+                icon.style.color = 'transparent';
+            }
+
+            updateSubModalPreview(reservationId);
+
+            var event = new Event('change', { bubbles: true });
+            checkbox.dispatchEvent(event);
+        }
+
+        // 選択中メンバーのプレビューとカウントを更新する関数
+        function updateSubModalPreview(reservationId) {
+            var editModal = document.getElementById('edit-modal-' + reservationId);
+            if (!editModal) return;
+
+            var checkboxes = editModal.querySelectorAll('.sub-member-chk:checked');
+            var count = checkboxes.length;
+
+            var countLabels = editModal.querySelectorAll('.member-count-text, .sub-selected-count-label');
+            countLabels.forEach(function(lbl) {
+                lbl.textContent = count + '人を選択中';
+            });
+
+            // メイン編集画面とサブモーダル両方のプレビューリストを更新
+            var previewContainers = editModal.querySelectorAll('.sub-avatar-preview-list');
+            previewContainers.forEach(function(previewContainer) {
+                previewContainer.innerHTML = '';
+                checkboxes.forEach(function(chk) {
+                    var name = chk.getAttribute('data-name');
+                    var picture = chk.getAttribute('data-picture');
+                    
+                    var div = document.createElement('div');
+                    div.style.cssText = 'display: flex; flex-direction: column; align-items: center; gap: 2px; flex-shrink: 0;';
+                    
+                    var avatarInner = '';
+                    if (picture && picture !== '') {
+                        avatarInner = '<img src="' + picture + '" alt="" style="width:100%; height:100%; object-fit:cover;">';
+                    } else {
+                        avatarInner = '<i class="fas fa-user" style="font-size: 14px; color: #aaa;"></i>';
+                    }
+
+                    div.innerHTML = '<div style="width: 38px; height: 38px; background: #f0f2f1; color: #1b4d3e; border: 1.5px solid #1b4d3e; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden;">' + avatarInner + '</div>' +
+                                    '<span style="font-size: 10px; color: #333; max-width: 42px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">' + name + '</span>';
+                    previewContainer.appendChild(div);
+                });
+            });
+        }
+
+        // サブモーダル内の検索窓フィルター
+        function filterSubModalMembers(inputElement, reservationId) {
+            var keyword = inputElement.value.toLowerCase().trim();
+            var modal = document.getElementById('sub-member-modal-' + reservationId);
+            if (!modal) return;
+
+            var rows = modal.querySelectorAll('.sub-member-row');
+            rows.forEach(function(row) {
+                var name = row.getAttribute('data-name').toLowerCase();
+                if (keyword === '' || name.includes(keyword)) {
+                    row.style.display = 'flex';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        // --- カスタムゲームドロップダウンの制御 ---
+        function toggleCustomGameDropdown(event, reservationId) {
+            event.stopPropagation();
+            // 他の開いているゲームドロップダウンを閉じる
+            document.querySelectorAll('.custom-game-dropdown-list').forEach(function(el) {
+                if (el.id !== 'game-dropdown-list-' + reservationId) {
+                    el.style.display = 'none';
+                }
+            });
+            var list = document.getElementById('game-dropdown-list-' + reservationId);
+            if (list) {
+                list.style.display = (list.style.display === 'block') ? 'none' : 'block';
+            }
+        }
+
+        function selectCustomGame(event, reservationId, gameId, gameName, gameIcon) {
+            event.stopPropagation();
+            document.getElementById('selected-game-id-' + reservationId).value = gameId;
+
+            var namePreview = document.getElementById('game-name-preview-' + reservationId);
+            if (namePreview) namePreview.textContent = gameName;
+
+            var iconPreview = document.getElementById('game-icon-preview-' + reservationId);
+            if (iconPreview) {
+                if (gameIcon && gameIcon !== '') {
+                    iconPreview.innerHTML = '<img src="' + gameIcon + '" alt="" style="width:100%; height:100%; object-fit:cover;">';
+                } else {
+                    iconPreview.innerHTML = '<i class="fas fa-gamepad" style="font-size: 14px;"></i>';
+                }
+            }
+
+            var list = document.getElementById('game-dropdown-list-' + reservationId);
+            if (list) list.style.display = 'none';
+        }
+
+        window.addEventListener('click', function(e) {
+            if (!e.target.closest('.custom-game-dropdown-wrapper')) {
+                document.querySelectorAll('.custom-game-dropdown-list').forEach(function(el) {
+                    el.style.display = 'none';
+                });
+            }
+        });
 
         window.onclick = function(event) {
             if (event.target.classList.contains('modal-overlay')) {
@@ -527,54 +743,30 @@ $current_page = 'list';
                 var modal = e.target.closest('.modal-content');
                 if (modal) {
                     var checkedSeats = modal.querySelectorAll('.seat-checkbox:checked').length;
-                    var checkedMembers = modal.querySelectorAll('.member-checkbox:checked').length;
+                    var checkedMembers = modal.querySelectorAll('.sub-member-chk:checked').length;
 
                     var seatCountText = modal.querySelector('.seat-count-text');
                     if (seatCountText) {
                         seatCountText.textContent = checkedSeats + '席 ・ ' + checkedMembers + '人';
                     }
-
-                    var memberCountText = modal.querySelector('.member-count-text');
-                    if (memberCountText) {
-                        memberCountText.textContent = checkedMembers + '人を選択中';
-                    }
                 }
             }
         });
-        // ゲームのセレクトボックスが変更されたときにアイコンをリアルタイムで切り替える関数
-        function updateGameIcon(selectElement, reservationId) {
-            var selectedOption = selectElement.options[selectElement.selectedIndex];
-            var iconUrl = selectedOption.getAttribute('data-icon');
-            var previewContainer = document.getElementById('game-icon-preview-' + reservationId);
 
-            if (previewContainer) {
-                if (iconUrl && iconUrl !== '') {
-                    previewContainer.innerHTML = '<img src="' + iconUrl + '" alt="" style="width:100%; height:100%; object-fit:cover;">';
-                } else {
-                    previewContainer.innerHTML = '🎮';
-                }
-            }
-        }
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.querySelector('input[name="keyword"]');
 
             if (searchInput) {
                 searchInput.addEventListener('input', function() {
-                    // 入力されたキーワード（小文字に統一し、前後の余白を削除）
                     const keyword = searchInput.value.toLowerCase().trim();
-
-                    // 予約カードの要素をすべて取得（クラス名 .res-card を指定）
                     const reservationCards = document.querySelectorAll('.res-card');
 
                     reservationCards.forEach(card => {
-                        // カード内のテキスト（日付、ゲーム名、メンバーの名前など全て）を取得
                         const cardText = card.textContent.toLowerCase();
-
-                        // キーワードが空、またはカード内のテキストにキーワードが含まれている場合は表示
                         if (keyword === '' || cardText.includes(keyword)) {
-                            card.style.display = ''; // 表示する
+                            card.style.display = '';
                         } else {
-                            card.style.display = 'none'; // 一致しない場合は非表示にする
+                            card.style.display = 'none';
                         }
                     });
                 });
