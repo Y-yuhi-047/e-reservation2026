@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 input.type = show ? 'text' : 'password';
             });
 
-            toggleButton.textContent = show ? 'パスワードを非表示' : 'パスワードを表示';
+            toggleButton.textContent = show ? '非表示' : 'パスワードを表示';
         });
     }
 });
