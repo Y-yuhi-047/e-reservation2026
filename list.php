@@ -810,36 +810,39 @@ $current_page = 'list';
                 }
             }
         });
-
         document.addEventListener('DOMContentLoaded', function() {
-                    const searchInput = document.querySelector('input[name="keyword"]');
+            const searchInput = document.querySelector('input[name="keyword"]');
 
-                    if (searchInput) {
-                        searchInput.addEventListener('input', function() {
-                                    const keyword = searchInput.value.toLowerCase().trim();
-                                    const reservationCards = document.querySelectorAll('.res-card');
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    const keyword = searchInput.value.toLowerCase().trim();
+                    const reservationCards = document.querySelectorAll('.res-card');
 
-                                    reservationCards.forEach(card => {
-                                        const cardText = card.textContent.toLowerCase();
-                                        if (keyword === '' || cardText.includes(keyword)) {
-                                            card.style.display = '';
-                                        } else {
-                                            card.style.display = 'none';
-                                        }
-                                    });
-                                    //：過去の予約の枠を、検索結果に合わせて開け閉めする
-                                    document.querySelectorAll('.past-group').forEach(function(group) {
-                                        // 枠の中に、表示されているカードが1つでもあるか調べる
-                                        const hasHit = Array.from(group.querySelectorAll('.res-card')).some(function(card) {
-                                            return card.style.display !== 'none';
-                                        });
-                                        // 検索中で、ヒットがあれば開く。検索が空なら閉じる
-                                        group.classList.toggle('open', hasHit);
+                    reservationCards.forEach(card => {
+                        const cardText = card.textContent.toLowerCase();
+                        if (keyword === '' || cardText.includes(keyword)) {
+                            card.style.display = '';
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
 
-                                        // 検索中でヒットがなければ、「過去の予約」の見出しごと隠す
-                                        group.style.display = (keyword !== '' && !hasHit) ? name : '';
-                                    });
-                                }
+                    // 過去の予約の枠を、検索結果に合わせて開け閉めする
+                    document.querySelectorAll('.past-group').forEach(function(group) {
+
+                        // 枠の中に、表示されているカードが1つでもあるか調べる
+                        const hasHit = Array.from(group.querySelectorAll('.res-card')).some(function(card) {
+                            return card.style.display !== 'none';
+                        });
+                        // 検索中で、ヒットがあれば開く。検索が空なら閉じる
+                        group.classList.toggle('open', hasHit);
+
+                        // 検索中でヒットがなければ、「過去の予約」の見出しごと隠す
+                        group.style.display = (keyword !== '' && !hasHit) ? 'none' : '';
+                    });
+                });
+            }
+        });
     </script>
 </body>
 
