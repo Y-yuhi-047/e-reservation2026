@@ -41,9 +41,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['res
 
         $updateStmt = $pdo->prepare(
             "UPDATE reservation 
-             SET scheduled_start_time = ?, scheduled_end_time = ?, game_id = ?, 
-                 seat_1 = ?, seat_2 = ?, seat_3 = ?, seat_4 = ?, seat_5 = ? 
-             WHERE reservation_id = ?"
+            SET scheduled_start_time = ?, scheduled_end_time = ?, game_id = ?, 
+                seat_1 = ?, seat_2 = ?, seat_3 = ?, seat_4 = ?, seat_5 = ? 
+            WHERE reservation_id = ?"
         );
         $updateStmt->execute([$scheduledStart, $scheduledEnd, $gameId, $seat1, $seat2, $seat3, $seat4, $seat5, $targetId]);
 
@@ -88,19 +88,19 @@ if ($show_back) {
 if ($keyword === '') {
     $stmt = $pdo->query(
         "SELECT r.*, g.game_name, g.game_icon 
-     FROM reservation r 
-     LEFT JOIN game g ON r.game_id = g.game_id 
-     ORDER BY r.scheduled_start_time {$order}"
+    FROM reservation r 
+    LEFT JOIN game g ON r.game_id = g.game_id 
+    ORDER BY r.scheduled_start_time {$order}"
     );
 } else {
     $stmt = $pdo->prepare(
         "SELECT DISTINCT r.*, g.game_name, g.game_icon
-         FROM reservation r
-         LEFT JOIN game g ON r.game_id = g.game_id
-         JOIN user_reservation ur ON r.reservation_id = ur.reservation_id
-         JOIN `user` u ON ur.student_number = u.student_number
-         WHERE u.user_name LIKE ?
-         ORDER BY r.scheduled_start_time {$order}"
+        FROM reservation r
+        LEFT JOIN game g ON r.game_id = g.game_id
+        JOIN user_reservation ur ON r.reservation_id = ur.reservation_id
+        JOIN `user` u ON ur.student_number = u.student_number
+        WHERE u.user_name LIKE ?
+        ORDER BY r.scheduled_start_time {$order}"
     );
     $stmt->execute(['%' . $keyword . '%']);
 }
@@ -122,13 +122,24 @@ foreach ($reservations as $r) {
     // 予約の開始日時（文字列）を strtotime() で数字に直し、date() で「年-月-日」だけにして、今日と比べる
     // 文字列の「2026-11-10」は「2026-11-11」より小さい（古い）ので、< で比べられる
     if (date('Y-m-d', strtotime($r['scheduled_start_time'])) < $today) {
+
+        // 今日より前なら、過去の配列に追加する（[] = は配列の最後に足す書き方）
         $past[] = $r;
     } else {
+
+        // 今日以降なら、これからの配列に追加する
         $upcoming[] = $r;
     }
 }
+
+// 2つの配列をつなげて1つにする（これからの予約が先、過去の予約が後ろ）
+// array_merge() は、複数の配列を順番につなげる関数
 $reservations = array_merge($upcoming, $past);
+
+// 過去の予約が何件あるかを数えておく（折りたたみの見出しに表示するため）
 $pastCount = count($past);
+
+// 「折りたたみの枠をもう開いたか」の目印。最初は false（まだ開いていない）
 $pastStarted = false;
 
 $current_page = 'list';
@@ -193,10 +204,20 @@ $current_page = 'list';
         <?php foreach ($reservations as $row): ?>
 
             <?php
+
+            // この予約が過去かどうかを調べる（上と同じ比べ方）。結果は true（過去）か false（これから）
             $isPast = date('Y-m-d', strtotime($row['scheduled_start_time'])) < $today;
 
+            // 「この予約は過去」かつ「枠をまだ開いていない」とき（= 過去の1件目のとき）だけ中に入る
             if ($isPast && !$pastStarted) {
+
+                // 枠を開いたので、目印を true にする（2件目以降は、この if に入らなくなる）
                 $pastStarted = true;
+
+                // 追加：検索キーワードが入っているときは、枠を最初から開いておく（open は開いた状態にする属性）
+                $openAttr = ($keyword !== '') ? ' open' : '';
+
+                // 過去の予約の件数を表示するために、$pastCount を使って見出しを出す
                 echo '<details class="past-group"><summary>過去の予約（' . $pastCount . '件）</summary><div class="past-list">';
             }
             $start = strtotime($row['scheduled_start_time']);
@@ -791,24 +812,34 @@ $current_page = 'list';
         });
 
         document.addEventListener('DOMContentLoaded', function() {
-            const searchInput = document.querySelector('input[name="keyword"]');
+                    const searchInput = document.querySelector('input[name="keyword"]');
 
-            if (searchInput) {
-                searchInput.addEventListener('input', function() {
-                    const keyword = searchInput.value.toLowerCase().trim();
-                    const reservationCards = document.querySelectorAll('.res-card');
+                    if (searchInput) {
+                        searchInput.addEventListener('input', function() {
+                                    const keyword = searchInput.value.toLowerCase().trim();
+                                    const reservationCards = document.querySelectorAll('.res-card');
 
-                    reservationCards.forEach(card => {
-                        const cardText = card.textContent.toLowerCase();
-                        if (keyword === '' || cardText.includes(keyword)) {
-                            card.style.display = '';
-                        } else {
-                            card.style.display = 'none';
-                        }
-                    });
-                });
-            }
-        });
+                                    reservationCards.forEach(card => {
+                                        const cardText = card.textContent.toLowerCase();
+                                        if (keyword === '' || cardText.includes(keyword)) {
+                                            card.style.display = '';
+                                        } else {
+                                            card.style.display = 'none';
+                                        }
+                                    });
+                                    //：過去の予約の枠を、検索結果に合わせて開け閉めする
+                                    document.querySelectorAll('.past-group').forEach(function(group) {
+                                        // 枠の中に、表示されているカードが1つでもあるか調べる
+                                        const hasHit = Array.from(group.querySelectorAll('.res-card')).some(function(card) {
+                                            return card.style.display !== 'none';
+                                        });
+                                        // 検索中で、ヒットがあれば開く。検索が空なら閉じる
+                                        group.classList.toggle('open', hasHit);
+
+                                        // 検索中でヒットがなければ、「過去の予約」の見出しごと隠す
+                                        group.style.display = (keyword !== '' && !hasHit) ? name : '';
+                                    });
+                                }
     </script>
 </body>
 

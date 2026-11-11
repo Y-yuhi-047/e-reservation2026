@@ -17,7 +17,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 /* account_create */
-/* account_create */
 
 const selectIconBtn = document.getElementById("selectIconBtn");
 const iconInput = document.getElementById("iconInput");
