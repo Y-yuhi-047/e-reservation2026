@@ -519,3 +519,31 @@ body.list-page {
     font-size: 12px;
     color: #777777;
 }
+
+/* 過去の予約の折りたたみ */
+.past-group {
+    grid-column: 1 / -1;
+    margin: 8px 0 12px;
+}
+
+.past-group summary {
+    padding: 10px 14px;
+    background-color: #ffffff;
+    border: 1px solid #dce3e0;
+    border-radius: 12px;
+    color: #1b4d3e;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.past-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+    gap: 12px 16px;
+    margin-top: 12px;
+}
+
+.past-list .res-card {
+    margin-bottom: 0;
+}

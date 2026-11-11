@@ -75,7 +75,11 @@ if (isset($_SESSION['user'])) {
         <main>
             <?php if ($success == false) : ?>
                 <h1>ログインに失敗しました。</h1>
-                <a>ログイン名またはパスワードが違います。</a>
+                <?php if (isset($error_message)) : ?>
+                    <p><?php echo $error_message; ?></p>
+                <?php else : ?>
+                    <a>ログイン名またはパスワードが違います。</a>
+                <?php endif; ?>
                 <img class="result-image" src="images/Gemini_error_character.jpg" alt="エラーキャラクター">
                 <form action="login-input.php">
                     <button type="submit" class="btn">ログインページへ</button>

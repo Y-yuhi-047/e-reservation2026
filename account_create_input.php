@@ -101,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <label for="password">パスワード</label>
                 <div class="password-wrapper">
                     <input type="password" id="password" name="password" class="form-control" placeholder="パスワードを8文字以上で入力" required>
-                    <button type="button" id="togglePassword" class="btn-toggle-password">表示</button>
+                    <button type="button" id="togglePassword" class="btn-toggle-password">パスワードを表示</button>
                 </div>
             </div>
 

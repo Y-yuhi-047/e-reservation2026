@@ -29,7 +29,7 @@
                 <label for="password" class="form-label">パスワード</label>
                 <div class="password-wrapper">
                     <input type="password" id="password" name="password" class="form-control" placeholder="パスワードを入力" required>
-                    <button type="button" id="togglePassword" class="btn-toggle-password">表示</button>
+                    <button type="button" id="togglePassword" class="btn-toggle-password">パスワードを表示</button>
                 </div>
             </div>
 

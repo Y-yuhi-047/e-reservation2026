@@ -31,8 +31,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit();
         } else {
             try {
+                $pic = $pdo->prepare("SELECT profile_picture FROM user WHERE student_number = ?");
+                $pic->execute([$deleteId]);
+                $profilePicture = $pic->fetchColumn();
+
+
                 $stmt = $pdo->prepare("DELETE FROM user WHERE student_number = ?");
                 $stmt->execute([$deleteId]);
+
+                if ($profilePicture && strpos($profilePicture, 'uploads/') === 0 && file_exists(__DIR__ . '/' . $profilePicture)) {
+                    unlink(__DIR__ . '/' . $profilePicture);
+                }
+
                 $_SESSION['flash_message'] = 'ユーザーを削除しました。';
             } catch (PDOException $e) {
                 $_SESSION['flash_message'] = 'ユーザーの削除に失敗しました。' . $e->getMessage();
@@ -149,6 +159,16 @@ unset($_SESSION['temp_password']);
 
 <body class="profile-edit-page user-management-page">
 
+    <script>
+        function copyButton(elementId) {
+            // 指定したIDの要素のテキストを取得
+            var element = document.getElementById(elementId);
+
+            // テキストをクリップボードにコピー
+            navigator.clipboard.writeText(element.textContent);
+        }
+    </script>
+
     <header class="sub-header">
         <div class="sub-header-left">
             <a href="profile.php" class="back-btn-custom">‹</a>
@@ -167,10 +187,13 @@ unset($_SESSION['temp_password']);
         <?php if (!empty($temp_password)): ?>
             <div class="temp-password-box">
                 <div class="temp-password-label">
-                    <?php echo htmlspecialchars($temp_password['name'], ENT_QUOTES, 'UTF-8'); ?>さんの仮パスワード
+                    <?php echo htmlspecialchars($temp_password['name'], ENT_QUOTES, 'UTF-8'); ?> さんの仮パスワード
                 </div>
                 <div class="temp-password-code">
-                    <?php echo htmlspecialchars($temp_password['password'], ENT_QUOTES, 'UTF-8'); ?>
+                    <span id="copytxt">
+                        <?php echo htmlspecialchars($temp_password['password'], ENT_QUOTES, 'UTF-8'); ?>
+                    </span>
+                    <button class="user-search-btn" onclick="copyButton('copytxt')">コピー実行</button>
                 </div>
                 <div class="temp-password-note">
                     有効期限<?php echo htmlspecialchars($temp_password['expires'], ENT_QUOTES, 'UTF-8'); ?>まで<br>

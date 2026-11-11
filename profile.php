@@ -4,6 +4,12 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+if (!isset($_SESSION['user'])) {
+    // ログインしていない場合はログインページにリダイレクト
+    header('Location: login-input.php');
+    exit();
+}
+
 // --- データベース接続設定 ---
 $host = 'localhost';
 $dbname = 'e-reservation';
