@@ -90,13 +90,13 @@ $firstGame = $games[0] ?? null;
                     <div class="seat-group-box">
                         <div class="seat-container">
                             <div class="seat-row">
-                                <label class="seat-chip">4<input type="checkbox" name="seats[]" value="4" class="seat-checkbox"></label>
-                                <label class="seat-chip">5<input type="checkbox" name="seats[]" value="5" class="seat-checkbox"></label>
+                                <label class="seat-chip">4<input type="checkbox" name="seats4" value="4" class="seat-checkbox"></label>
+                                <label class="seat-chip">5<input type="checkbox" name="seats5" value="5" class="seat-checkbox"></label>
                             </div>
                             <div style="display: flex; gap: 8px; justify-content: center;">
-                                <label class="seat-chip">3<input type="checkbox" name="seats[]" value="3" class="seat-checkbox"></label>
-                                <label class="seat-chip">2<input type="checkbox" name="seats[]" value="2" class="seat-checkbox"></label>
-                                <label class="seat-chip">1<input type="checkbox" name="seats[]" value="1" class="seat-checkbox"></label>
+                                <label class="seat-chip">3<input type="checkbox" name="seats3" value="3" class="seat-checkbox"></label>
+                                <label class="seat-chip">2<input type="checkbox" name="seats2" value="2" class="seat-checkbox"></label>
+                                <label class="seat-chip">1<input type="checkbox" name="seats1" value="1" class="seat-checkbox"></label>
                             </div>
                         </div>
                     </div>
