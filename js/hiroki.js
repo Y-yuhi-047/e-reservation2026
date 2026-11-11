@@ -1,16 +1,16 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const passwordInput = document.getElementById('password');
+    const passwordInput = document.querySelectorAll('#current_password, #new_password, #confirm_password, #password');
     const toggleButton = document.getElementById('togglePassword');
 
     if (passwordInput && toggleButton) {
         toggleButton.addEventListener('click', () => {
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                toggleButton.textContent = '非表示';
-            } else {
-                passwordInput.type = 'password';
-                toggleButton.textContent = '表示';
-            }
+            const show = passwordInput[0].type === 'password';
+
+            passwordInput.forEach((input) => {
+                input.type = show ? 'text' : 'password';
+            });
+
+            toggleButton.textContent = show ? 'パスワードを非表示' : 'パスワードを表示';
         });
     }
 });
