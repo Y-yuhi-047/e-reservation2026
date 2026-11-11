@@ -31,8 +31,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit();
         } else {
             try {
+                $pic = $pdo->prepare("SELECT profile_picture FROM user WHERE student_number = ?");
+                $pic->execute([$deleteId]);
+                $profilePicture = $pic->fetchColumn();
+
+
                 $stmt = $pdo->prepare("DELETE FROM user WHERE student_number = ?");
                 $stmt->execute([$deleteId]);
+
+                if ($profilePicture && strpos($profilePicture, 'uploads/') === 0 && file_exists(__DIR__ . '/' . $profilePicture)) {
+                    unlink(__DIR__ . '/' . $profilePicture);
+                }
+
                 $_SESSION['flash_message'] = 'ユーザーを削除しました。';
             } catch (PDOException $e) {
                 $_SESSION['flash_message'] = 'ユーザーの削除に失敗しました。' . $e->getMessage();

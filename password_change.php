@@ -6,7 +6,7 @@ require_once 'password_helper.php';
 
 if (!isset($_SESSION['user'])) {
     // ログインしていない場合はログインページにリダイレクト
-    header('Location: login.php');
+    header('Location: login-input.php');
     exit();
 }
 
@@ -59,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>パスワード変更</title>
+    <title>パスワード変更 - e-reservation</title>
     <meta name="description" content="">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/style2.css">

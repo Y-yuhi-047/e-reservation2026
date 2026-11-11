@@ -106,6 +106,31 @@ if ($keyword === '') {
 }
 
 $reservations = $stmt->fetchAll();
+// 今日の日付を「2026-11-11」の形の文字列で取得する
+//（date() は日時を文字列にする関数）
+$today = date('Y-m-d');
+
+// これからの予約を入れる、空の配列を用意する
+$upcoming = [];
+
+// 過去の予約を入れる、空の配列を用意する
+$past = [];
+
+// 取得した予約を1件ずつ取り出して、$r という名前で使う
+foreach ($reservations as $r) {
+
+    // 予約の開始日時（文字列）を strtotime() で数字に直し、date() で「年-月-日」だけにして、今日と比べる
+    // 文字列の「2026-11-10」は「2026-11-11」より小さい（古い）ので、< で比べられる
+    if (date('Y-m-d', strtotime($r['scheduled_start_time'])) < $today) {
+        $past[] = $r;
+    } else {
+        $upcoming[] = $r;
+    }
+}
+$reservations = array_merge($upcoming, $past);
+$pastCount = count($past);
+$pastStarted = false;
+
 $current_page = 'list';
 ?>
 
@@ -114,7 +139,7 @@ $current_page = 'list';
 
 <head>
     <meta charset="UTF-8">
-    <title>予約一覧</title>
+    <title>予約一覧 - e-reservation</title>
     <meta name="description" content="">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/style2.css">
@@ -168,6 +193,12 @@ $current_page = 'list';
         <?php foreach ($reservations as $row): ?>
 
             <?php
+            $isPast = date('Y-m-d', strtotime($row['scheduled_start_time'])) < $today;
+
+            if ($isPast && !$pastStarted) {
+                $pastStarted = true;
+                echo '<details class="past-group"><summary>過去の予約（' . $pastCount . '件）</summary><div class="past-list">';
+            }
             $start = strtotime($row['scheduled_start_time']);
             $end = strtotime($row['scheduled_end_time']);
 
@@ -457,7 +488,7 @@ $current_page = 'list';
                                 <label class="form-label" style="margin-bottom: 0;">メンバー</label>
                                 <span class="member-count-text" style="font-size: 12px; color: #1b4d3e; font-weight: bold;"><?= count($members) ?>人を選択中</span>
                             </div>
-                            
+
                             <div style="background: #f7f9f8; border: 1px solid #dce3e0; border-radius: 12px; padding: 12px; display: flex; align-items: center; gap: 8px; overflow-x: auto;">
                                 <!-- 選択中のメンバーアバター横並びエリア -->
                                 <div class="sub-avatar-preview-list" style="display: flex; gap: 8px; align-items: center; flex-shrink: 0;">
@@ -485,7 +516,7 @@ $current_page = 'list';
                         <!-- ▼ 予約編集モーダルの中に内包する「利用者一覧サブモーダル」 -->
                         <div id="sub-member-modal-<?= $row['reservation_id'] ?>" class="modal-overlay" style="display: none; z-index: 1000;">
                             <div class="modal-content" style="max-width: 380px; max-height: 85vh; display: flex; flex-direction: column;">
-                                
+
                                 <!-- サブモーダルヘッダー -->
                                 <div style="display: flex; align-items: center; margin-bottom: 14px;">
                                     <button type="button" onclick="closeMemberSubModal(<?= $row['reservation_id'] ?>)" style="background: none; border: none; font-size: 20px; cursor: pointer; margin-right: 12px; color: #333;">‹</button>
@@ -524,10 +555,10 @@ $current_page = 'list';
                                                 </div>
                                                 <span style="font-size: 14px; font-weight: 500; color: #333;"><?= htmlspecialchars($usr['user_name']) ?></span>
                                             </div>
-                                            
+
                                             <!-- 実送信用の隠しチェックボックス -->
                                             <input type="checkbox" name="student_numbers[]" class="member-checkbox sub-member-chk" value="<?= htmlspecialchars($usr['student_number']) ?>" data-name="<?= htmlspecialchars($usr['user_name']) ?>" data-picture="<?= htmlspecialchars($usr['profile_picture'] ?? '') ?>" <?= $isChecked ? 'checked' : '' ?> style="display: none;">
-                                            
+
                                             <!-- チェックアイコンの見た目 -->
                                             <div class="sub-select-icon" style="width: 26px; height: 26px; border-radius: 50%; border: 1px solid <?= $isChecked ? '#1b4d3e' : '#d1d5db' ?>; background: <?= $isChecked ? '#1b4d3e' : 'transparent' ?>; color: <?= $isChecked ? '#fff' : 'transparent' ?>; display: flex; align-items: center; justify-content: center; font-size: 12px;">
                                                 ✓
@@ -562,7 +593,11 @@ $current_page = 'list';
             </div>
 
         <?php endforeach; ?>
-
+        <?php
+        // 過去の枠を開いていた場合だけ、閉じタグを出力する
+        // （過去の予約が0件のときは、開いていないので何も出さない）
+        if ($pastStarted) echo '</div></details>';
+        ?>
     </div>
 
     <!-- モーダル開閉 & リアルタイム連動用JavaScript -->
@@ -629,7 +664,9 @@ $current_page = 'list';
 
             updateSubModalPreview(reservationId);
 
-            var event = new Event('change', { bubbles: true });
+            var event = new Event('change', {
+                bubbles: true
+            });
             checkbox.dispatchEvent(event);
         }
 
@@ -653,10 +690,10 @@ $current_page = 'list';
                 checkboxes.forEach(function(chk) {
                     var name = chk.getAttribute('data-name');
                     var picture = chk.getAttribute('data-picture');
-                    
+
                     var div = document.createElement('div');
                     div.style.cssText = 'display: flex; flex-direction: column; align-items: center; gap: 2px; flex-shrink: 0;';
-                    
+
                     var avatarInner = '';
                     if (picture && picture !== '') {
                         avatarInner = '<img src="' + picture + '" alt="" style="width:100%; height:100%; object-fit:cover;">';
@@ -665,7 +702,7 @@ $current_page = 'list';
                     }
 
                     div.innerHTML = '<div style="width: 38px; height: 38px; background: #f0f2f1; color: #1b4d3e; border: 1.5px solid #1b4d3e; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden;">' + avatarInner + '</div>' +
-                                    '<span style="font-size: 10px; color: #333; max-width: 42px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">' + name + '</span>';
+                        '<span style="font-size: 10px; color: #333; max-width: 42px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">' + name + '</span>';
                     previewContainer.appendChild(div);
                 });
             });
