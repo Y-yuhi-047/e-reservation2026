@@ -56,8 +56,7 @@ $games = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $current_page = 'profile';
 ?>
 <!DOCTYPE html>
-<html lang="ja">
-
+<html lang="ja" class="game-management-page">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -70,8 +69,7 @@ $current_page = 'profile';
     <link rel="stylesheet" href="css/style2.css?v=26">
 </head>
 
-<body class="profile-edit-page">
-
+<body class="profile-edit-page game-management-page">
     <!-- ヘッダー -->
     <header class="sub-header">
         <div class="sub-header-left">
