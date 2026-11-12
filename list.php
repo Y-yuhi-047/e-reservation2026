@@ -1,5 +1,10 @@
 <?php require 'header.php'; ?>
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+?>
+<?php
 $host = 'localhost';
 $port = '3306';
 $dbname = 'e-reservation';  //各グループのデータベース名
@@ -42,10 +47,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['res
         $updateStmt = $pdo->prepare(
             "UPDATE reservation 
             SET scheduled_start_time = ?, scheduled_end_time = ?, game_id = ?, 
-                seat_1 = ?, seat_2 = ?, seat_3 = ?, seat_4 = ?, seat_5 = ? 
+                seat_1 = ?, seat_2 = ?, seat_3 = ?, seat_4 = ?, seat_5 = ?,
+                updated_by = ?
             WHERE reservation_id = ?"
         );
-        $updateStmt->execute([$scheduledStart, $scheduledEnd, $gameId, $seat1, $seat2, $seat3, $seat4, $seat5, $targetId]);
+        $updateStmt->execute([
+            $scheduledStart,
+            $scheduledEnd,
+            $gameId,
+            $seat1,
+            $seat2,
+            $seat3,
+            $seat4,
+            $seat5,
+            $_SESSION['user']['number'],
+            $targetId
+        ]);
 
         $delStmt = $pdo->prepare("DELETE FROM user_reservation WHERE reservation_id = ?");
         $delStmt->execute([$targetId]);
@@ -71,6 +88,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['res
 
 $gamesList = $pdo->query("SELECT * FROM game")->fetchAll(PDO::FETCH_ASSOC);
 $allUsersList = $pdo->query("SELECT * FROM `user`")->fetchAll(PDO::FETCH_ASSOC);
+
+// 学籍番号 → ユーザー名 の対応表を作る（例: ['TEST0001' => '山田 太郎', ...]）
+// array_column(配列, 値にする列, キーにする列) は、配列から対応表を作る関数
+$userNames = array_column($allUsersList, 'user_name', 'student_number');
 
 $keyword = $_GET['keyword'] ?? '';
 $order = $_GET['order'] ?? 'asc';
@@ -319,7 +340,9 @@ $current_page = 'list';
                     <div class="card" style="margin-bottom: 16px; background-color: #ffffff; cursor: default;">
                         <div style="width: 100%;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                                <span style="font-size: 13px; color: #666;"><?= date('Y年n月j日', $start) ?>（<?= $weekday ?>）</span>
+                                <span style="font-size: 13px; color: #666;"><?= date('Y年n月j日', $start) ?>（<?= $weekday ?>）<br>
+                                    最終更新：<?= htmlspecialchars($userNames[$row['updated_by']] ?? $row['updated_by']) ?>
+                                </span>
                                 <span class="res-badge <?= $badge ?>" style="position: static;"><?= $status ?></span>
                             </div>
                             <div style="font-size: 20px; font-weight: bold; color: #1a1a1a; margin-bottom: 12px;">
