@@ -56,9 +56,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['action']) && $_POST['action'] === 'reset_password') {
         $resetId = trim($_POST['user_id'] ?? '');
 
-        // リセット対象のユーザー名をDBから探す
+        // リセット対象のユーザー名をDBから探す（画面に「〇〇さんの仮パスワード」と出すため）
         $nameStmt = $pdo->prepare("SELECT user_name FROM user WHERE student_number = ?");
+        // ? の部分に学籍番号を入れて実行する
         $nameStmt->execute([$resetId]);
+        // 結果の1列目（ユーザー名）を取り出す。見つからなければ false になる
         $targetName = $nameStmt->fetchColumn();
 
         if ($targetName === false) {
@@ -66,9 +68,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             header('Location: user.php');
             exit();
         } else {
+            // 仮パスワードと期限を作る。[ ] で、戻り値の2つをそれぞれの変数に受け取る
             [$plainPassword, $expires] = generateTempPassword();
 
+            // DBのパスワード列を、仮パスワードで上書きする（※ハッシュ化なし）
             $stmt = $pdo->prepare("UPDATE user SET password = ? WHERE student_number = ?");
+            // ? の部分に仮パスワードと学籍番号を入れて実行する
             $stmt->execute([$plainPassword, $resetId]);
         }
         $_SESSION['flash_message'] = 'パスワードをリセットしました。';
@@ -132,6 +137,7 @@ foreach ($raw_users as $u) {
 
 $current_page = 'profile';
 $flash_message = $_SESSION['flash_message'] ?? '';
+// セッションに入っている仮パスワード情報を取り出す（なければ null）
 $temp_password = $_SESSION['temp_password'] ?? null;
 unset($_SESSION['flash_message']);
 unset($_SESSION['temp_password']);
@@ -152,7 +158,10 @@ unset($_SESSION['temp_password']);
 
     <script>
         function copyButton(elementId) {
+            // 指定したIDの要素のテキストを取得
             var element = document.getElementById(elementId);
+
+            // テキストをクリップボードにコピー
             navigator.clipboard.writeText(element.textContent);
         }
     </script>
