@@ -585,6 +585,7 @@ body.profile-edit-page {
     overflow-y: auto;
     overflow-x: hidden;
     margin-bottom: 16px;
+    overscroll-behavior: contain;
 }
 
 /* スクロールバーのデザイン */
@@ -606,10 +607,26 @@ body.profile-edit-page {
     background: #1b4d3e;
 }
 
+html:has(.game-list-card),
+body:has(.game-list-card) {
+    height: 100%;
+    overflow: hidden; /* 画面全体のスクロールを完全にロック */
+    margin: 0;
+}
+
 
 /* ==========================================
     ユーザー管理画面の固定＆スクロール用スタイル
 ========================================== */
+
+/* 1. ユーザー管理ページの画面全体を固定してスクロールを禁止する */
+html:has(body.user-management-page),
+body.user-management-page {
+    height: 100%;
+    overflow: hidden !important;
+    margin: 0;
+}
+
 
 .user-main-container {
     padding-bottom: 90px;
@@ -753,6 +770,7 @@ body.profile-edit-page {
     overflow-x: hidden; /* 横スクロールを防止 */
     margin-bottom: 16px;
 }
+
 
 /* スクロールバーのデザイン */
 .user-card-list::-webkit-scrollbar {
