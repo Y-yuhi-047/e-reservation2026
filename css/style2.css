@@ -608,8 +608,9 @@ body.profile-edit-page {
 
 
 /* ==========================================
-    ユーザー管理画面用スタイル
-   ================================---------- */
+    ユーザー管理画面の固定＆スクロール用スタイル
+========================================== */
+
 .user-main-container {
     padding-bottom: 90px;
 }
@@ -676,6 +677,13 @@ body.profile-edit-page {
     font-weight: bold;
 }
 
+/* 検索から並び替えまでを固定するエリア */
+.user-fixed-header-section {
+    flex-shrink: 0;
+    margin-top: -15px; /* ← マイナスの値を指定して上にグッと持ち上げる */
+    margin-bottom: 8px; /* 下の隙間も少し狭くする */
+}
+
 /* アイコン付き並び替えボタンとメニューのスタイル */
 .user-sort-dropdown {
     position: relative;
@@ -734,12 +742,35 @@ body.profile-edit-page {
     background-color: #f0f5f3;
 }
 
+/* ユーザーリストを囲むカード（スクロール機能） */
 .user-card-list {
     display: flex;
     flex-direction: column;
+    flex-wrap: nowrap;
     padding: 0;
-    overflow: hidden;
+    max-height: 72vh; /* 画面の高さに合わせた上限 */
+    overflow-y: auto;   /* 縦スクロールを有効化 */
+    overflow-x: hidden; /* 横スクロールを防止 */
     margin-bottom: 16px;
+}
+
+/* スクロールバーのデザイン */
+.user-card-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.user-card-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.user-card-list::-webkit-scrollbar-thumb {
+    background: #c5d4cd;
+    border-radius: 3px;
+}
+
+.user-card-list::-webkit-scrollbar-thumb:hover {
+    background: #1b4d3e;
 }
 
 .user-empty-text {
@@ -840,7 +871,7 @@ body.profile-edit-page {
 }
 
 /* ==========================================================
-   予約一覧ページ & 予約編集モーダル専用スタイル
+    予約一覧ページ & 予約編集モーダル専用スタイル
    ========================================================== */
 
 html,
@@ -889,7 +920,7 @@ body.list-page {
     top: 0;
     background-color: #f8f9fa;
     z-index: 1000;
-    padding-top: 16px;
+    padding-top: 12px;   /* ← タイトルを消した分、少しだけ余白を持たせると綺麗です */
     padding-bottom: 8px;
     margin-left: -16px;
     margin-right: -16px;
@@ -898,13 +929,12 @@ body.list-page {
     box-shadow: none !important;
     border-bottom: none !important;
 }
-
 /* 予約一覧タイトルの左寄せ＆スタイル */
 .page-title-area {
     font-size: 18px;
     font-weight: bold;
     color: #1a1a1a;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -956,7 +986,7 @@ body.list-page {
 }
 
 /* ==========================================================
-   予約編集モーダル内パーツ（スリム＆コンパクト化）
+    予約編集モーダル内パーツ（スリム＆コンパクト化）
    ========================================================== */
 
 .form-group {

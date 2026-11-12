@@ -166,12 +166,12 @@ $current_page = 'list';
         <!-- ── スクロールしても上に残るエリア ── -->
         <div class="sticky-top-wrapper">
 
-            <div class="page-title-area">
+            <!-- <div class="page-title-area">
                 <?php if ($show_back): ?>
                     <a href="javascript:history.back()" class="back-link">&lt;</a>
                 <?php endif; ?>
                 <span>予約一覧</span>
-            </div>
+            </div> -->
 
             <div class="search-area">
                 <form action="list.php" class="search-form-3">

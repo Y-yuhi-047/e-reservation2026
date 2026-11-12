@@ -56,11 +56,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['action']) && $_POST['action'] === 'reset_password') {
         $resetId = trim($_POST['user_id'] ?? '');
 
-        // リセット対象のユーザー名をDBから探す（画面に「〇〇さんの仮パスワード」と出すため）
+        // リセット対象のユーザー名をDBから探す
         $nameStmt = $pdo->prepare("SELECT user_name FROM user WHERE student_number = ?");
-        // ? の部分に学籍番号を入れて実行する
         $nameStmt->execute([$resetId]);
-        // 結果の1列目（ユーザー名）を取り出す。見つからなければ false になる
         $targetName = $nameStmt->fetchColumn();
 
         if ($targetName === false) {
@@ -68,13 +66,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             header('Location: user.php');
             exit();
         } else {
-
-            // 仮パスワードと期限を作る。[ ] で、戻り値の2つをそれぞれの変数に受け取る
             [$plainPassword, $expires] = generateTempPassword();
 
-            // DBのパスワード列を、仮パスワードで上書きする（※ハッシュ化なし）
             $stmt = $pdo->prepare("UPDATE user SET password = ? WHERE student_number = ?");
-            // ? の部分に仮パスワードと学籍番号を入れて実行する
             $stmt->execute([$plainPassword, $resetId]);
         }
         $_SESSION['flash_message'] = 'パスワードをリセットしました。';
@@ -119,7 +113,6 @@ foreach ($raw_users as $u) {
     $studentId = $u['student_number'] ?? '';
     $name = $u['user_name'] ?? '';
 
-    // 学籍番号が "M" で始まる場合は「一般」、それ以外は「管理者」
     if ($name !== "管理者") {
         $role = '一般';
     } else {
@@ -139,7 +132,6 @@ foreach ($raw_users as $u) {
 
 $current_page = 'profile';
 $flash_message = $_SESSION['flash_message'] ?? '';
-// セッションに入っている仮パスワード情報を取り出す（なければ null）
 $temp_password = $_SESSION['temp_password'] ?? null;
 unset($_SESSION['flash_message']);
 unset($_SESSION['temp_password']);
@@ -152,19 +144,15 @@ unset($_SESSION['temp_password']);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ユーザー管理 - e-reservation</title>
 
-    <!-- <link rel="stylesheet" href="css/hiroki.css"> -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="css/style2.css?v=44">
+    <link rel="stylesheet" href="css/style2.css?v=45">
 </head>
 
 <body class="profile-edit-page user-management-page">
 
     <script>
         function copyButton(elementId) {
-            // 指定したIDの要素のテキストを取得
             var element = document.getElementById(elementId);
-
-            // テキストをクリップボードにコピー
             navigator.clipboard.writeText(element.textContent);
         }
     </script>
@@ -178,56 +166,62 @@ unset($_SESSION['temp_password']);
 
     <main class="main-container user-main-container">
 
-        <?php if (!empty($flash_message)): ?>
-            <div class="flash-message-box">
-                <?php echo htmlspecialchars($flash_message, ENT_QUOTES, 'UTF-8'); ?>
-            </div>
-        <?php endif; ?>
-
-        <?php if (!empty($temp_password)): ?>
-            <div class="temp-password-box">
-                <div class="temp-password-label">
-                    <?php echo htmlspecialchars($temp_password['name'], ENT_QUOTES, 'UTF-8'); ?> さんの仮パスワード
+        <!-- ──【固定エリア】検索や並び替え部分 ── -->
+        <div class="user-fixed-header-section">
+            <?php if (!empty($flash_message)): ?>
+                <div class="flash-message-box">
+                    <?php echo htmlspecialchars($flash_message, ENT_QUOTES, 'UTF-8'); ?>
                 </div>
-                <div class="temp-password-code">
-                    <span id="copytxt">
-                        <?php echo htmlspecialchars($temp_password['password'], ENT_QUOTES, 'UTF-8'); ?>
-                    </span>
-                    <button class="user-search-btn" onclick="copyButton('copytxt')">コピー実行</button>
-                </div>
-                <div class="temp-password-note">
-                    有効期限<?php echo htmlspecialchars($temp_password['expires'], ENT_QUOTES, 'UTF-8'); ?>まで<br>
-                    この画面を離れると再表示できませんので、必ず控えておいてください。
-                </div>
-            </div>
-        <?php endif; ?>
-        <form action="user.php" method="GET" class="user-search-form">
-            <input type="text" name="keyword" value="<?php echo htmlspecialchars($keyword, ENT_QUOTES, 'UTF-8'); ?>" placeholder="ユーザー名で検索..." class="user-search-input">
-            <?php if ($sort !== 'new'): ?>
-                <input type="hidden" name="sort" value="<?php echo htmlspecialchars($sort, ENT_QUOTES, 'UTF-8'); ?>">
             <?php endif; ?>
-            <button type="submit" class="user-search-btn">検索</button>
-        </form>
 
-        <div class="user-section-header">
-            <div class="user-section-title-group">
-                <span class="user-section-label">登録ユーザー</span>
-                <span class="user-section-count"><?php echo count($users); ?>人</span>
-            </div>
+            <?php if (!empty($temp_password)): ?>
+                <div class="temp-password-box">
+                    <div class="temp-password-label">
+                        <?php echo htmlspecialchars($temp_password['name'], ENT_QUOTES, 'UTF-8'); ?> さんの仮パスワード
+                    </div>
+                    <div class="temp-password-code">
+                        <span id="copytxt">
+                            <?php echo htmlspecialchars($temp_password['password'], ENT_QUOTES, 'UTF-8'); ?>
+                        </span>
+                        <button class="user-search-btn" onclick="copyButton('copytxt')">コピー実行</button>
+                    </div>
+                    <div class="temp-password-note">
+                        有効期限<?php echo htmlspecialchars($temp_password['expires'], ENT_QUOTES, 'UTF-8'); ?>まで<br>
+                        この画面を離れると再表示できませんので、必ず控えておいてください。
+                    </div>
+                </div>
+            <?php endif; ?>
 
-            <div class="user-sort-dropdown">
-                <?php $kw_param = ($keyword !== '') ? '&keyword=' . urlencode($keyword) : ''; ?>
-                <button type="button" class="user-sort-toggle-btn" onclick="toggleSortMenu()">
-                    <i class="fas fa-arrow-up-down"></i> 並び替え
-                </button>
-                <div id="sortMenu" class="user-sort-menu">
-                    <a href="user.php?sort=new<?php echo $kw_param; ?>" class="<?php echo ($sort === 'new') ? 'active' : ''; ?>">新しい順</a>
-                    <a href="user.php?sort=old<?php echo $kw_param; ?>" class="<?php echo ($sort === 'old') ? 'active' : ''; ?>">古い順</a>
-                    <a href="user.php?sort=name<?php echo $kw_param; ?>" class="<?php echo ($sort === 'name') ? 'active' : ''; ?>">名前順</a>
+            <form action="user.php" method="GET" class="user-search-form">
+                <input type="text" name="keyword" value="<?php echo htmlspecialchars($keyword, ENT_QUOTES, 'UTF-8'); ?>" placeholder="ユーザー名で検索..." class="user-search-input">
+                <?php if ($sort !== 'new'): ?>
+                    <input type="hidden" name="sort" value="<?php echo htmlspecialchars($sort, ENT_QUOTES, 'UTF-8'); ?>">
+                <?php endif; ?>
+                <button type="submit" class="user-search-btn">検索</button>
+            </form>
+
+            <div class="user-section-header" style="margin-bottom: 0;">
+                <div class="user-section-title-group">
+                    <span class="user-section-label">登録ユーザー</span>
+                    <span class="user-section-count"><?php echo count($users); ?>人</span>
+                </div>
+
+                <div class="user-sort-dropdown">
+                    <?php $kw_param = ($keyword !== '') ? '&keyword=' . urlencode($keyword) : ''; ?>
+                    <button type="button" class="user-sort-toggle-btn" onclick="toggleSortMenu()">
+                        <i class="fas fa-arrow-up-down"></i> 並び替え
+                    </button>
+                    <div id="sortMenu" class="user-sort-menu">
+                        <a href="user.php?sort=new<?php echo $kw_param; ?>" class="<?php echo ($sort === 'new') ? 'active' : ''; ?>">新しい順</a>
+                        <a href="user.php?sort=old<?php echo $kw_param; ?>" class="<?php echo ($sort === 'old') ? 'active' : ''; ?>">古い順</a>
+                        <a href="user.php?sort=name<?php echo $kw_param; ?>" class="<?php echo ($sort === 'name') ? 'active' : ''; ?>">名前順</a>
+                    </div>
                 </div>
             </div>
         </div>
+        <!-- ── 固定エリアここまで ── -->
 
+        <!-- ──【スクロールエリア】ユーザー一覧カード ── -->
         <div class="card user-card-list">
             <?php if (empty($users)): ?>
                 <div class="user-empty-text">
@@ -236,7 +230,6 @@ unset($_SESSION['temp_password']);
             <?php else: ?>
                 <?php foreach ($users as $user): ?>
                     <div class="user-item">
-
                         <div class="user-item-top">
                             <div class="user-info-group">
                                 <div class="user-avatar">
@@ -271,7 +264,6 @@ unset($_SESSION['temp_password']);
                                 <button type="submit" class="game-delete-btn">削除</button>
                             </form>
                         </div>
-
                     </div>
                 <?php endforeach; ?>
             <?php endif; ?>
@@ -283,7 +275,6 @@ unset($_SESSION['temp_password']);
         </div>
 
     </main>
-
 
     <script>
         function toggleSortMenu() {
@@ -301,5 +292,4 @@ unset($_SESSION['temp_password']);
     </script>
 
 </body>
-
 </html>
