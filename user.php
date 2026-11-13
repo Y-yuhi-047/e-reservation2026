@@ -71,10 +71,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // 仮パスワードと期限を作る。[ ] で、戻り値の2つをそれぞれの変数に受け取る
             [$plainPassword, $expires] = generateTempPassword();
 
-            // DBのパスワード列を、仮パスワードで上書きする（※ハッシュ化なし）
+            // DBのパスワード列を、仮パスワードで上書きする
+            $hash = password_hash($plainPassword, PASSWORD_DEFAULT);
+
             $stmt = $pdo->prepare("UPDATE user SET password = ? WHERE student_number = ?");
             // ? の部分に仮パスワードと学籍番号を入れて実行する
-            $stmt->execute([$plainPassword, $resetId]);
+            $stmt->execute([$hash, $resetId]);
         }
         $_SESSION['flash_message'] = 'パスワードをリセットしました。';
         $_SESSION['temp_password'] = [
@@ -301,4 +303,5 @@ unset($_SESSION['temp_password']);
     </script>
 
 </body>
+
 </html>

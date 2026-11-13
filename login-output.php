@@ -29,13 +29,19 @@ $success = false;
 $sql = $pdo->prepare('select * from user 
                         WHERE REPLACE(REPLACE(user_name, " ", ""), "　", "") = ? 
                         AND student_number = ? 
-                        AND password = ?');
-$sql->execute([$name, $student_number, $password]);
+                        ');
+$sql->execute([$name, $student_number]);
 
 foreach ($sql as $row) {
+
+    if (!password_verify($password, $row['password'])) {
+        continue;
+    }
+
+
     // 変更点：DBに保存されているパスワードが「期限切れの仮パスワード」かを調べる
     // ※入力値ではなくDBの値を使う
-    if (isTempPasswordExpired($row['password'])) {
+    if (isTempPasswordExpired($password)) {
         // 仮パスワードが期限切れの場合はログイン失敗
         $error_message = '仮パスワードの期限が切れています。管理者に再発行を依頼してください。';
         continue; // このユーザーはスキップして次のループへ
@@ -45,11 +51,7 @@ foreach ($sql as $row) {
         'number' => $row['student_number'],
         'profile_picture' => $row['profile_picture'],
         'name' => $row['user_name'],
-        'password' => $row['password']
     ];
-
-    // 仮パスワードでログインしたかどうかをセッションに保存
-    $_SESSION['if_temp_login'] = (strpos($row['password'], TEMP_PW_PREFIX) === 0);
 }
 if (isset($_SESSION['user'])) {
     header('Location: home.php');

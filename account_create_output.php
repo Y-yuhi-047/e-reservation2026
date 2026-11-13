@@ -39,7 +39,8 @@ if (isset($_FILES['icon']) && $_FILES['icon']['error'] === UPLOAD_ERR_OK) {
             $picture = $dest;
             try {
                 $sql = $pdo->prepare('INSERT INTO user (profile_picture, user_name, student_number, password) VALUES (?, ?, ?, ?)');
-                $sql->execute([$picture, $name, $student_number, $password]);
+                $hash = password_hash($password, PASSWORD_DEFAULT);
+                $sql->execute([$picture, $name, $student_number, $hash]);
 
                 $success = true;  // ← エラーなく、ここまで来たら成功
             } catch (PDOException $e) {
