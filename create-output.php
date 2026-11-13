@@ -11,12 +11,12 @@ $pdo = new PDO(
     ]
 );
 // セッションと$POSTの中身確認用
-// echo '<pre>';
-// print_r($_SESSION);
-// echo '</pre>';
-// echo '<pre>';
-// print_r($_POST);
-// echo '</pre>';
+echo '<pre>';
+print_r($_SESSION);
+echo '</pre>';
+echo '<pre>';
+print_r($_POST);
+echo '</pre>';
 
 // どの席が選ばれたのかを判定
 $seats = [];
@@ -95,6 +95,7 @@ for($i=1;$i<6;$i++){
 // var_dump($time_overlap);
 var_dump($seat_overlap);
 
+// 条件を満たせば予約する
 //「時間帯が重なる」かつ「選んだ席のどれかが予約済み」なら予約させない
 if($start != null && $end != null && $seat_overlap){
     echo '<p>';
@@ -104,6 +105,7 @@ if($start != null && $end != null && $seat_overlap){
     echo "<button onclick='history.back()'>";
     echo '戻る';
     echo '</button>';
+// 全て空席で予約しようとしたらはじく
 } else if($empty_seats == 5) {
     echo '<p>';
     echo '席をひとつ以上選択してください';
@@ -157,7 +159,7 @@ foreach($_POST['student_numbers'] as $row){
 echo '<p>';
 echo '登録しました';
 echo '</p>';
-echo "<button onclick='history.back()'>";
+echo "<button onclick = location.href='home.php'>";
 echo '戻る';
 echo '</button>';
 } catch(PDOException $e) {
