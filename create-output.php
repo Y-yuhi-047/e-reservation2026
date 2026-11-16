@@ -111,39 +111,74 @@ for($i=1;$i<6;$i++){
 // <-- 条件を満たせば予約する -->
 // セッション情報がなければ不正なアクセスとみなしてはじく
 if($no_session){
+    echo "<div class = 'reservation_message'>";
+    echo "<div class = 'message_container'>";
+    echo "<div class = 'message'>";   
     echo '<p>';
-    echo '不正なアクセスです';
+    echo '不正なアクセスです。';
     echo '</p>';
+    echo "</div>"; // class = 'message'の閉じ
     // onclick='history.back()'はセッション情報をもとに前のページに戻るやつ
+    echo "<div class = 'btn_container'>";
     echo "<button>";
     echo "<a href='login-input.php' style='color: inherit; text-decoration: none;'>";
     echo 'ログインする';
     echo "</a>";
     echo '</button>';
+    echo '</div>'; // class = 'btn_container'
+    echo "</div>"; // class = 'message_container'の閉じ
+    echo "</div>"; // class = 'reservation_message'の閉じ
 //「時間帯が重なる」かつ「選んだ席のどれかが予約済み」なら予約させない
 } else if($start != null && $end != null && $seat_overlap){
+    echo "<div class = 'reservation_message'>";
+    echo "<div class = 'message_container'>";
+    echo "<div class = 'message'>";
     echo '<p>';
-    echo 'この時間はすでに予約があります';
+    echo 'この時間はすでに予約があります。';
     echo '</p>';
+    echo "</div>"; // class = 'message'の閉じ
     // onclick='history.back()'はセッション情報をもとに前のページに戻るやつ
-    echo "<button onclick='history.back()'>";
+    echo "<div class = 'btn_container'>";
+    echo "<button onclick='history.back()' class='back_button'>";
     echo '戻る';
     echo '</button>';
+    echo '</div>'; // class = 'btn_container'
+    echo "</div>"; // class = 'message_container'の閉じ
+    echo "</div>"; // class = 'reservation_message'の閉じ
 // 全て空席で予約しようとしたらはじく
 } else if($empty_seats == 5) {
+    echo "<div class = 'reservation_message'>";
+    echo "<div class = 'message_container'>";
+    echo "<div class = 'message'>";
     echo '<p>';
-    echo '席をひとつ以上選択してください';
+    echo '席を一つ以上選択してください。';
     echo '</p>';
-    echo "<button onclick='history.back()'>";
+    echo "</div>"; // class = 'message'の閉じ
+    // onclick='history.back()'はセッション情報をもとに前のページに戻るやつ
+    echo "<div class = 'btn_container'>";
+    echo "<button onclick='history.back()' class='back_button'>";
     echo '戻る';
     echo '</button>';
+    echo '</div>'; // class = 'btn_container'
+    echo "</div>"; // class = 'message_container'の閉じ
+    echo "</div>"; // class = 'reservation_message'の閉じ
+// 0人での予約をはじく
 } else if(empty($members)){
+    echo "<div class = 'reservation_message'>";
+    echo "<div class = 'message_container'>";
+    echo "<div class = 'message'>";
     echo '<p>';
-    echo '利用者を一人以上選択してください';
+    echo '利用者を一人以上選択してください。';
     echo '</p>';
-    echo "<button onclick='history.back()'>";
+    echo "</div>"; // class = 'message'の閉じ
+    // onclick='history.back()'はセッション情報をもとに前のページに戻るやつ
+    echo "<div class = 'btn_container'>";
+    echo "<button onclick='history.back()' class='back_button'>";
     echo '戻る';
     echo '</button>';
+    echo '</div>'; // class = 'btn_container'
+    echo "</div>"; // class = 'message_container'の閉じ
+    echo "</div>"; // class = 'reservation_message'の閉じ
 } else{
 // データベースに登録
 try{
@@ -187,22 +222,80 @@ $reservation_id = $reservation->fetch(PDO::FETCH_ASSOC)["reservation_id"];
 foreach($_POST['student_numbers'] as $row){
     $sql->execute([$reservation_id,$row]);
 }
-echo '<p>';
-echo '登録しました';
-echo '</p>';
-echo "<button onclick = location.href='home.php'>";
-echo '戻る';
-echo '</button>';
+    echo "<div class = 'reservation_message'>";
+    echo "<div class = 'message_container'>";
+    echo "<div class = 'message'>";
+    echo '<p>';
+    echo '登録しました。';
+    echo '</p>';
+    echo "</div>"; // class = 'message'の閉じ
+    // onclick='history.back()'はセッション情報をもとに前のページに戻るやつ
+    echo "<div class = 'btn_container'>";
+    echo "<button onclick='history.back()' class='back_button'>";
+    echo '戻る';
+    echo '</button>';
+    echo '</div>'; // class = 'btn_container'
+    echo "</div>"; // class = 'message_container'の閉じ
+    echo "</div>"; // class = 'reservation_message'の閉じ
 } catch(PDOException $e) {
+    echo "<div class = 'reservation_message'>";
+    echo "<div class = 'message_container'>";
+    echo "<div class = 'message'>";
     echo '<p>';    
     echo 'エラー: ' . $e->getMessage();
     echo '</p>';
+    echo "</div>"; // class = 'message'の閉じ
+    echo "<div class = 'btn_container'>";
     echo "<button onclick='history.back()'>";
     echo '戻る';
     echo '</button>';
+    echo '</button>';
+    echo '</div>'; // class = 'btn_container'
+    echo "</div>"; // class = 'message_container'の閉じ
+    echo "</div>"; // class = 'reservation_message'の閉じ
 }
 }
-
-
-
 ?>
+
+<!-- 衝突がめんどくさいのでcssは直書きした -->
+<style>
+    .reservation_message{
+        line-height: 1.8;
+        padding: 30dvh 20px 30dvh 20px;
+        display: flex;
+        justify-content: center; /* 左右の中央寄せ */
+        align-items: center;     /* 上下の中央寄せ（必要な場合） */
+    }
+    .message_container{
+        width: 600px;
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 1px 2px 4px rgba(43, 122, 98, 0.15); 
+    }
+    .btn_container{
+        text-align: center;
+        display: flex;
+        justify-content: center; /* 左右の中央寄せ */
+        align-items: center;     /* 上下の中央寄せ */
+        padding-bottom: 12px;
+    }
+    .back_button{
+    width: 50%;
+    background-color: #2b7a62;
+    color: #ffffff;
+    border: none;
+    border-radius: 14px;
+    padding: 16px;
+    font-size: 15px;
+    font-weight: bold;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(43, 122, 98, 0.15);        
+    }
+    .message{
+        padding: 12px 10px 10px 10px;
+    }
+    .message p{
+        font-weight: bolder;
+        text-align: center;
+    }
+</style>
