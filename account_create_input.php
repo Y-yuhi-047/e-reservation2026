@@ -93,14 +93,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <!-- 学生番号 -->
             <div class="form-group">
                 <label for="studentId">学生番号</label>
-                <input type="text" id="studentId" name="student_id" placeholder="8桁の番号の英数字" required>
+                <input type="text" id="studentId" name="student_id" placeholder="学生番号を入力" required>
             </div>
 
             <!-- パスワード -->
             <div class="form-group">
                 <label for="password">パスワード</label>
                 <div class="password-wrapper">
-                    <input type="password" id="password" name="password" class="form-control" placeholder="パスワードを8文字以上で入力" required>
+                    <input type="password" id="password" name="password" class="form-control" placeholder="8文字以上で入力" required>
                     <button type="button" id="togglePassword" class="btn-toggle-password">パスワードを表示</button>
                 </div>
             </div>
