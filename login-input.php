@@ -1,3 +1,28 @@
+<?php
+// function getDeviceType(): string
+// {
+//     // ブラウザが送ってくる自己紹介の文字列（User-Agent）。なければ空文字
+//     $ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
+
+//     // iPhone / iPad / iPod / Android のどれかが含まれていれば、スマホ・タブレット
+//     // 末尾の i は、大文字小文字を区別しない指定
+//     if (preg_match('/iPhone|iPad|iPod|Android/i', $ua)) {
+//         return 'mobile';
+//     }
+//     return 'pc';
+// }
+
+// $device =  getDeviceType();
+// if ($device === 'pc') {
+//     echo '<div class ="container"> 
+//         このサイトはPCでは開けません
+//         </div>';
+//     return;
+// }
+// 
+?>
+
+
 <!DOCTYPE html>
 <html lang="ja">
 
@@ -11,6 +36,8 @@
 </head>
 
 <body>
+
+
     <div class="login">
         <div class="header">
             <p class="logo">e-reservation</p>
@@ -23,7 +50,7 @@
             </div>
             <div class="form-group">
                 <label for="student_number" class="form-label">学生番号</label>
-                <input type="text" id="student_number" name="student_number" class="form-control" placeholder="学生番号または教員番号を入力" required>
+                <input type="text" id="student_number" name="student_number" class="form-control" placeholder="を入力" required>
             </div>
             <div class="form-group">
                 <label for="password" class="form-label">パスワード</label>

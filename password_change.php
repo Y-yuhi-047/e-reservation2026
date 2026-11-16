@@ -21,7 +21,7 @@ $success = false;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // フォームの入力を受け取る。現在のパスワードは、ログイン時と同じくスペースを除く
-    $current = preg_replace('/ [ 　]/u', '', $_POST['current_password'] ?? '');
+    $current = preg_replace('/ [　]/u', '', $_POST['current_password'] ?? '');
     $newPassword = $_POST['new_password'] ?? '';
     $confirmPassword = $_POST['confirm_password'] ?? '';
 
@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->execute([$studentNumber]);
     $dbPassword = $stmt->fetchColumn();
 
-    if ($dbPassword === false || $dbPassword !== $current) {
+    if ($dbPassword === false || !password_verify($current, $dbPassword)) {
         // 新しいパスワードと確認用パスワードが一致するか確認
         $error_message = '現在のパスワードが正しくありません。';
     } elseif (mb_strlen($newPassword) < 8 || mb_strlen($newPassword) > 20) {
@@ -43,11 +43,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error_message = '新しいパスワードと確認用パスワードが一致しません。';
     } else {
         // パスワードを更新
+        $hash = password_hash($newPassword, PASSWORD_DEFAULT);
         $stmt = $pdo->prepare('UPDATE user SET password = ? WHERE student_number = ?');
-        $stmt->execute([$newPassword, $studentNumber]);
+        $stmt->execute([$hash, $studentNumber]);
 
-        $_SESSION['user']['password'] = $newPassword; // セッションのパスワードも更新
-        $_SESSION['if_temp_login'] = false; // 仮パスワードでのログインフラグをリセット
         $success = true;
     }
 }
