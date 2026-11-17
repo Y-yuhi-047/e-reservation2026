@@ -303,7 +303,15 @@ body.profile-page {
     box-sizing: border-box;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
     animation: modalFadeIn 0.2s ease-out;
+
+    /* 画面より長いときは、モーダルの中だけスクロールさせる */
+    max-height: calc(100vh - 32px);
+    max-height: calc(100dvh - 32px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
 }
+
+
 
 @keyframes modalFadeIn {
     from {
@@ -610,7 +618,8 @@ body.profile-edit-page {
 html:has(.game-list-card),
 body:has(.game-list-card) {
     height: 100%;
-    overflow: hidden; /* 画面全体のスクロールを完全にロック */
+    overflow: hidden;
+    /* 画面全体のスクロールを完全にロック */
     margin: 0;
 }
 
@@ -697,8 +706,10 @@ body.user-management-page {
 /* 検索から並び替えまでを固定するエリア */
 .user-fixed-header-section {
     flex-shrink: 0;
-    margin-top: -15px; /* ← マイナスの値を指定して上にグッと持ち上げる */
-    margin-bottom: 8px; /* 下の隙間も少し狭くする */
+    margin-top: -15px;
+    /* ← マイナスの値を指定して上にグッと持ち上げる */
+    margin-bottom: 8px;
+    /* 下の隙間も少し狭くする */
 }
 
 /* アイコン付き並び替えボタンとメニューのスタイル */
@@ -765,9 +776,12 @@ body.user-management-page {
     flex-direction: column;
     flex-wrap: nowrap;
     padding: 0;
-    max-height: 72vh; /* 画面の高さに合わせた上限 */
-    overflow-y: auto;   /* 縦スクロールを有効化 */
-    overflow-x: hidden; /* 横スクロールを防止 */
+    max-height: 72vh;
+    /* 画面の高さに合わせた上限 */
+    overflow-y: auto;
+    /* 縦スクロールを有効化 */
+    overflow-x: hidden;
+    /* 横スクロールを防止 */
     margin-bottom: 16px;
 }
 
@@ -938,7 +952,8 @@ body.list-page {
     top: 0;
     background-color: #f8f9fa;
     z-index: 1000;
-    padding-top: 12px;   /* ← タイトルを消した分、少しだけ余白を持たせると綺麗です */
+    padding-top: 12px;
+    /* ← タイトルを消した分、少しだけ余白を持たせると綺麗です */
     padding-bottom: 8px;
     margin-left: -16px;
     margin-right: -16px;
@@ -947,6 +962,7 @@ body.list-page {
     box-shadow: none !important;
     border-bottom: none !important;
 }
+
 /* 予約一覧タイトルの左寄せ＆スタイル */
 .page-title-area {
     font-size: 18px;
