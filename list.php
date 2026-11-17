@@ -276,6 +276,11 @@ $current_page = 'list';
             $members = $membersStmt->fetchAll(PDO::FETCH_ASSOC);
             $memberStudentNumbers = array_column($members, 'student_number');
 
+            //ログイン中の学生番号（セッションから取る。なければ空文字）
+            $myNumber = (string)($_SESSION['user']['number'] ?? '');
+
+            // in_array(探す値, 配列, true) の true は、型も含めて厳密に比べる指定
+            $isMember = in_array($myNumber, $memberStudentNumbers, true);
             $gameName = $row['game_name'] !== null ? $row['game_name'] : '未選択';
             $gameIcon = $row['game_icon'] ?? '';
             $memo = $row['memo'] ?? '';
@@ -412,7 +417,7 @@ $current_page = 'list';
                             </div>
                         <?php endif; ?>
 
-                        <?php if (empty($row['end_time'])): ?>
+                        <?php if (empty($row['end_time']) && $isMember || $_SESSION['user']['name'] === "管理者"): ?>
                             <div style="display: flex; gap: 8px; margin-top: 4px;">
                                 <button type="button" class="save-btn" style="flex: 1; background-color: #ffffff; color: #1b4d3e; border: 1px solid #dce3e0; font-size: 14px; padding: 12px;" onclick="openEditModal(<?= $row['reservation_id'] ?>);">
                                     <i class="fas fa-pen"></i> 予約編集
@@ -532,6 +537,10 @@ $current_page = 'list';
                                 <label class="form-label" style="margin-bottom: 0;">メンバー</label>
                                 <span class="member-count-text" style="font-size: 12px; color: #1b4d3e; font-weight: bold;"><?= count($members) ?>人を選択中</span>
                             </div>
+
+                            <label class="form-label">メモ</label>
+                            <textarea
+                                name="memo" class="form-input" rows="2" placeholder="メモはありません" style="resize: none; font-family: inherit;"><?= (htmlspecialchars($memo)) ?></textarea>
 
                             <div style="background: #f7f9f8; border: 1px solid #dce3e0; border-radius: 12px; padding: 12px; display: flex; align-items: center; gap: 8px; overflow-x: auto;">
                                 <!-- 選択中のメンバーアバター横並びエリア -->

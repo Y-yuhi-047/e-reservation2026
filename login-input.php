@@ -50,7 +50,7 @@
             </div>
             <div class="form-group">
                 <label for="student_number" class="form-label">学生番号</label>
-                <input type="text" id="student_number" name="student_number" class="form-control" placeholder="を入力" required>
+                <input type="text" id="student_number" name="student_number" class="form-control" placeholder="学生番号を入力" required>
             </div>
             <div class="form-group">
                 <label for="password" class="form-label">パスワード</label>
