@@ -1,25 +1,28 @@
 console.log("テスト：script.jsを実行しています");
+
 // ここからモーダルウィンドウ
-//要素を取得
-const modal = document.querySelector('.js-modal'),
+if (typeof modal === 'undefined') {
+  var modal = document.querySelector('.js-modal'),
       open = document.querySelector('.js-modal-open'),
       close = document.querySelector('.js-modal-close');
+}
 
-//「開くボタン」をクリックしてモーダルを開く
 function modalOpen() {
-  modal.classList.add('is-active');
+  if (modal) modal.classList.add('is-active');
 }
-open.addEventListener('click', modalOpen);
+if (open) {
+  open.addEventListener('click', modalOpen);
+}
 
-//「閉じるボタン」をクリックしてモーダルを閉じる
 function modalClose() {
-  modal.classList.remove('is-active');
+  if (modal) modal.classList.remove('is-active');
 }
-close.addEventListener('click', modalClose);
+if (close) {
+  close.addEventListener('click', modalClose);
+}
 
-//「モーダルの外側」をクリックしてモーダルを閉じる
 function modalOut(e) {
-  if (e.target == modal) {
+  if (modal && e.target == modal) {
     modal.classList.remove('is-active');
   }
 }
@@ -27,62 +30,19 @@ addEventListener('click', modalOut);
 // ここまでモーダルウィンドウ
 
 
-// 仮の予約データ(あとで消す)
-const reservations = [
-    { date: "2026-07-15", start: "10:00", end: "12:00", title: "ゲームA", seat: 1 },
-    { date: "2026-07-15", start: "13:00", end: "15:00", title: "ゲームB", seat: 2 },
-    { date: "2026-07-16", start: "11:00", end: "14:00", title: "ゲームC", seat: 3 }
-];
-// ここまで仮の予約(あとで消す)
-
-// ここからカレンダーと予約タイムライン
 // HTML要素を取得
 const calendarElement = document.getElementById("calendar");
 const selectedDateElement = document.getElementById("selected-date");
 const timelineElement = document.getElementById("reservation-timeline");
-
-// 予約タイムラインはじまり
-// 選択した日の予約を表示する
-// function showReservations(dateStr) {
-//     selectedDateElement.textContent = `${dateStr} の予約`;
-
-//     // 選択した日付の予約だけを抽出
-//     const dailyReservations = reservations
-//         .filter(reservation => reservation.date === dateStr)
-//         .sort((a, b) => a.start.localeCompare(b.start));
-
-//     // 表示内容を初期化
-//     timelineElement.replaceChildren();
-
-//     if (dailyReservations.length === 0) {
-//         timelineElement.textContent = "この日の予約はありません。";
-//         return;
-//     }
-
-//     // 予約を1件ずつ表示
-//     dailyReservations.forEach(reservation => {
-//         const item = document.createElement("div");
-//         item.className = "reservation-item";
-
-//         const time = document.createElement("strong");
-//         time.textContent =
-//             `${reservation.start} ～ ${reservation.end}`;
-
-//         const details = document.createElement("p");
-//         details.textContent =
-//             `${reservation.title} / ${reservation.seat}`;
-
-//         item.append(time, details);
-//         timelineElement.appendChild(item);
-//     });
-// }
+const newReservationArea = document.getElementById("new-reservation-area");
 
 // タイムラインの設定
 const TIMELINE_START_HOUR = 12;   // 表示開始時刻
 const TIMELINE_END_HOUR = 19;    // 表示終了時刻
-const WIDTH = timelineElement.offsetWidth - 60; //席番号の部分を引いたタイムライン表の幅
-const HOUR_WIDTH = WIDTH / 7;           // 1時間あたりの横幅(px)
-console.log(HOUR_WIDTH);
+
+const containerWidth = timelineElement && timelineElement.offsetWidth > 0 ? timelineElement.offsetWidth : 300;
+const WIDTH = containerWidth - 60; // 席番号の部分を引いたタイムライン表の幅
+const HOUR_WIDTH = WIDTH / 7;            // 1時間あたりの横幅(px)
 const SEATS = [1, 2, 3, 4, 5];   // 席の一覧
 
 // "10:30" → 630(分)に変換
@@ -92,9 +52,12 @@ function timeToMinutes(timeStr) {
 }
 
 function showReservations(dateStr) {
+    if (!selectedDateElement || !timelineElement) return;
     selectedDateElement.textContent = `${dateStr} の予約`;
 
-    const dailyReservations = reservations.filter(r => r.date === dateStr);
+    // PHPから渡された reservations（window.appReservations）を使用
+    const list = window.appReservations || [];
+    const dailyReservations = list.filter(r => r.date === dateStr);
 
     const hourCount = TIMELINE_END_HOUR - TIMELINE_START_HOUR;
     const trackWidth = hourCount * HOUR_WIDTH;
@@ -138,7 +101,7 @@ function showReservations(dateStr) {
         seatCell.textContent = String(seatNo).padStart(2, "0");
 
         const track = document.createElement("div");
-        track.className = "timeline-track";   // timeline-grid は外す
+        track.className = "timeline-track";
 
         // 1時間ごとのセルを並べて縦線にする
         for (let h = TIMELINE_START_HOUR; h < TIMELINE_END_HOUR; h++) {
@@ -149,7 +112,7 @@ function showReservations(dateStr) {
 
         // この席の予約を帯として配置
         dailyReservations
-            .filter(r => r.seat === seatNo)
+            .filter(r => Number(r.seat) === seatNo)
             .forEach(r => {
                 const baseMin = TIMELINE_START_HOUR * 60;
                 const startMin = Math.max(timeToMinutes(r.start), baseMin);
@@ -172,36 +135,96 @@ function showReservations(dateStr) {
 
     scroll.appendChild(table);
     timelineElement.appendChild(scroll);
+
+    // ★ タイムライン表の下に、シフトボード風の「＋ 新規予約を追加」ボタンを配置
+    if (newReservationArea) {
+        newReservationArea.replaceChildren();
+
+        const btn = document.createElement("button");
+        btn.textContent = "+ 新規予約を追加";
+        btn.style.width = "100%";
+        btn.style.padding = "12px";
+        btn.style.fontSize = "15px";
+        btn.style.fontWeight = "bold";
+        btn.style.cursor = "pointer";
+        btn.style.backgroundColor = "#fff";
+        btn.style.color = "#4CAF50";
+        btn.style.border = "2px dashed #4CAF50"; // 点線のおしゃれな枠
+        btn.style.borderRadius = "8px";
+        btn.style.marginTop = "15px";
+
+        // ボタンを押したときにモーダルを開く
+        btn.addEventListener("click", () => {
+            if (typeof modalOpen === 'function') {
+                modalOpen();
+            }
+        });
+
+        newReservationArea.appendChild(btn);
+    }
 }
-// 予約タイムラインおわり
+
+// 今日の日付を "YYYY-MM-DD" 形式で取得
+function getTodayString() {
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, "0");
+    const dd = String(today.getDate()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}`;
+}
+
+const todayStr = getTodayString();
 
 // カレンダーを作成
-const calendar = EventCalendar.create(calendarElement, {
-    view: "dayGridMonth",
-    date: "2026-07-15",
-    height :"100%",
+if (calendarElement && !calendarElement.hasChildNodes()) {
+    var calendar = EventCalendar.create(calendarElement, {
+        view: "dayGridMonth",
+        date: todayStr,
+        height: "100%",
 
-    headerToolbar: {
-        start: "prev",
-        center: "title",
-        end: "next"
-    },
+        headerToolbar: {
+            start: "prev",
+            center: "title",
+            end: "next"
+        },
 
-    // 日付クリック時にタイムラインを更新
-    dateClick: function(info) {
-        const dateStr = info.dateStr.slice(0, 10);
-        // console.log("クリックした日付:", dateStr);
-        // console.log("予約データ:", reservations);
+        // 日付をクリックしたときの処理
+        dateClick: function(info) {
+            const dateStr = info.dateStr.slice(0, 10);
 
-        console.log("日付が一致する予約:",reservations.filter(r => r.date === info.dateStr));
-        showReservations(dateStr);
-    }
-});
+            // 1. カレンダー内のすべての日の枠線を一旦リセット（消す）
+            document.querySelectorAll('.ec-day').forEach(el => {
+                el.style.border = "";
+                el.style.backgroundColor = "";
+            });
 
-// #calendar の大きさが変わったら、カレンダーに再計算させる
-// #calendar の大きさが変わったら、カレンダーに再計算させる
-const resizeObserver = new ResizeObserver(() => {
-    calendar.setOption("height", "100%");
-});
-resizeObserver.observe(calendarElement);
+            // 2. クリックされた日（info.dayEl）に直接枠線と背景色のスタイルを設定する
+            if (info.dayEl) {
+                info.dayEl.style.border = "2px solid #4CAF50";
+                info.dayEl.style.backgroundColor = "rgba(76, 175, 80, 0.1)";
+                info.dayEl.style.boxSizing = "border-box";
+            }
 
+            // 3. 予約タイムラインとボタンを更新
+            showReservations(dateStr);
+        }
+    });
+
+    // 画面読み込み時に今日のタイムラインを自動で表示
+    showReservations(todayStr);
+
+    // ▼ 初期表示（今日）の日付を最初から枠で囲む場合
+    setTimeout(() => {
+        const todayCell = document.querySelector(`.ec-day[data-date="${todayStr}"]`);
+        if (todayCell) {
+            todayCell.style.border = "2px solid #4CAF50";
+            todayCell.style.backgroundColor = "rgba(76, 175, 80, 0.1)";
+            todayCell.style.boxSizing = "border-box";
+        }
+    }, 100);
+
+    const resizeObserver = new ResizeObserver(() => {
+        if (calendar) calendar.setOption("height", "100%");
+    });
+    resizeObserver.observe(calendarElement);
+}
