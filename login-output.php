@@ -18,7 +18,7 @@ function remove_space($str)
     return $str;
 }
 
-$name = remove_space($_POST['name']);
+// $name = remove_space($_POST['name']);
 $student_number = remove_space($_POST['student_number']);
 $password = remove_space($_POST['password']);
 // 最初は「失敗」にしておく
@@ -26,11 +26,8 @@ $success = false;
 
 
 
-$sql = $pdo->prepare('select * from user 
-                        WHERE REPLACE(REPLACE(user_name, " ", ""), "　", "") = ? 
-                        AND student_number = ? 
-                        ');
-$sql->execute([$name, $student_number]);
+$sql = $pdo->prepare('select * from user WHERE student_number = ?');
+$sql->execute([$student_number]);
 
 foreach ($sql as $row) {
 
@@ -50,7 +47,7 @@ foreach ($sql as $row) {
     $_SESSION['user'] = [
         'number' => $row['student_number'],
         'profile_picture' => $row['profile_picture'],
-        'name' => $row['user_name'],
+
     ];
 }
 if (isset($_SESSION['user'])) {

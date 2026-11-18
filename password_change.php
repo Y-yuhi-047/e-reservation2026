@@ -86,17 +86,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <form method="POST" action="">
                 <div class="form-group">
                     <label for="current_password">現在のパスワード</label>
-                    <input type="password" id="current_password" name="current_password" required>
+                    <input type="password" id="current_password" name="current_password" placeholder="8文字以上で入力" minlength="8" required
+                        title="8文字以上で入力してください">
                 </div>
 
                 <div class="form-group">
                     <label for="new_password">新しいパスワード</label>
-                    <input type="password" id="new_password" name="new_password" required>
+                    <input type="password" id="new_password" name="new_password" placeholder="8文字以上で入力" minlength="8" required
+                        title="8文字以上で入力してください">
                 </div>
 
                 <div class="form-group">
                     <label for="confirm_password">新しいパスワード（確認）</label>
-                    <input type="password" id="confirm_password" name="confirm_password" required>
+                    <input type="password" id="confirm_password" name="confirm_password" placeholder="8文字以上で入力" minlength="8" required
+                        title="8文字以上で入力してください">
 
                 </div>
 

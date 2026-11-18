@@ -14,48 +14,49 @@ $picture = "";
 // 最初は「失敗」にしておく
 $success = false;
 
-if (strlen($student_number) < 8 || strlen($password) < 8) {
+if (mb_strlen($student_number) < 8 || mb_strlen($password) < 8) {
     $_SESSION['error'] = "<a>学生番号とパスワードは8文字以上で入力してください。</a>";
     $success = false;
     // header('Location: account_create_input.php');
     // exit();
-}
+} else {
 
-//iconというファイルが送信されたか確認 アップロード時にエラーがなかったか確認
-if (isset($_FILES['icon']) && $_FILES['icon']['error'] === UPLOAD_ERR_OK) {
-    //ファイル名からフォルダ部分を取り除く
-    $filename = basename($_FILES['icon']['name']);
-    // ファイル名から拡張子を取り出す
-    $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
 
-    if (in_array($ext, ['jpg', 'jpeg', 'png'])) {
-        // 保存するファイル名: user_ + ランダムな英数字 + 拡張子
-        // 日本語のファイル名や、同じ名前の上書きを防ぐ
-        $newname = 'user_' . md5(time() . $filename) . '.' . $ext;
-        $dest = 'uploads/' . $newname;   // 保存先 = DBに入れる文字(uploads/user_xxxx.png)
+    //iconというファイルが送信されたか確認 アップロード時にエラーがなかったか確認
+    if (isset($_FILES['icon']) && $_FILES['icon']['error'] === UPLOAD_ERR_OK) {
+        //ファイル名からフォルダ部分を取り除く
+        $filename = basename($_FILES['icon']['name']);
+        // ファイル名から拡張子を取り出す
+        $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
 
-        if (move_uploaded_file($_FILES['icon']['tmp_name'], $dest)) {
-            // アップロード成功
-            $picture = $dest;
-            try {
-                $sql = $pdo->prepare('INSERT INTO user (profile_picture, user_name, student_number, password) VALUES (?, ?, ?, ?)');
-                $hash = password_hash($password, PASSWORD_DEFAULT);
-                $sql->execute([$picture, $name, $student_number, $hash]);
+        if (in_array($ext, ['jpg', 'jpeg', 'png'])) {
+            // 保存するファイル名: user_ + ランダムな英数字 + 拡張子
+            // 日本語のファイル名や、同じ名前の上書きを防ぐ
+            $newname = 'user_' . md5(time() . $filename) . '.' . $ext;
+            $dest = 'uploads/' . $newname;   // 保存先 = DBに入れる文字(uploads/user_xxxx.png)
 
-                $success = true;  // ← エラーなく、ここまで来たら成功
-            } catch (PDOException $e) {
-                // $_SESSION['error'] = $e->getMessage();
-                unlink($dest);
+            if (move_uploaded_file($_FILES['icon']['tmp_name'], $dest)) {
+                // アップロード成功
+                $picture = $dest;
+                try {
+                    $sql = $pdo->prepare('INSERT INTO user (profile_picture, user_name, student_number, password) VALUES (?, ?, ?, ?)');
+                    $hash = password_hash($password, PASSWORD_DEFAULT);
+                    $sql->execute([$picture, $name, $student_number, $hash]);
+
+                    $success = true;  // ← エラーなく、ここまで来たら成功
+                } catch (PDOException $e) {
+                    // $_SESSION['error'] = $e->getMessage();
+                    unlink($dest);
+                }
+            } else {
+                // アップロード失敗
+                $_SESSION['error'] = "<a>アイコン画像のアップロードに失敗しました。</a>";
             }
         } else {
-            // アップロード失敗
-            $_SESSION['error'] = "<a>アイコン画像のアップロードに失敗しました。</a>";
+            $_SESSION['error'] = "<a>不正なファイル形式です。</a>";
         }
-    } else {
-        $_SESSION['error'] = "<a>不正なファイル形式です。</a>";
     }
 }
-
 ?>
 
 <!DOCTYPE html>
