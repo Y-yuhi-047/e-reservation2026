@@ -44,10 +44,7 @@
             <h1>ログイン画面</h1>
         </div>
         <form action="login-output.php" method="post">
-            <div class="form-group">
-                <label for="name" class="form-label">名前</label>
-                <input type="text" id="name" name="name" class="form-control" placeholder="名前を入力" required>
-            </div>
+
             <div class="form-group">
                 <label for="student_number" class="form-label">学生番号</label>
                 <input type="text" id="student_number" name="student_number" class="form-control" placeholder="学生番号を入力" required>
