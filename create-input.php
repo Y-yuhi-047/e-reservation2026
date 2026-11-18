@@ -72,7 +72,7 @@ $firstGame = $games[0] ?? null;
                             <select name="game_id" class="custom-game-select js-game-select">
                                 <?php foreach ($games as $game): ?>
                                     <option value="<?= htmlspecialchars($game['game_id'], ENT_QUOTES, 'UTF-8') ?>"
-                                            data-icon="<?= htmlspecialchars($game['game_icon'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+                                        data-icon="<?= htmlspecialchars($game['game_icon'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
                                         <?= htmlspecialchars($game['game_name'], ENT_QUOTES, 'UTF-8') ?>
                                     </option>
                                 <?php endforeach; ?>
@@ -112,7 +112,7 @@ $firstGame = $games[0] ?? null;
                         <?php foreach ($allUsersList as $usr): ?>
                             <label class="member-item">
                                 <input type="checkbox" name="student_numbers[]" class="member-checkbox"
-                                       value="<?= htmlspecialchars($usr['student_number'], ENT_QUOTES, 'UTF-8') ?>">
+                                    value="<?= htmlspecialchars($usr['student_number'], ENT_QUOTES, 'UTF-8') ?>">
                                 <span style="font-weight: 500; color: #333;"><?= htmlspecialchars($usr['user_name'], ENT_QUOTES, 'UTF-8') ?></span>
                             </label>
                         <?php endforeach; ?>
@@ -136,80 +136,85 @@ $firstGame = $games[0] ?? null;
 <!-- 新規予約モーダル本体ここまで -->
 
 <script>
-(function () {
-    var root = document.getElementById('create-reservation-content');
-    if (!root) return;
+    (function() {
+        var root = document.getElementById('create-reservation-content');
+        if (!root) return;
 
-    var weekdays = ['日', '月', '火', '水', '木', '金', '土'];
-    function pad(n) { return (n < 10 ? '0' : '') + n; }
+        var weekdays = ['日', '月', '火', '水', '木', '金', '土'];
 
-    // datetime-local の値を「2026年11月5日（木） 15:30」の形で表示
-    function formatDateTime(value) {
-        if (!value) return '日時を選択';
-        var d = new Date(value);
-        if (isNaN(d.getTime())) return '日時を選択';
-        return d.getFullYear() + '年' + (d.getMonth() + 1) + '月' + d.getDate() + '日（' +
-               weekdays[d.getDay()] + '） ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
-    }
-
-    var startInput = root.querySelector('input[name="scheduled_start_time"]');
-    var endInput   = root.querySelector('input[name="scheduled_end_time"]');
-
-    root.querySelectorAll('.js-datetime').forEach(function (input) {
-        var label = input.closest('.custom-input-box').querySelector('.js-datetime-label');
-        // どこをクリックしてもピッカーを開く
-        input.addEventListener('click', function () {
-            if (typeof input.showPicker === 'function') {
-                try { input.showPicker(); } catch (err) {}
-            }
-        });
-        input.addEventListener('change', function () {
-            label.textContent = formatDateTime(input.value);
-
-            // 開始を選んだとき、終了が未入力または開始より前なら開始に合わせる
-            if (input === startInput && startInput.value &&
-                (!endInput.value || endInput.value < startInput.value)) {
-                endInput.value = startInput.value;
-                endInput.dispatchEvent(new Event('change'));
-            }
-        });
-    });
-
-    // ゲームを変えたらアイコンも切り替え
-    var gameSelect = root.querySelector('.js-game-select');
-    var gameIcon   = root.querySelector('.js-game-icon');
-    if (gameSelect && gameIcon) {
-        gameSelect.addEventListener('change', function () {
-            var icon = gameSelect.options[gameSelect.selectedIndex].getAttribute('data-icon');
-            gameIcon.textContent = '';
-            if (icon) {
-                var img = document.createElement('img');
-                img.src = icon;
-                img.alt = '';
-                img.style.cssText = 'width:100%; height:100%; object-fit:cover;';
-                gameIcon.appendChild(img);
-            } else {
-                gameIcon.textContent = '🎮';
-            }
-        });
-    }
-
-    // 席数・人数のリアルタイム更新
-    root.addEventListener('change', function (e) {
-        if (e.target.classList.contains('seat-checkbox') || e.target.classList.contains('member-checkbox')) {
-            var seats   = root.querySelectorAll('.seat-checkbox:checked').length;
-            var members = root.querySelectorAll('.member-checkbox:checked').length;
-            root.querySelector('.seat-count-text').textContent   = seats + '席 ・ ' + members + '人';
-            root.querySelector('.member-count-text').textContent = members + '人を選択中';
+        function pad(n) {
+            return (n < 10 ? '0' : '') + n;
         }
-    });
 
-    // 送信前チェック：終了日時は開始日時より後
-    document.getElementById('create-reservation-form').addEventListener('submit', function (e) {
-        if (startInput.value && endInput.value && endInput.value <= startInput.value) {
-            e.preventDefault();
-            alert('終了日時は開始日時より後に設定してください。');
+        // datetime-local の値を「2026年11月5日（木） 15:30」の形で表示
+        function formatDateTime(value) {
+            if (!value) return '日時を選択';
+            var d = new Date(value);
+            if (isNaN(d.getTime())) return '日時を選択';
+            return d.getFullYear() + '年' + (d.getMonth() + 1) + '月' + d.getDate() + '日（' +
+                weekdays[d.getDay()] + '） ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
         }
-    });
-})();
+
+        var startInput = root.querySelector('input[name="scheduled_start_time"]');
+        var endInput = root.querySelector('input[name="scheduled_end_time"]');
+
+        root.querySelectorAll('.js-datetime').forEach(function(input) {
+            var label = input.closest('.custom-input-box').querySelector('.js-datetime-label');
+            // どこをクリックしてもピッカーを開く
+            input.addEventListener('click', function() {
+                if (typeof input.showPicker === 'function') {
+                    try {
+                        input.showPicker();
+                    } catch (err) {}
+                }
+            });
+            input.addEventListener('change', function() {
+                label.textContent = formatDateTime(input.value);
+
+                // 開始を選んだとき、終了が未入力または開始より前なら開始に合わせる
+                if (input === startInput && startInput.value &&
+                    (!endInput.value || endInput.value < startInput.value)) {
+                    endInput.value = startInput.value;
+                    endInput.dispatchEvent(new Event('change'));
+                }
+            });
+        });
+
+        // ゲームを変えたらアイコンも切り替え
+        var gameSelect = root.querySelector('.js-game-select');
+        var gameIcon = root.querySelector('.js-game-icon');
+        if (gameSelect && gameIcon) {
+            gameSelect.addEventListener('change', function() {
+                var icon = gameSelect.options[gameSelect.selectedIndex].getAttribute('data-icon');
+                gameIcon.textContent = '';
+                if (icon) {
+                    var img = document.createElement('img');
+                    img.src = icon;
+                    img.alt = '';
+                    img.style.cssText = 'width:100%; height:100%; object-fit:cover;';
+                    gameIcon.appendChild(img);
+                } else {
+                    gameIcon.textContent = '🎮';
+                }
+            });
+        }
+
+        // 席数・人数のリアルタイム更新
+        root.addEventListener('change', function(e) {
+            if (e.target.classList.contains('seat-checkbox') || e.target.classList.contains('member-checkbox')) {
+                var seats = root.querySelectorAll('.seat-checkbox:checked').length;
+                var members = root.querySelectorAll('.member-checkbox:checked').length;
+                root.querySelector('.seat-count-text').textContent = seats + '席 ・ ' + members + '人';
+                root.querySelector('.member-count-text').textContent = members + '人を選択中';
+            }
+        });
+
+        // 送信前チェック：終了日時は開始日時より後
+        document.getElementById('create-reservation-form').addEventListener('submit', function(e) {
+            if (startInput.value && endInput.value && endInput.value <= startInput.value) {
+                e.preventDefault();
+                alert('終了日時は開始日時より後に設定してください。');
+            }
+        });
+    })();
 </script>
