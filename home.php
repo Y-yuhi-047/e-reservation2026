@@ -72,6 +72,9 @@ try {
         
         <!-- 3. 外部のscript.jsを読み込む -->
         <script src="js/script.js?v=2" defer></script>
+
+        <!-- 予約を反映するために自動再読みする -->
+        <!-- <meta http-equiv="refresh" content="3"> -->
     </head>
     <body>
         <?php require 'header.php'?>

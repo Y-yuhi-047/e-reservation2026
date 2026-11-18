@@ -445,7 +445,7 @@ $current_page = 'list';
                         <div class="form-group">
                             <label class="form-label">開始日時</label>
                             <div class="custom-input-box" style="display: flex; align-items: center; padding: 0 16px; height: 48px;">
-                                <input type="datetime-local" name="scheduled_start" value="<?= date('Y-m-d\TH:i', $start) ?>" required style="width: 100%; border: none; background: transparent; font-size: 15px; color: #333; outline: none;">
+                                <input type="datetime-local" name="scheduled_start" step="1800" value="<?= date('Y-m-d\TH:i', $start) ?>" required style="width: 100%; border: none; background: transparent; font-size: 15px; color: #333; outline: none;">
                             </div>
                         </div>
 
@@ -453,7 +453,7 @@ $current_page = 'list';
                         <div class="form-group">
                             <label class="form-label">終了日時</label>
                             <div class="custom-input-box" style="display: flex; align-items: center; padding: 0 16px; height: 48px;">
-                                <input type="datetime-local" name="scheduled_end" value="<?= date('Y-m-d\TH:i', $end) ?>" required style="width: 100%; border: none; background: transparent; font-size: 15px; color: #333; outline: none;">
+                                <input type="datetime-local" name="scheduled_end" step="1800" value="<?= date('Y-m-d\TH:i', $end) ?>" required style="width: 100%; border: none; background: transparent; font-size: 15px; color: #333; outline: none;">
                             </div>
                         </div>
 

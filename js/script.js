@@ -136,32 +136,6 @@ function showReservations(dateStr) {
     scroll.appendChild(table);
     timelineElement.appendChild(scroll);
 
-    // ★ タイムライン表の下に、シフトボード風の「＋ 新規予約を追加」ボタンを配置
-    if (newReservationArea) {
-        newReservationArea.replaceChildren();
-
-        const btn = document.createElement("button");
-        btn.textContent = "+ 新規予約を追加";
-        btn.style.width = "100%";
-        btn.style.padding = "12px";
-        btn.style.fontSize = "15px";
-        btn.style.fontWeight = "bold";
-        btn.style.cursor = "pointer";
-        btn.style.backgroundColor = "#fff";
-        btn.style.color = "#4CAF50";
-        btn.style.border = "2px dashed #4CAF50"; // 点線のおしゃれな枠
-        btn.style.borderRadius = "8px";
-        btn.style.marginTop = "15px";
-
-        // ボタンを押したときにモーダルを開く
-        btn.addEventListener("click", () => {
-            if (typeof modalOpen === 'function') {
-                modalOpen();
-            }
-        });
-
-        newReservationArea.appendChild(btn);
-    }
 }
 
 // 今日の日付を "YYYY-MM-DD" 形式で取得
@@ -174,6 +148,14 @@ function getTodayString() {
 }
 
 const todayStr = getTodayString();
+
+// 自動で予約日時に今日の15:30〜17:00を入れる
+const startInput = document.querySelector('input[name="scheduled_start_time"]');
+const endInput = document.querySelector('input[name="scheduled_end_time"]');
+startInput.value = `${todayStr}T15:30`;
+endInput.value = `${todayStr}T17:00`;
+startInput.dispatchEvent(new Event('change'));
+endInput.dispatchEvent(new Event('change'));
 
 // カレンダーを作成
 if (calendarElement && !calendarElement.hasChildNodes()) {
@@ -205,7 +187,18 @@ if (calendarElement && !calendarElement.hasChildNodes()) {
                 info.dayEl.style.boxSizing = "border-box";
             }
 
-            // 3. 予約タイムラインとボタンを更新
+            // モーダルの日時を、クリックした日の15:30〜17:00にする
+            const startInput = document.querySelector('input[name="scheduled_start_time"]');
+            const endInput = document.querySelector('input[name="scheduled_end_time"]');
+            if (startInput && endInput) {
+                startInput.value = `${dateStr}T15:30`;
+                endInput.value = `${dateStr}T17:00`;
+                startInput.dispatchEvent(new Event('change'));
+                endInput.dispatchEvent(new Event('change'));
+            }
+           
+
+            // 3. 予約タイムラインを更新
             showReservations(dateStr);
         }
     });

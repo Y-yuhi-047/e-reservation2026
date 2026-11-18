@@ -139,9 +139,11 @@ if($no_session){
     echo "</div>"; // class = 'message'の閉じ
     // onclick='history.back()'はセッション情報をもとに前のページに戻るやつ
     echo "<div class = 'btn_container'>";
-    echo "<button onclick='history.back()' class='back_button'>";
+    echo "<a href='home.php'style='color: inherit; text-decoration: none;'>";
+    echo "<button class='back_button'>";
     echo '戻る';
     echo '</button>';
+    echo "</a>";
     echo '</div>'; // class = 'btn_container'
     echo "</div>"; // class = 'message_container'の閉じ
     echo "</div>"; // class = 'reservation_message'の閉じ
@@ -156,9 +158,11 @@ if($no_session){
     echo "</div>"; // class = 'message'の閉じ
     // onclick='history.back()'はセッション情報をもとに前のページに戻るやつ
     echo "<div class = 'btn_container'>";
-    echo "<button onclick='history.back()' class='back_button'>";
+    echo "<a href='home.php'style='color: inherit; text-decoration: none;'>";
+    echo "<button class='back_button'>";
     echo '戻る';
     echo '</button>';
+    echo "</a>";
     echo '</div>'; // class = 'btn_container'
     echo "</div>"; // class = 'message_container'の閉じ
     echo "</div>"; // class = 'reservation_message'の閉じ
@@ -173,9 +177,11 @@ if($no_session){
     echo "</div>"; // class = 'message'の閉じ
     // onclick='history.back()'はセッション情報をもとに前のページに戻るやつ
     echo "<div class = 'btn_container'>";
-    echo "<button onclick='history.back()' class='back_button'>";
+    echo "<a href='home.php'style='color: inherit; text-decoration: none;'>";
+    echo "<button class='back_button'>";
     echo '戻る';
     echo '</button>';
+    echo "</a>";
     echo '</div>'; // class = 'btn_container'
     echo "</div>"; // class = 'message_container'の閉じ
     echo "</div>"; // class = 'reservation_message'の閉じ
@@ -231,9 +237,11 @@ foreach($_POST['student_numbers'] as $row){
     echo "</div>"; // class = 'message'の閉じ
     // onclick='history.back()'はセッション情報をもとに前のページに戻るやつ
     echo "<div class = 'btn_container'>";
-    echo "<button onclick='history.back()' class='back_button'>";
+    echo "<a href='home.php'style='color: inherit; text-decoration: none;'>";
+    echo "<button class='back_button'>";
     echo '戻る';
     echo '</button>';
+    echo "</a>";
     echo '</div>'; // class = 'btn_container'
     echo "</div>"; // class = 'message_container'の閉じ
     echo "</div>"; // class = 'reservation_message'の閉じ
@@ -246,9 +254,11 @@ foreach($_POST['student_numbers'] as $row){
     echo '</p>';
     echo "</div>"; // class = 'message'の閉じ
     echo "<div class = 'btn_container'>";
-    echo "<button onclick='history.back()'>";
+    echo "<a href='home.php'style='color: inherit; text-decoration: none;'>";
+    echo "<button class='back_button'>";
     echo '戻る';
     echo '</button>';
+    echo "</a>";
     echo '</button>';
     echo '</div>'; // class = 'btn_container'
     echo "</div>"; // class = 'message_container'の閉じ
@@ -280,7 +290,7 @@ foreach($_POST['student_numbers'] as $row){
         padding-bottom: 12px;
     }
     .back_button{
-    width: 50%;
+    width: 100%;
     background-color: #2b7a62;
     color: #ffffff;
     border: none;

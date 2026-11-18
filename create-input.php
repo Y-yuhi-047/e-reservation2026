@@ -21,6 +21,7 @@ try {
 
 $firstGame = $games[0] ?? null;
 ?>
+<script src="js/script.js?v=2" defer></script>
 <!-- 新規予約モーダル本体 -->
 <div class="modal js-modal">
     <div class="modal-container">
@@ -42,7 +43,7 @@ $firstGame = $games[0] ?? null;
                     <label class="form-label">開始日時</label>
                     <div class="custom-input-box" style="position: relative; display: flex; align-items: center; justify-content: space-between; padding: 0 16px;">
                         <span class="js-datetime-label" style="font-size: 15px; color: #333; font-weight: 500;">日時を選択</span>
-                        <input type="datetime-local" name="scheduled_start_time" class="form-control-hidden-date js-datetime" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 2; border: none;" required>
+                        <input type="datetime-local" name="scheduled_start_time" step="1800" class="form-control-hidden-date js-datetime" id="event-start" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 2; border: none;" required>
                         <i class="far fa-calendar-alt" style="font-size: 18px; color: #666; cursor: pointer;"></i>
                     </div>
                 </div>
@@ -52,7 +53,7 @@ $firstGame = $games[0] ?? null;
                     <label class="form-label">終了日時</label>
                     <div class="custom-input-box" style="position: relative; display: flex; align-items: center; justify-content: space-between; padding: 0 16px;">
                         <span class="js-datetime-label" style="font-size: 15px; color: #333; font-weight: 500;">日時を選択</span>
-                        <input type="datetime-local" name="scheduled_end_time" class="form-control-hidden-date js-datetime" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 2; border: none;" required>
+                        <input type="datetime-local" name="scheduled_end_time" step="1800" class="form-control-hidden-date js-datetime" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 2; border: none;" required>
                         <i class="far fa-calendar-alt" style="font-size: 18px; color: #666; cursor: pointer;"></i>
                     </div>
                 </div>
