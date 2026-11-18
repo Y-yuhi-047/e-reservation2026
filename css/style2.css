@@ -903,14 +903,12 @@ body.user-management-page {
 }
 
 /* ==========================================================
-    予約一覧ページ & 予約編集モーダル専用スタイル
+    予約一覧ページ & 各種モーダル共通スタイル（決定版）
    ========================================================== */
 
 html,
 body {
-    /* height: 100%; */
     margin: 0;
-    /* overflow: hidden; */
     text-align: left !important;
 }
 
@@ -919,6 +917,9 @@ html:has(body.list-page),
 body.list-page {
     height: 100%;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    background-color: #f8f9fa;
 }
 
 html.user-management-page,
@@ -927,12 +928,6 @@ body.user-management-page {
     min-height: 100%;
     overflow-x: hidden;
     overflow-y: auto;
-}
-
-body.list-page {
-    display: flex;
-    flex-direction: column;
-    background-color: #f8f9fa;
 }
 
 /* リスト全体のコンテナ */
@@ -946,14 +941,13 @@ body.list-page {
     text-align: left;
 }
 
-/* 上部の固定エリア（がくつき防止・下線を完全に消す） */
+/* 上部の固定エリア（がくつき防止） */
 .sticky-top-wrapper {
     position: sticky;
     top: 0;
     background-color: #f8f9fa;
     z-index: 1000;
     padding-top: 12px;
-    /* ← タイトルを消した分、少しだけ余白を持たせると綺麗です */
     padding-bottom: 8px;
     margin-left: -16px;
     margin-right: -16px;
@@ -1010,17 +1004,56 @@ body.list-page {
     text-decoration: none !important;
 }
 
-/* 「日時が近い順」「日時が遠い順」と表示されるテキストの文字色を変更 */
 .sort-order-text {
-    /* クラス名は実際のHTMLに合わせて書き換えてください */
     color: #1b4d3e;
-    /* アプリ全体のテーマカラー（深緑）にする場合 */
     font-size: 13px;
     font-weight: bold;
 }
 
+
+/* ==========================================
+   すべてのモーダル（予約編集・詳細・利用者一覧など）の統一設計
+   ========================================== */
+
+.modal-overlay .modal-content {
+    width: 90% !important;
+    max-width: 400px !important; 
+    max-height: 85vh !important;
+    
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    -webkit-overflow-scrolling: touch;
+    
+    /* 上パディングを0にし、左右・下に余白を持たせる */
+    padding: 0 20px 30px 20px !important;
+    border-radius: 20px !important;
+    
+    /* スクロールバーを非表示にする */
+    scrollbar-width: none !important;
+}
+
+.modal-overlay .modal-content::-webkit-scrollbar {
+    display: none !important;
+}
+
+/* ヘッダー部分：どのモーダルでも共通で上部にピタッと固定 */
+.modal-overlay .modal-content .modal-header {
+    position: sticky !important;
+    top: 0 !important;
+    background-color: #ffffff !important;
+    z-index: 100 !important;
+    
+    padding: 20px 0 12px 0 !important;
+    margin: 0 0 16px 0 !important;
+    border-bottom: 1px solid #f0f2f1;
+}
+
+
 /* ==========================================================
-    予約編集モーダル内パーツ（スリム＆コンパクト化）
+    モーダル内パーツ（スリム＆コンパクト化）
    ========================================================== */
 
 .form-group {
@@ -1063,15 +1096,13 @@ body.list-page {
     outline: none;
 }
 
-/* 擬似要素を使って時計アイコンを綺麗に右側に配置 */
+/* 擬似要素を使って時計アイコンを右側に配置 */
 .custom-time-box::after {
     content: "\f017";
-    /* FontAwesomeの時計アイコン(fa-clock)の文字コード */
     font-family: "Font Awesome 6 Free";
     font-weight: 400;
     position: absolute;
     right: 14px;
-    /* ← この数字を小さくするとさらに右に移動します（例: 10px） */
     font-size: 18px;
     color: #666;
     pointer-events: none;
@@ -1108,7 +1139,6 @@ body.list-page {
     box-sizing: border-box;
 }
 
-/* 席を選ぶチップボタン */
 .seat-container {
     display: flex;
     flex-direction: column;
@@ -1177,7 +1207,45 @@ body.list-page {
     cursor: pointer;
 }
 
-/* ボタン類 */
+/* 予約詳細モーダルの利用者一覧用スクロールボックス */
+.detail-member-list-box {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 140px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+/* 日時入力欄の色調整 */
+input[type="datetime-local"] {
+    accent-color: #1b4d3e;
+    color-scheme: light;
+}
+
+
+/* ==========================================
+   モーダル下部のアクションボタン ＆ フォームレイアウト調整
+========================================== */
+
+.modal-overlay .modal-content form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.modal-overlay .modal-content form .save-btn,
+.modal-overlay .modal-content button.save-btn,
+.modal-overlay .modal-content button[type="submit"],
+.modal-overlay .modal-content button[type="button"] {
+    padding: 10px 8px !important;
+    font-size: 14px !important;
+    white-space: nowrap !important;
+    height: auto !important;
+    min-height: 42px;
+}
+
+/* レガシー・互換用ボタンクラス */
 .btn-save {
     background-color: #1b4d3e;
     color: #fff;
@@ -1202,59 +1270,6 @@ body.list-page {
     cursor: pointer;
 }
 
-/* 予約詳細モーダルの利用者一覧用スクロールボックス */
-.detail-member-list-box {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    max-height: 140px;
-    /* 表示する高さを制限（必要に応じて変更OKです） */
-    overflow-y: auto;
-    /* はみ出したらスクロール */
-    padding-right: 4px;
-    /* スクロールバーの重なり防止用 */
-}
-
-/* 日時入力欄および内部の選択ハイライト色をアプリのテーマカラーに合わせる */
-input[type="datetime-local"] {
-    accent-color: #1b4d3e;
-    color-scheme: light;
-    /* ブラウザのダーク/ライトモードの強制を避ける */
-}
-
-/* パス再設定 */
-
-.temp-password-box {
-    background-color: #ffffff;
-    border: 2px solid #1b4d3e;
-    border-radius: 12px;
-    padding: 14px 16px;
-    margin-bottom: 12px;
-    text-align: center;
-}
-
-.temp-password-label {
-    font-size: 13px;
-    color: #888888;
-    font-weight: bold;
-}
-
-.temp-password-code {
-    font-size: 18px;
-    font-weight: bold;
-    color: #1b4d3e;
-    letter-spacing: 1px;
-    margin: 8px 0;
-    word-break: break-all;
-    user-select: all;
-    /* タップで全選択してコピーしやすくする */
-}
-
-.temp-password-note {
-    font-size: 11px;
-    color: #888888;
-    line-height: 1.6;
-}
 
 /* ==========================================
 パスワード変更ページ
