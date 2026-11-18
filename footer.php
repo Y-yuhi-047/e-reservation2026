@@ -25,11 +25,11 @@ $current_page = $current_page ?? '';
         <span>ホーム</span>
     </a>
 
-    <!-- 新規予約 -->
+    <!-- 新規予約
     <button class="footer-item modal-open js-modal-open <?php echo ($current_page === 'create') ? 'active' : ''; ?>">
         <i class="fas fa-plus-circle" style="font-size: 20px; margin-bottom: 4px;"></i>
         <span>新規予約</span>
-    </button>
+    </button> -->
 
     <!-- 予約一覧 -->
     <a href="list.php" class="footer-item <?php echo ($current_page === 'list') ? 'active' : ''; ?>">
