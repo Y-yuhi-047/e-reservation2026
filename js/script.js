@@ -138,6 +138,33 @@ function showReservations(dateStr) {
 
 }
 
+// ★ タイムライン表の下に、シフトボード風の「＋ 新規予約を追加」ボタンを配置
+    if (newReservationArea) {
+        newReservationArea.replaceChildren();
+ 
+        const btn = document.createElement("button");
+        btn.textContent = "+ 新規予約を追加";
+        btn.style.width = "100%";
+        btn.style.padding = "12px";
+        btn.style.fontSize = "15px";
+        btn.style.fontWeight = "bold";
+        btn.style.cursor = "pointer";
+        btn.style.backgroundColor = "#fff";
+        btn.style.color = "#4CAF50";
+        btn.style.border = "2px dashed #4CAF50"; // 点線のおしゃれな枠
+        btn.style.borderRadius = "8px";
+        btn.style.marginTop = "15px";
+ 
+        // ボタンを押したときにモーダルを開く
+        btn.addEventListener("click", () => {
+            if (typeof modalOpen === 'function') {
+                modalOpen();
+            }
+        });
+ 
+        newReservationArea.appendChild(btn);
+    }
+
 // 今日の日付を "YYYY-MM-DD" 形式で取得
 function getTodayString() {
     const today = new Date();
@@ -221,3 +248,38 @@ if (calendarElement && !calendarElement.hasChildNodes()) {
     });
     resizeObserver.observe(calendarElement);
 }
+
+// 12:00~19:00以内ではない予約をはじく
+const input_start = document.getElementById('event-start');
+const input_end = document.getElementById('event-end');
+
+function validateStartTime() {
+  // 値は "2026-11-18T12:30" の形式
+  const time = input_start.value.split('T')[1];
+  if (!time) return;
+
+  const [h, m] = time.split(':').map(Number);
+  const minutes = h * 60 + m;
+
+  const valid = minutes >= 12 * 60 && minutes <= 19 * 60 && minutes % 30 === 0;
+
+  input_start.setCustomValidity(valid ? '' : '12:00〜19:00の30分刻みで入力してください');
+}
+
+input_start.addEventListener('input', validateStartTime);
+input_start.addEventListener('change', validateStartTime);
+
+function validateEndTime() {
+  const time = input_end.value.split('T')[1];
+  if (!time) return;
+
+  const [h, m] = time.split(':').map(Number);
+  const minutes = h * 60 + m;
+
+  const valid = minutes >= 12 * 60 && minutes <= 19 * 60 && minutes % 30 === 0;
+
+  input_end.setCustomValidity(valid ? '' : '12:00〜19:00の30分刻みで入力してください');
+}
+
+input_end.addEventListener('input', validateEndTime);
+input_end.addEventListener('change', validateEndTime);

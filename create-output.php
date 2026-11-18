@@ -84,6 +84,7 @@ foreach ($results as $row) {
 // <-- 選んだ席が予約済みかどうか探す -->
 
 // 時間が重なっている予約の席状況を確認用
+$seat_overlap = false;
 foreach ($results as $row) {
     // echo "---すでにある予約の席状況---<br>";
     // echo "seat_1: " . $row['seat_1'] . "<br>";
@@ -91,19 +92,18 @@ foreach ($results as $row) {
     // echo "seat_3: " . $row['seat_3'] . "<br>";
     // echo "seat_4: " . $row['seat_4'] . "<br>";
     // echo "seat_5: " . $row['seat_5'] . "<br>";
+    for($i=1;$i<6;$i++){
+        // echo '<P>';
+        // echo '$seats'.$i.'番目の中身['.$seats[$i].']';
+        // echo '$resultsの$seat_['.$i.']の中身['.$row['seat_'.$i].']';
+        // echo '</p>';
+        if($seats[$i] == 1 && $row['seat_'.$i] == 1){
+            $seat_overlap = true;
+            break 2; //　2をつけることで二重ループを一度に抜ける
+        };
+    }
 }
 
-$seat_overlap = false;
-for($i=1;$i<6;$i++){
-    // echo '<P>';
-    // echo '$seats'.$i.'番目の中身['.$seats[$i].']';
-    // echo '$resultsの$seat_['.$i.']の中身['.$row['seat_'.$i].']';
-    // echo '</p>';
-    if($seats[$i] == 1 && $row['seat_'.$i] == 1){
-        $seat_overlap = true;
-        break;
-    };
-}
 
 // var_dump($time_overlap);
 // var_dump($seat_overlap);
@@ -129,7 +129,7 @@ if($no_session){
     echo "</div>"; // class = 'message_container'の閉じ
     echo "</div>"; // class = 'reservation_message'の閉じ
 //「時間帯が重なる」かつ「選んだ席のどれかが予約済み」なら予約させない
-} else if($start != null && $end != null && $seat_overlap){
+} else if($seat_overlap){
     echo "<div class = 'reservation_message'>";
     echo "<div class = 'message_container'>";
     echo "<div class = 'message'>";

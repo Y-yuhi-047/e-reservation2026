@@ -295,7 +295,7 @@ body {
 /* ここまでカレンダーと予約のタイムライン */
 
 /* 画面が極端に小さいときだけスクロールを許可するため */
-@media (max-height: 560px) {
+@media (max-height: 795px) {
     body {
         height: auto;
         overflow: auto;
@@ -308,7 +308,7 @@ body {
     }
 }
 
-@media(max-height: 667px){
+/* @media(max-height: 667px){
     #reservation-timeline{
         margin-bottom: 50dvh;
     }
@@ -317,4 +317,4 @@ body {
     .wrapper{
         margin: 0 1dvh 0;
     }
-}
+} */
