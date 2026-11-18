@@ -399,17 +399,22 @@ $current_page = 'list';
                             <form action="list.php<?= $show_back ? '?from=profile' : '' ?>" method="POST" style="margin: 0;">
                                 <input type="hidden" name="reservation_id" value="<?= $row['reservation_id'] ?>">
                                 <input type="hidden" name="action" value="start">
-                                <button type="submit" class="save-btn" style="background-color: #1b4d3e; display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%;">
-                                    <i class="fas fa-play"></i> 活動開始
-                                </button>
+                                <?php if (empty($row['end_time']) && $isMember || $_SESSION['user']['name'] === "管理者"): ?>
+                                    <button type="submit" class="save-btn" style="background-color: #1b4d3e; display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%;">
+                                        <i class="fas fa-play"></i> 活動開始
+                                    </button>
+                                <?php endif; ?>
                             </form>
                         <?php elseif (empty($row['end_time'])): ?>
                             <form action="list.php<?= $show_back ? '?from=profile' : '' ?>" method="POST" style="margin: 0;">
                                 <input type="hidden" name="reservation_id" value="<?= $row['reservation_id'] ?>">
                                 <input type="hidden" name="action" value="end">
-                                <button type="submit" class="save-btn" style="background-color: #ffffff; color: #1b4d3e; border: 1px solid #1b4d3e; display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%;">
-                                    <i class="fas fa-stop"></i> 終了
-                                </button>
+
+                                <?php if (empty($row['end_time']) && $isMember || $_SESSION['user']['name'] === "管理者"): ?>
+                                    <button type="submit" class="save-btn" style="background-color: #ffffff; color: #1b4d3e; border: 1px solid #1b4d3e; display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%;">
+                                        <i class="fas fa-stop"></i> 終了
+                                    </button>
+                                <?php endif; ?>
                             </form>
                         <?php else: ?>
                             <div style="text-align: center; color: #666; font-size: 13px; padding: 10px; background: #eaeded; border-radius: 8px;">
@@ -538,9 +543,6 @@ $current_page = 'list';
                                 <span class="member-count-text" style="font-size: 12px; color: #1b4d3e; font-weight: bold;"><?= count($members) ?>人を選択中</span>
                             </div>
 
-                            <label class="form-label">メモ</label>
-                            <textarea
-                                name="memo" class="form-input" rows="2" placeholder="メモはありません" style="resize: none; font-family: inherit;"><?= (htmlspecialchars($memo)) ?></textarea>
 
                             <div style="background: #f7f9f8; border: 1px solid #dce3e0; border-radius: 12px; padding: 12px; display: flex; align-items: center; gap: 8px; overflow-x: auto;">
                                 <!-- 選択中のメンバーアバター横並びエリア -->
@@ -562,9 +564,13 @@ $current_page = 'list';
                                 <!-- ＋ボタン（クリックで利用者一覧モーダルを開く） -->
                                 <div onclick="openMemberSubModal(<?= $row['reservation_id'] ?>)" style="width: 38px; height: 38px; background: #e6f2ed; color: #1b4d3e; border: 1.5px dashed #1b4d3e; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; margin-left: auto;" title="メンバーを追加・変更">
                                     <i class="fas fa-plus" style="font-size: 14px;"></i>
+
                                 </div>
                             </div>
                         </div>
+                        <label class="form-label">メモ</label>
+                        <textarea
+                            name="memo" class="form-input" rows="2" placeholder="メモはありません" style="resize: none; font-family: inherit;"><?= (htmlspecialchars($memo)) ?></textarea>
 
                         <!-- ▼ 予約編集モーダルの中に内包する「利用者一覧サブモーダル」 -->
                         <div id="sub-member-modal-<?= $row['reservation_id'] ?>" class="modal-overlay" style="display: none; z-index: 1000;">
