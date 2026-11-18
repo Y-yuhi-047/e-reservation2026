@@ -399,17 +399,22 @@ $current_page = 'list';
                             <form action="list.php<?= $show_back ? '?from=profile' : '' ?>" method="POST" style="margin: 0;">
                                 <input type="hidden" name="reservation_id" value="<?= $row['reservation_id'] ?>">
                                 <input type="hidden" name="action" value="start">
-                                <button type="submit" class="save-btn" style="background-color: #1b4d3e; display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%;">
-                                    <i class="fas fa-play"></i> 活動開始
-                                </button>
+                                <?php if (empty($row['end_time']) && $isMember || $_SESSION['user']['name'] === "管理者"): ?>
+                                    <button type="submit" class="save-btn" style="background-color: #1b4d3e; display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%;">
+                                        <i class="fas fa-play"></i> 活動開始
+                                    </button>
+                                <?php endif; ?>
                             </form>
                         <?php elseif (empty($row['end_time'])): ?>
                             <form action="list.php<?= $show_back ? '?from=profile' : '' ?>" method="POST" style="margin: 0;">
                                 <input type="hidden" name="reservation_id" value="<?= $row['reservation_id'] ?>">
                                 <input type="hidden" name="action" value="end">
-                                <button type="submit" class="save-btn" style="background-color: #ffffff; color: #1b4d3e; border: 1px solid #1b4d3e; display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%;">
-                                    <i class="fas fa-stop"></i> 終了
-                                </button>
+
+                                <?php if (empty($row['end_time']) && $isMember || $_SESSION['user']['name'] === "管理者"): ?>
+                                    <button type="submit" class="save-btn" style="background-color: #ffffff; color: #1b4d3e; border: 1px solid #1b4d3e; display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%;">
+                                        <i class="fas fa-stop"></i> 終了
+                                    </button>
+                                <?php endif; ?>
                             </form>
                         <?php else: ?>
                             <div style="text-align: center; color: #666; font-size: 13px; padding: 10px; background: #eaeded; border-radius: 8px;">
