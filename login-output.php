@@ -47,7 +47,7 @@ foreach ($sql as $row) {
     $_SESSION['user'] = [
         'number' => $row['student_number'],
         'profile_picture' => $row['profile_picture'],
-
+        'name' => $row['user_name'],
     ];
 }
 if (isset($_SESSION['user'])) {
