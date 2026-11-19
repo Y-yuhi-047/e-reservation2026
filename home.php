@@ -89,15 +89,6 @@ try {
             <!-- 選択した日の予約タイムライン -->
             <div id="reservation-timeline"></div>
             <div class="wrapper">
-            
-            <!-- 月間カレンダーの表示場所 -->
-            <div id="calendar"></div>
-
-            <!-- 選択した日付の表示 -->
-            <!-- <h3 id="selected-date">日付を選択してください</h3> -->
-
-            <!-- 選択した日の予約タイムライン -->
-            <div id="reservation-timeline"></div>
 
             <!-- ▼ このエリアを追加してください -->
             <div id="new-reservation-area" style="margin-top: 20px; text-align: center;"></div>

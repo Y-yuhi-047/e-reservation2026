@@ -184,12 +184,38 @@ endInput.value = `${todayStr}T17:00`;
 startInput.dispatchEvent(new Event('change'));
 endInput.dispatchEvent(new Event('change'));
 
+// Setオブジェジェクトは重複を許さないオブジェジェクト（配列みたいなやつだけどインデックス番号で指定はできない）
+// home.phpから受け取った予約データ（window.appReservations）の日付だけを一つずつ取り出してreservedDates(Setオブジェジェクト)に入れていく
+// .mapは配列の中身を取り出して何かしらの処理をして新しい配列に入れるメソッド
+// <-- 予約データの日付だけを重なりなしで取得-->
+const reservedDates = new Set ((window.appReservations || []).map(r=>r.date)); //A || B　Aが無理ならB
+
+// 日付を"YYYY-MM-DD"にするための関数
+function toDateString(date) {
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, "0");
+    const dd = String(date.getDate()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}`;
+}
+
+
+
 // カレンダーを作成
 if (calendarElement && !calendarElement.hasChildNodes()) {
     var calendar = EventCalendar.create(calendarElement, {
         view: "dayGridMonth",
         date: todayStr,
         height: "100%",
+
+        dayCellFormat: function(date) {
+        // .hasはmapインスタンスのメソッド。引数で指定されたキーがあればtrueを返すなければfalse
+        let dot = '';
+        if(reservedDates.has(toDateString(date))){
+            dot = '<span class="reserve-dot"></span>';
+        }
+        return { html: `${date.getDate()}${dot}` };
+        // 予約があればその日付のところに印をつける用のspanタグを追加する
+        },
 
         headerToolbar: {
             start: "prev",
