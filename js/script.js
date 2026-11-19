@@ -136,10 +136,12 @@ function showReservations(dateStr) {
     scroll.appendChild(table);
     timelineElement.appendChild(scroll);
 
-    // ★ タイムライン表の下に、シフトボード風の「＋ 新規予約を追加」ボタンを配置
+}
+
+// ★ タイムライン表の下に、シフトボード風の「＋ 新規予約を追加」ボタンを配置
     if (newReservationArea) {
         newReservationArea.replaceChildren();
-
+ 
         const btn = document.createElement("button");
         btn.textContent = "+ 新規予約を追加";
         btn.style.width = "100%";
@@ -152,17 +154,16 @@ function showReservations(dateStr) {
         btn.style.border = "2px dashed #4CAF50"; // 点線のおしゃれな枠
         btn.style.borderRadius = "8px";
         btn.style.marginTop = "15px";
-
+ 
         // ボタンを押したときにモーダルを開く
         btn.addEventListener("click", () => {
             if (typeof modalOpen === 'function') {
                 modalOpen();
             }
         });
-
+ 
         newReservationArea.appendChild(btn);
     }
-}
 
 // 今日の日付を "YYYY-MM-DD" 形式で取得
 function getTodayString() {
@@ -175,12 +176,46 @@ function getTodayString() {
 
 const todayStr = getTodayString();
 
+// 自動で予約日時に今日の15:30〜17:00を入れる
+const startInput = document.querySelector('input[name="scheduled_start_time"]');
+const endInput = document.querySelector('input[name="scheduled_end_time"]');
+startInput.value = `${todayStr}T15:30`;
+endInput.value = `${todayStr}T17:00`;
+startInput.dispatchEvent(new Event('change'));
+endInput.dispatchEvent(new Event('change'));
+
+// Setオブジェジェクトは重複を許さないオブジェジェクト（配列みたいなやつだけどインデックス番号で指定はできない）
+// home.phpから受け取った予約データ（window.appReservations）の日付だけを一つずつ取り出してreservedDates(Setオブジェジェクト)に入れていく
+// .mapは配列の中身を取り出して何かしらの処理をして新しい配列に入れるメソッド
+// <-- 予約データの日付だけを重なりなしで取得-->
+const reservedDates = new Set ((window.appReservations || []).map(r=>r.date)); //A || B　Aが無理ならB
+
+// 日付を"YYYY-MM-DD"にするための関数
+function toDateString(date) {
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, "0");
+    const dd = String(date.getDate()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}`;
+}
+
+
+
 // カレンダーを作成
 if (calendarElement && !calendarElement.hasChildNodes()) {
     var calendar = EventCalendar.create(calendarElement, {
         view: "dayGridMonth",
         date: todayStr,
         height: "100%",
+
+        dayCellFormat: function(date) {
+        // .hasはmapインスタンスのメソッド。引数で指定されたキーがあればtrueを返すなければfalse
+        let dot = '';
+        if(reservedDates.has(toDateString(date))){
+            dot = '<span class="reserve-dot"></span>';
+        }
+        return { html: `${date.getDate()}${dot}` };
+        // 予約があればその日付のところに印をつける用のspanタグを追加する
+        },
 
         headerToolbar: {
             start: "prev",
@@ -205,7 +240,18 @@ if (calendarElement && !calendarElement.hasChildNodes()) {
                 info.dayEl.style.boxSizing = "border-box";
             }
 
-            // 3. 予約タイムラインとボタンを更新
+            // モーダルの日時を、クリックした日の15:30〜17:00にする
+            const startInput = document.querySelector('input[name="scheduled_start_time"]');
+            const endInput = document.querySelector('input[name="scheduled_end_time"]');
+            if (startInput && endInput) {
+                startInput.value = `${dateStr}T15:30`;
+                endInput.value = `${dateStr}T17:00`;
+                startInput.dispatchEvent(new Event('change'));
+                endInput.dispatchEvent(new Event('change'));
+            }
+           
+
+            // 3. 予約タイムラインを更新
             showReservations(dateStr);
         }
     });
@@ -228,3 +274,38 @@ if (calendarElement && !calendarElement.hasChildNodes()) {
     });
     resizeObserver.observe(calendarElement);
 }
+
+// 12:00~19:00以内ではない予約をはじく
+const input_start = document.getElementById('event-start');
+const input_end = document.getElementById('event-end');
+
+function validateStartTime() {
+  // 値は "2026-11-18T12:30" の形式
+  const time = input_start.value.split('T')[1];
+  if (!time) return;
+
+  const [h, m] = time.split(':').map(Number);
+  const minutes = h * 60 + m;
+
+  const valid = minutes >= 12 * 60 && minutes <= 19 * 60 && minutes % 30 === 0;
+
+  input_start.setCustomValidity(valid ? '' : '12:00〜19:00の30分刻みで入力してください');
+}
+
+input_start.addEventListener('input', validateStartTime);
+input_start.addEventListener('change', validateStartTime);
+
+function validateEndTime() {
+  const time = input_end.value.split('T')[1];
+  if (!time) return;
+
+  const [h, m] = time.split(':').map(Number);
+  const minutes = h * 60 + m;
+
+  const valid = minutes >= 12 * 60 && minutes <= 19 * 60 && minutes % 30 === 0;
+
+  input_end.setCustomValidity(valid ? '' : '12:00〜19:00の30分刻みで入力してください');
+}
+
+input_end.addEventListener('input', validateEndTime);
+input_end.addEventListener('change', validateEndTime);
