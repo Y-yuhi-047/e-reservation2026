@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $fileTmpPath = $_FILES['game_image']['tmp_name'];
             $fileName = $_FILES['game_image']['name'];
 
-            $uploadFileDir = 'uploads/';
+            $uploadFileDir = 'images/games/';
             if (!is_dir($uploadFileDir)) {
                 mkdir($uploadFileDir, 0755, true);
             }
@@ -57,6 +57,7 @@ $current_page = 'profile';
 ?>
 <!DOCTYPE html>
 <html lang="ja" class="game-management-page">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">

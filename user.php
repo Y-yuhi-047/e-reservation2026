@@ -22,29 +22,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['action']) && $_POST['action'] === 'delete') {
         $deleteId = trim($_POST['user_id'] ?? '');
 
-        $check = $pdo->prepare("SELECT COUNT(*) FROM user_reservation WHERE student_number = ?");
-        $check->execute([$deleteId]);
+        $todayStart = date('Y-m-d') . ' 00:00:00';
+
+        $check = $pdo->prepare(
+            "SELECT COUNT(*)
+            FROM user_reservation ur
+            JOIN reservation r ON ur.reservation_id = r.reservation_id
+            WHERE ur.student_number = ? AND r.scheduled_start_time >= ?"
+        );
+        $check->execute([$deleteId, $todayStart]);
 
         if ($check->fetchColumn() > 0) {
-            $_SESSION['flash_message'] = 'このユーザーは予約情報が存在するため、削除できません。';
-            header('Location: user.php');
-            exit();
+            $_SESSION['flash_message'] = 'このユーザーは予約に入っているため、削除できません。';
         } else {
             try {
+                // 追加：削除する前に、アイコン画像のパスを取得しておく
                 $pic = $pdo->prepare("SELECT profile_picture FROM user WHERE student_number = ?");
                 $pic->execute([$deleteId]);
-                $profilePicture = $pic->fetchColumn();
+                $picture = $pic->fetchColumn();
 
+                $pdo->beginTransaction();
+
+                $pdo->prepare("DELETE FROM user_reservation WHERE student_number = ?")->execute([$deleteId]);
 
                 $stmt = $pdo->prepare("DELETE FROM user WHERE student_number = ?");
                 $stmt->execute([$deleteId]);
 
-                if ($profilePicture && strpos($profilePicture, 'uploads/') === 0 && file_exists(__DIR__ . '/' . $profilePicture)) {
-                    unlink(__DIR__ . '/' . $profilePicture);
+                $pdo->commit();
+
+                // uploads の画像なら、ファイルも削除する
+                if ($picture && strpos($picture, 'uploads/') === 0 && file_exists(__DIR__ . '/' . $picture)) {
+                    unlink(__DIR__ . '/' . $picture);
                 }
 
                 $_SESSION['flash_message'] = 'ユーザーを削除しました。';
             } catch (PDOException $e) {
+                if ($pdo->inTransaction()) {
+                    $pdo->rollBack();
+                }
                 $_SESSION['flash_message'] = 'ユーザーの削除に失敗しました。' . $e->getMessage();
             }
         }
@@ -191,9 +206,7 @@ unset($_SESSION['temp_password']);
                         <?php echo htmlspecialchars($temp_password['name'], ENT_QUOTES, 'UTF-8'); ?> さんの仮パスワード
                     </div>
                     <div class="temp-password-code">
-                        <span id="copytxt">
-                            <?php echo htmlspecialchars($temp_password['password'], ENT_QUOTES, 'UTF-8'); ?>
-                        </span>
+                        <span id="copytxt"><?php echo htmlspecialchars($temp_password['password'], ENT_QUOTES, 'UTF-8'); ?></span>
                         <button class="user-search-btn" onclick="copyButton('copytxt')">コピー実行</button>
                     </div>
                     <div class="temp-password-note">

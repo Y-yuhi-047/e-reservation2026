@@ -18,7 +18,7 @@ try {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $deleteId = intval($_POST['game_id'] ?? 0);
-    
+
     if ($deleteId > 0) {
         try {
             // ゲーム本体を削除する
@@ -28,7 +28,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute([$deleteId]);
 
             $_SESSION['flash_message'] = 'ゲームを削除しました（予約履歴は保持されます）。';
-
         } catch (PDOException $e) {
             $_SESSION['error_message'] = '削除に失敗しました: ' . $e->getMessage();
         }
