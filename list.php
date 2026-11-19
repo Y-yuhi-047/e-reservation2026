@@ -183,7 +183,7 @@ $current_page = 'list';
                         <input type="hidden" name="from" value="profile">
                     <?php endif; ?>
                     <label>
-                        <input type="text" name="keyword" value="<?= htmlspecialchars($keyword) ?>" placeholder="利用者名で検索">
+                        <input type="text" name="keyword" value="<?= htmlspecialchars($keyword) ?>" placeholder="キーワードで検索">
                     </label>
                     <button type="submit" aria-label="検索"></button>
                 </form>
