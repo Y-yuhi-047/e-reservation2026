@@ -51,6 +51,15 @@ foreach ($sql as $row) {
     ];
 }
 if (isset($_SESSION['user'])) {
+
+
+
+    if (str_starts_with($password, TEMP_PW_PREFIX)) {
+
+        // パスワード変更画面へ移動する（?temp=1 は、案内メッセージを出すための目印）
+        header('Location: password_change.php?temp=1');
+        exit();
+    }
     header('Location: home.php');
     exit();
 } else {
