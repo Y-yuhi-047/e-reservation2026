@@ -57,7 +57,7 @@ body {
   visibility: hidden;
   transition: .3s;
   box-sizing: border-box;
-  z-index: 1000;
+  z-index: 1001;
 }
 
 /* モーダルの擬似要素の指定 */
@@ -107,7 +107,6 @@ body {
   line-height: 1.8;
   padding: 20px;
   border-radius: 20px;
- 
 }
 
 /* モーダルのコンテンツ部分のテキストの指定 */
