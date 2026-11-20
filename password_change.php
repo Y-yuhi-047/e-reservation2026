@@ -83,6 +83,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="flash-message-box flash-message-box--error"><?php echo htmlspecialchars($error_message, ENT_QUOTES, 'UTF-8'); ?></div>
             <?php endif; ?>
 
+            <?php if (isset($_GET['temp'])): ?>
+                <p class="flash-message-box">仮パスワードでログインしました。新しいパスワードを設定してください。</p>
+            <?php endif; ?>
+
             <form method="POST" action="">
                 <div class="form-group">
                     <label for="current_password">現在のパスワード</label>
