@@ -269,25 +269,7 @@ $firstGame = $games[0] ?? null;
                 }
             });
         }
-
-        // 席数・人数のリアルタイム更新
-        root.addEventListener('change', function(e) {
-            if (e.target.classList.contains('seat-checkbox') || e.target.classList.contains('member-checkbox')) {
-                var seats = root.querySelectorAll('.seat-checkbox:checked').length;
-                var members = root.querySelectorAll('.member-checkbox:checked').length;
-                root.querySelector('.seat-count-text').textContent = seats + '席 ・ ' + members + '人';
-                root.querySelector('.member-count-text').textContent = members + '人を選択中';
-            }
-        });
-
-        // 送信前チェック：終了日時は開始日時より後
-        document.getElementById('create-reservation-form').addEventListener('submit', function(e) {
-            if (startInput.value && endInput.value && endInput.value <= startInput.value) {
-                e.preventDefault();
-                alert('終了日時は開始日時より後に設定してください。');
-            }
-        });
-    }
+    
 
     // ---- 利用者一覧サブモーダル（list.php の編集画面と同じ挙動） ----
     var subModal = document.getElementById('sub-member-modal-create');

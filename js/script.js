@@ -212,9 +212,9 @@ if (calendarElement && !calendarElement.hasChildNodes()) {
         let dot = '';
         if(reservedDates.has(toDateString(date))){
             dot = '<span class="reserve-dot"></span>';
+            // 予約があればその日付のところに印をつける用のspanタグを追加する
         }
-        return { html: `${date.getDate()}${dot}` };
-        // 予約があればその日付のところに印をつける用のspanタグを追加する
+        return { html: `${dot}${date.getDate()}` };
         },
 
         headerToolbar: {
@@ -279,6 +279,7 @@ if (calendarElement && !calendarElement.hasChildNodes()) {
 const input_start = document.getElementById('event-start');
 const input_end = document.getElementById('event-end');
 
+// 開始予定時間
 function validateStartTime() {
   // 値は "2026-11-18T12:30" の形式
   const time = input_start.value.split('T')[1];
@@ -295,6 +296,7 @@ function validateStartTime() {
 input_start.addEventListener('input', validateStartTime);
 input_start.addEventListener('change', validateStartTime);
 
+// 終了予定時間
 function validateEndTime() {
   const time = input_end.value.split('T')[1];
   if (!time) return;
